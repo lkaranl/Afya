@@ -20,12 +20,10 @@ Abaixo estão divididas as possibilidades entre o que **já temos**, o que **pod
 - ✅ Download e descompactação de repositórios do GitHub com geração de snippets mastigados para economia de tokens.
 - ✅ Ponto de parada com aprovação humana obrigatória e validação de limites de nota.
 - ✅ Lançamento de notas e feedbacks individuais e em lote (`canvas_submit_grades_batch`).
+- ✅ **Detecção Inteligente de Similaridade e Plágio (`canvas_detect_plagiarism`):** Compara automaticamente todos os códigos entregues na turma, aplicando normalização canônica de identificadores locais (desmascara renomeação de variáveis), k-shingles e coeficientes Dice/Jaccard com alertas de risco ALTO/MÉDIO/BAIXO.
 
 ### 💡 O que seria excelente implementar:
-1. **Detecção Inteligente de Plágio e Similaridade entre Alunos:**
-   - O MCP compara todos os códigos da turma entre si (usando árvores sintáticas AST para C/Python e embeddings semânticos).
-   - Gera um mapa de similaridade acusando cópias diretas ou tentativas de mascaramento (troca de nomes de variáveis, reorganização de loops).
-2. **Harness de Testes Automatizados em Sandbox Local:**
+1. **Harness de Testes Automatizados em Sandbox Local:**
    - O MCP compila o código do aluno e roda uma bateria de casos de teste ocultos com entradas e saídas esperadas.
    - Mede tempo de execução (análise de complexidade O(n) vs O(n²)) e checa vazamento de memória (Valgrind em C).
    - O feedback já sai com o relatório de testes: *"Seu algoritmo passou em 8 dos 10 casos de teste. Falhou no caso de borda com vetor vazio."*

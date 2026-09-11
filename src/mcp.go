@@ -710,6 +710,32 @@ var mcpTools = []MCPTool{
 			"required": []string{"course_id", "modality"},
 		},
 	},
+	{
+		Name:        "canvas_detect_plagiarism",
+		Description: "Varre e compara automaticamente todos os códigos submetidos pelos alunos em uma atividade, detectando similaridades, cópias literais e tentativas de mascaramento (troca de nomes de variáveis, alteração de comentários e reordenação de blocos), retornando percentual de similaridade, classificação de risco (ALTO/MÉDIO/BAIXO) e tabela formatada em Markdown.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas LMS.",
+				},
+				"assignment_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da atividade no Canvas LMS.",
+				},
+				"similarity_threshold": map[string]any{
+					"type":        "number",
+					"description": "Limiar percentual mínimo de similaridade para reportar suspeita (padrão: 65). Valores >= 80 representam risco alto.",
+				},
+				"normalize_identifiers": map[string]any{
+					"type":        "boolean",
+					"description": "Se verdadeiro (padrão), normaliza nomes de variáveis e funções locais para desmascarar trocas de identificadores. Se falso, compara código bruto.",
+				},
+			},
+			"required": []string{"course_id", "assignment_id"},
+		},
+	},
 }
 
 func runMCPServer(client *CanvasClient) {
@@ -1142,6 +1168,32 @@ func executeMCPTool(client *CanvasClient, name string, rawArgs json.RawMessage) 
 			return nil, err
 		}
 		return client.SetupAfyaGradingScheme(args.CourseID, args.Modality)
+
+	case "canvas_detect_plagiarism":
+		var args struct {
+			CourseID             string   `json:"course_id"`
+			AssignmentID         string   `json:"assignment_id"`
+			SimilarityThreshold  *float64 `json:"similarity_threshold,omitempty"`
+			NormalizeIdentifiers *bool    `json:"normalize_identifiers,omitempty"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		if args.CourseID == "" || args.AssignmentID == "" {
+			return nil, fmt.Errorf("parâmetros 'course_id' e 'assignment_id' são obrigatórios")
+		}
+
+		threshold := 65.0
+		if args.SimilarityThreshold != nil && *args.SimilarityThreshold > 0 {
+			threshold = *args.SimilarityThreshold
+		}
+
+		normalizeVars := true
+		if args.NormalizeIdentifiers != nil {
+			normalizeVars = *args.NormalizeIdentifiers
+		}
+
+		return client.CheckSubmissionsSimilarity(args.CourseID, args.AssignmentID, threshold, normalizeVars)
 
 	default:
 		return nil, fmt.Errorf("ferramenta desconhecida: %s", name)

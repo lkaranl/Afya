@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 )
 
@@ -107,6 +108,19 @@ func runWebServer(client *CanvasClient, port string) {
 		courseID := r.PathValue("id")
 		assignID := r.PathValue("assignment_id")
 		res, err := client.GetSubmissionsDetails(courseID, assignID, false)
+		sendWebJSON(w, res, err)
+	})
+
+	mux.HandleFunc("GET /api/courses/{id}/assignments/{assignment_id}/plagiarism", func(w http.ResponseWriter, r *http.Request) {
+		courseID := r.PathValue("id")
+		assignID := r.PathValue("assignment_id")
+		threshold := 65.0
+		if tStr := r.URL.Query().Get("threshold"); tStr != "" {
+			if tVal, err := strconv.ParseFloat(tStr, 64); err == nil && tVal > 0 {
+				threshold = tVal
+			}
+		}
+		res, err := client.CheckSubmissionsSimilarity(courseID, assignID, threshold, true)
 		sendWebJSON(w, res, err)
 	})
 
