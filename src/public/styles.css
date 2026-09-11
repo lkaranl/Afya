@@ -65,6 +65,40 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
+
+[data-theme="light"] * {
+  scrollbar-color: rgba(15, 23, 42, 0.18) transparent;
+}
+
+/* Scrollbars Personalizadas de Alta Fidelidade (WebKit/Blink) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.18);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
 }
 
 body {
@@ -1866,13 +1900,34 @@ body {
   flex-direction: column;
   gap: 1.25rem;
   overflow-y: auto;
+  scrollbar-gutter: stable;
   box-shadow: var(--shadow-sm);
   box-sizing: border-box;
 }
 
-/* Divisor Redimensionável (Resizer Handle) */
+/* Scrollbar dedicada para o menu lateral */
+.chat-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.chat-sidebar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-full);
+}
+
+.chat-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(14, 165, 233, 0.25);
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast);
+}
+
+.chat-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+/* Divisor Redimensionável (Resizer Handle) - Design Harmonioso */
 .chat-sidebar-resizer {
-  width: 14px;
+  width: 12px;
   margin: 0 2px;
   cursor: col-resize;
   display: flex;
@@ -1883,21 +1938,50 @@ body {
   touch-action: none;
   flex-shrink: 0;
   z-index: 20;
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast);
 }
 
-.resizer-handle-grip {
-  width: 4px;
-  height: 48px;
-  border-radius: 4px;
+/* Linha guia central suave que combina com as bordas dos cards */
+.chat-sidebar-resizer::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 1px;
   background: var(--border-color);
   transition: all var(--transition-fast);
 }
 
+.resizer-handle-grip {
+  width: 4px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.16);
+  position: relative;
+  z-index: 2;
+  transition: all var(--transition-fast);
+}
+
+.chat-sidebar-resizer:hover,
+.chat-sidebar-resizer.is-dragging {
+  background: rgba(14, 165, 233, 0.06);
+}
+
+.chat-sidebar-resizer:hover::before,
+.chat-sidebar-resizer.is-dragging::before {
+  background: var(--color-primary);
+  opacity: 0.5;
+}
+
 .chat-sidebar-resizer:hover .resizer-handle-grip,
 .chat-sidebar-resizer.is-dragging .resizer-handle-grip {
-  background: var(--color-primary);
-  height: 84px;
-  box-shadow: 0 0 10px rgba(37, 99, 235, 0.6);
+  background: var(--accent-gradient);
+  height: 72px;
+  width: 5px;
+  box-shadow: 0 0 12px rgba(14, 165, 233, 0.45);
 }
 
 .chat-layout.is-resizing {
@@ -1925,7 +2009,7 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-fast);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25);
 }
 
 .btn-new-chat:hover {
@@ -3339,6 +3423,33 @@ body {
   background: #ffffff;
   border-color: #e2e8f0;
   box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .chat-sidebar::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.03);
+}
+
+[data-theme="light"] .chat-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(2, 132, 199, 0.28);
+}
+
+[data-theme="light"] .chat-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+[data-theme="light"] .chat-sidebar-resizer:hover,
+[data-theme="light"] .chat-sidebar-resizer.is-dragging {
+  background: rgba(2, 132, 199, 0.08);
+}
+
+[data-theme="light"] .chat-sidebar-resizer .resizer-handle-grip {
+  background: rgba(15, 23, 42, 0.16);
+}
+
+[data-theme="light"] .chat-sidebar-resizer:hover .resizer-handle-grip,
+[data-theme="light"] .chat-sidebar-resizer.is-dragging .resizer-handle-grip {
+  background: var(--accent-gradient);
+  box-shadow: 0 0 10px rgba(2, 132, 199, 0.35);
 }
 
 [data-theme="light"] .ai-status-card {
