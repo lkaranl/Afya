@@ -20,6 +20,7 @@ Seu objetivo principal é automatizar o fluxo de **identificação, leitura, ava
 6. **Apontamento Preciso de Erros:** Havendo qualquer erro (de compilação, sintaxe, lógica, caso de borda ou regra de negócio não atendida), aponte de maneira explícita e cirúrgica **onde está o erro** (indicando o trecho exato, expressão, linha ou condição afetada), explicando com clareza o motivo técnico da falha.
 7. **Linguagem Acessível e Didática (Alunos Iniciantes):** No geral, os alunos são leigos em programação. A linguagem dos feedbacks deve ser simples, clara e de fácil compreensão, evitando jargões excessivamente acadêmicos ou herméticos. Explique o problema de forma que um estudante iniciante consiga entender imediatamente o que aconteceu e como resolver.
 8. **Prioridade para Ferramentas MCP Nativas:** O MCP Server em Go `./afya-canvas` fornece ferramentas consolidadas e mastigadas de alto nível (`canvas_prepare_assignment`, `canvas_get_grading_status`, `canvas_validate_grades`, etc.). Priorize sempre essas ferramentas MCP diretas, evitando scripts ad-hoc ou comandos inline longos de shell.
+9. **JAMAIS Solicitar IDs Numéricos ao Professor:** O professor é um ser humano e NUNCA memoriza IDs numéricos do Canvas. O agente deve consultar o Canvas automaticamente por `canvas_list_courses` ou usar a resolução dinâmica por nome/período. Havendo mais de uma turma ativa no semestre, apresente sempre os NOMES didáticos e PERÍODOS para o professor escolher pelo nome (ex: "Estrutura de Dados - 4º Período"). NUNCA pergunte "qual é o ID".
 
 ---
 
@@ -95,6 +96,13 @@ O MCP e os agentes determinam dinamicamente em tempo de execução quais discipl
 - `canvas_clear_cache`: Limpa o cache em memória (global ou por ID de turma) para forçar sincronização fresca com a API do Canvas.
 - `canvas_get_cache_stats`: Retorna as métricas de performance do cache (total de requisições, hits, misses e taxa de acerto).
 - `canvas_detect_at_risk_students`: Radar de identificação precoce de estudantes em risco acadêmico e de evasão (inatividade > 10 dias, tarefas zeradas consecutivas e notas < 70 pontos).
+- `canvas_get_academic_calendar`: Consulta o Calendário Acadêmico Oficial 2026.2 da Afya / São Lucas (marcos de N1/N2, 2ª chamada, exames finais, prazos de notas, feriados e compensações de sábados letivos para Ciência da Computação / SHE).
+- `canvas_get_recommended_reading`: Consulta dinâmica da ementa e bibliografia oficial da disciplina (básica e complementar) diretamente da API do Canvas LMS (`/pages` e `syllabus_body`), sem livros ou cursos fixos no código. Suporta qualquer matéria, professor e semestre, gerando links diretos de e-books e busca instantânea no catálogo global da Minha Biblioteca para qualquer tópico.
+- `canvas_clone_module`: **CLONAGEM PROFUNDA INTER-TURMAS.** Clona e replica integralmente um módulo (com todas as suas páginas wiki, simuladores interativos, tarefas, quizzes e links da Minha Biblioteca) de uma turma de origem para uma turma de destino no Canvas LMS (ex: replicar do 2º para o 4º período com 1 comando).
+- `canvas_export_course_blueprint`: **MATRIZ DIDÁTICA & BLUEPRINT.** Varre a disciplina inteira e exporta um manifesto estruturado completo em JSON e Markdown salvo em `doc/blueprints/` para reutilização e replicação em semestres posteriores (2027.1+).
+- `canvas_create_question_bank`: **BANCO DE ITENS INSTITUCIONAL.** Cria e cataloga repositórios de questões organizados por disciplina e competência curricular (DCNs / ENADE / TPI) em `doc/question_banks/`.
+- `canvas_add_item_to_bank`: **ITENS CALIBRADOS NO MODELO ENADE.** Cadastra questões contextualizadas com texto-base, situação-problema, gabarito e distratores explicados pedagogicamente (justificativa do erro para cada alternativa incorreta).
+- `canvas_generate_mock_exam`: **GERADOR DE PROVAS E SIMULADOS ENADE.** Cria e publica testes oficiais no Canvas LMS sorteando aleatoriamente $N$ questões calibradas dos bancos de itens, injetando autocorreção e feedbacks instantâneos no SpeedGrader.
 
 ### 🐍 Utilitários de Suporte (`scripts/`):
 - `scripts/canvas_cli.py`: Utilitário central de linha de comando para invocar as ferramentas MCP via terminal caso necessário.
@@ -173,6 +181,30 @@ O MCP e os agentes determinam dinamicamente em tempo de execução quais discipl
 3. **Plano de Ação Proposto:**
    - Para alunos em Risco Crítico: sugira acionamento da coordenação/NAPED ou busca ativa.
    - Para alunos em Risco Moderado: pergunte se o professor deseja que você elabore minutas de mensagens personalizadas de incentivo para envio via `canvas_send_inbox_message`.
+
+### Cenário 6: O Professor pede para replicar ou sincronizar conteúdos entre turmas (Clonagem Inter-Turmas)
+1. **Identificação das Turmas e Módulos:**
+   - Obtenha os nomes ou períodos das turmas de origem e destino (ex: "2º Período" -> "4º Período"). NUNCA solicite IDs numéricos.
+   - Identifique o módulo desejado (ex: "Git", "Ponteiros", "Recursão").
+2. **Execução da Replicação Profunda:**
+   - Execute `canvas_clone_module(source_course_id, dest_course_id, module_id_or_name, publish_after_clone: true)`.
+   - O MCP criará o módulo no destino e clonará recursivamente:
+     * Páginas wiki com simuladores interativos e estilos CSS.
+     * Tarefas práticas com pontuação e tipos de entrega.
+     * Quizzes com todas as questões, alternativas e justificativas pedagógicas.
+     * Links externos da Minha Biblioteca e documentações oficiais.
+3. **Apresentação do Relatório:**
+   - Apresente a tabela de itens replicados com links diretos para o Canvas LMS da turma de destino.
+
+### Cenário 7: O Professor pede para criar simulados ou provas no padrão ENADE / N1 / N2
+1. **Verificação dos Bancos de Itens:**
+   - Liste os bancos existentes com `canvas_create_question_bank` ou utilize os bancos estruturados em `doc/question_banks/`.
+   - Caso o professor forneça novas questões, cadastre-as com `canvas_add_item_to_bank` garantindo texto-base, situação-problema e justificativa pedagógica para todos os distratores.
+2. **Geração e Publicação do Simulado:**
+   - Execute `canvas_generate_mock_exam(course_id, exam_title, pick_count, points_per_question, time_limit_minutes, due_at, target_module_name)`.
+   - O MCP sorteará aleatoriamente as questões calibradas, criará o Quiz no Canvas LMS com autocorreção ativada e feedbacks instantâneos no SpeedGrader, e vinculará ao módulo correspondente.
+3. **Confirmação e Acesso Direto:**
+   - Exiba ao professor o resumo com o total de itens, pontuação calculada, tempo limite e os links diretos para o teste e para o SpeedGrader.
 
 ---
 

@@ -1383,6 +1383,28 @@ function initChatEvents() {
     }
   });
 
+  // Alternar visibilidade da Sidebar do Chat para foco total
+  const btnToggleSidebar = document.getElementById('btnToggleChatSidebar');
+  const chatLayout = document.querySelector('.chat-layout');
+  const toggleText = document.getElementById('toggleSidebarText');
+
+  // Recupera preferência do usuário do localStorage
+  const savedSidebarState = localStorage.getItem('afya_chat_sidebar_collapsed');
+  if (savedSidebarState === 'true' && chatLayout) {
+    chatLayout.classList.add('sidebar-collapsed');
+    if (toggleText) toggleText.textContent = 'Mostrar Lateral';
+  }
+
+  if (btnToggleSidebar && chatLayout) {
+    btnToggleSidebar.addEventListener('click', () => {
+      const isCollapsed = chatLayout.classList.toggle('sidebar-collapsed');
+      if (toggleText) {
+        toggleText.textContent = isCollapsed ? 'Mostrar Lateral' : 'Recolher Lateral';
+      }
+      localStorage.setItem('afya_chat_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+    });
+  }
+
   // Botões de Quick Prompts
   document.querySelectorAll('.quick-prompt-btn').forEach(btn => {
     btn.addEventListener('click', () => {

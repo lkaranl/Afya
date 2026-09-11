@@ -170,6 +170,9 @@ func calculateSimilarity(ngA, ngB map[string]int) (float64, int) {
 
 // CheckSubmissionsSimilarity executa a varredura e comparação de todos os códigos de uma tarefa
 func (c *CanvasClient) CheckSubmissionsSimilarity(courseID, assignmentID string, threshold float64, normalizeIdentifiers bool) (*PlagiarismCheckResult, error) {
+	if resolved, err := c.ResolveCourseID(courseID); err == nil && resolved != "" {
+		courseID = resolved
+	}
 	if threshold <= 0 {
 		threshold = 65.0 // Padrão 65% de similaridade
 	}

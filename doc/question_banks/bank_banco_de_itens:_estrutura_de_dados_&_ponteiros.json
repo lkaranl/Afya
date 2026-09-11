@@ -1,0 +1,152 @@
+{
+  "id": "bank_banco_de_itens:_estrutura_de_dados_\u0026_ponteiros",
+  "title": "Banco de Itens: Estrutura de Dados \u0026 Ponteiros",
+  "subject": "Estrutura de Dados",
+  "competence": "Estruturas Lineares e Memória",
+  "description": "Itens no modelo ENADE da disciplina",
+  "created_at": "2026-09-11T15:50:18-04:00",
+  "updated_at": "2026-09-11T15:50:18-04:00",
+  "total_questions": 4,
+  "questions": [
+    {
+      "id": "enade_ed_01",
+      "title": "Aritmética de Ponteiros e Memória RAM",
+      "context_text": "Considere um sistema embarcado crítico desenvolvido em linguagem C onde a eficiência de acesso à memória é mandatória. Um desenvolvedor declara o vetor `int v[5] = {10, 20, 30, 40, 50};` em uma arquitetura de 32 bits (onde `sizeof(int) == 4` bytes). Sabendo que o endereço inicial do vetor é `0x1000`, analise a operação `*(v + 3)` e sua relação com o endereço de memória manipulado.",
+      "subject": "Estrutura de Dados",
+      "competence": "Ponteiros e Aritmética de Endereços",
+      "difficulty": "Médio",
+      "points": 10,
+      "answers": [
+        {
+          "letter": "A",
+          "text": "A expressão avalia para o valor 40, acessando o endereço físico 0x100C.",
+          "is_correct": true,
+          "pedagogical_justification": "Correto. O identificador 'v' decai para ponteiro base (0x1000). O deslocamento '+ 3' incrementa 3 * sizeof(int) = 12 bytes (0xC em hexadecimal), resultando em 0x100C, cujo conteúdo desreferenciado é 40."
+        },
+        {
+          "letter": "B",
+          "text": "A expressão avalia para o valor 30, acessando o endereço físico 0x1003.",
+          "is_correct": false,
+          "pedagogical_justification": "Incorreto. Em aritmética de ponteiros, a adição soma unidades do tipo apontado (4 bytes), e não bytes individuais brutos (+3). Além disso, o índice 3 corresponde ao quarto elemento (40)."
+        },
+        {
+          "letter": "C",
+          "text": "A expressão causa falha de segmentação (Segmentation Fault) por violação de limite.",
+          "is_correct": false,
+          "pedagogical_justification": "Incorreto. O vetor possui tamanho 5 (índices 0 a 4). O índice 3 é perfeitamente válido e reside dentro dos limites alocados na pilha."
+        },
+        {
+          "letter": "D",
+          "text": "A expressão retorna o ponteiro para o elemento 3 sem acessar seu valor.",
+          "is_correct": false,
+          "pedagogical_justification": "Incorreto. O operador de desreferenciação '*' antes dos parênteses acessa diretamente o valor contido no endereço apontado."
+        }
+      ]
+    },
+    {
+      "id": "enade_ed_02",
+      "title": "Vazamento de Memória e Gerenciamento Dinâmico (Memory Leak)",
+      "context_text": "Durante a execução de um servidor de monitoramento em tempo real escrito em C, observou-se que o consumo de memória RAM do processo cresce linearmente até o sistema operacional acionar o OOM-Killer (Out of Memory Killer). A análise do código revelou uma função executada em loop contendo: `Node* n = (Node*) malloc(sizeof(Node)); /* processamento */ n = NULL;`.",
+      "subject": "Estrutura de Dados",
+      "competence": "Alocação Dinâmica e Ciclo de Vida da Heap",
+      "difficulty": "Fácil",
+      "points": 10,
+      "answers": [
+        {
+          "letter": "A",
+          "text": "Ocorre vazamento de memória (memory leak), pois a referência na stack é perdida sem que a memória alocada na heap seja liberada com free(n).",
+          "is_correct": true,
+          "pedagogical_justification": "Correto. Atribuir NULL ao ponteiro local apenas sobrescreve o endereço salvo na stack, tornando o bloco de memória na heap inacessível e irrecuperável até o término do processo."
+        },
+        {
+          "letter": "B",
+          "text": "A memória é liberada automaticamente pelo coletor de lixo (Garbage Collector) nativo da linguagem C ao receber NULL.",
+          "is_correct": false,
+          "pedagogical_justification": "Incorreto. A linguagem C padrão não possui Garbage Collector. A liberação de blocos da Heap deve ser feita explicitamente pelo programador via free()."
+        },
+        {
+          "letter": "C",
+          "text": "O código causa falha de compilação, pois um ponteiro alocado com malloc não pode receber NULL.",
+          "is_correct": false,
+          "pedagogical_justification": "Incorreto. A atribuição n = NULL é sintaticamente e tipologicamente válida em C, porém logicamente desastrosa sem o free() prévio."
+        },
+        {
+          "letter": "D",
+          "text": "O ponteiro se torna uma referência pendente (dangling pointer) que causa corrupção imediata da pilha.",
+          "is_correct": false,
+          "pedagogical_justification": "Incorreto. 'Dangling pointer' ocorre quando o ponteiro continua apontando para um bloco já liberado. Ao receber NULL, ele é anulado, gerando leak e não dangling."
+        }
+      ]
+    },
+    {
+      "id": "enade_ed_03",
+      "title": "Complexidade Assintótica de Árvores Binárias de Busca (BST)",
+      "context_text": "Uma Árvore Binária de Busca (BST) foi construída inserindo sequencialmente chaves ordenadas de forma estritamente crescente: [10, 20, 30, 40, 50, 60, 70]. Em seguida, uma operação de busca pelo elemento 70 foi requisitada. Avalie a complexidade assintótica de tempo desta operação no pior caso.",
+      "subject": "Estrutura de Dados",
+      "competence": "Árvores Binárias e Balanceamento AVL",
+      "difficulty": "Médio",
+      "points": 10,
+      "answers": [
+        {
+          "letter": "A",
+          "text": "A complexidade é O(n), pois a inserção ordenada degenerou a árvore em uma lista encadeada simples de altura n.",
+          "is_correct": true,
+          "pedagogical_justification": "Correto. Sem mecanismos de autobalanceamento (como AVL ou Rubro-Negra), a inserção de chaves ordenadas faz com que cada novo nó seja inserido sempre à direita, resultando em altura h = n e tempo de busca linear O(n)."
+        },
+        {
+          "letter": "B",
+          "text": "A complexidade permanece O(log n), pois árvores binárias garantem busca logarítmica independentemente da ordem de inserção.",
+          "is_correct": false,
+          "pedagogical_justification": "Incorreto. A garantia O(log n) aplica-se apenas a árvores balanceadas. Em árvores BST degeneradas, a busca degrada para O(n)."
+        },
+        {
+          "letter": "C",
+          "text": "A complexidade é O(1), pois o elemento 70 é o maior e fica alocado diretamente na raiz da árvore.",
+          "is_correct": false,
+          "pedagogical_justification": "Incorreto. O elemento 70 é o último nó à direita da árvore degenerada, exigindo percorrer todos os nós anteriores da raiz até a folha."
+        },
+        {
+          "letter": "D",
+          "text": "A operação é impossível, pois árvores binárias de busca não aceitam inserção ordenada de elementos.",
+          "is_correct": false,
+          "pedagogical_justification": "Incorreto. A inserção ordenada é perfeitamente aceita pelas regras da BST, apenas produz uma estrutura desbalanceada."
+        }
+      ]
+    },
+    {
+      "id": "enade_ed_04",
+      "title": "Colisões em Tabelas Hash e Complexidade O(1)",
+      "context_text": "Em uma aplicação de alta performance para consulta de prontuários de pacientes da Afya, adotou-se uma Tabela Hash com tratamento de colisões por encadeamento externo (separate chaining). Considere que a função de espalhamento utilizada seja deficiente e mapeie todas as chaves inseridas para o mesmo bucket (índice 0) da tabela.",
+      "subject": "Estrutura de Dados",
+      "competence": "Tabelas Hash e Funções de Espalhamento",
+      "difficulty": "Difícil",
+      "points": 10,
+      "answers": [
+        {
+          "letter": "A",
+          "text": "A complexidade de busca no pior caso degrada de O(1) para O(n), equivalente à busca linear em uma lista encadeada.",
+          "is_correct": true,
+          "pedagogical_justification": "Correto. No encadeamento externo, elementos com o mesmo hash colidem na mesma lista encadeada. Se todas as chaves caem no mesmo bucket, a tabela se comporta exatamente como uma lista linear, exigindo até n comparações."
+        },
+        {
+          "letter": "B",
+          "text": "A tabela hash interrompe a execução e lança um estouro de pilha (Stack Overflow).",
+          "is_correct": false,
+          "pedagogical_justification": "Incorreto. Encadeamento externo aloca novos nós na heap, não havendo consumo anormal da stack para provocar stack overflow."
+        },
+        {
+          "letter": "C",
+          "text": "A complexidade de busca se mantém O(1), pois a tabela hash compensa colisões via re-hashing automático.",
+          "is_correct": false,
+          "pedagogical_justification": "Incorreto. Se a função de hash sempre direciona para o mesmo bucket, a lista daquele bucket crescerá com tamanho n, quebrando a garantia de tempo constante O(1)."
+        },
+        {
+          "letter": "D",
+          "text": "Os registros anteriores são sobrescritos e perdidos irremediavelmente a cada colisão.",
+          "is_correct": false,
+          "pedagogical_justification": "Incorreto. No tratamento por encadeamento separado, as colisões são inseridas na lista encadeada encadeada ao bucket, sem sobrescrever dados prévios."
+        }
+      ]
+    }
+  ]
+}

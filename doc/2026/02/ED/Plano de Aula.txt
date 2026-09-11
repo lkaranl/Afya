@@ -1,0 +1,59 @@
+# **Plano de Aula - Estrutura de Dados** 
+
+### **Instituição: AFYA** 
+
+### **Carga Horária: 60 horas (20 encontros de 3h)** 
+
+## **N1: Fundamentos, Árvores e Avaliação** 
+
+**Aula Tema e Detalhamento** 
+
+**1 Introdução: Implementação de estruturas dinâmicas de dados.** 
+
+**2 Busca: Técnicas avançadas de busca.** 
+
+**3 Ordenação: Técnicas avançadas de ordenação.** 
+
+**4 Árvores I: Análise e implementação de árvores.** 
+
+**5 Árvores II: Noções de balanceamento de árvores.** 
+
+**6 Prática: Algoritmos eficientes e prática em linguagens de programação.** 
+
+**7 Seminário N1: Aplicação de árvores, busca e ordenação em casos reais.** 
+
+**8 Avaliação N1: Verificação do conteúdo das aulas 1 a 6\.** 
+
+**9 Tabelas Hash I: Análise e implementação de tabelas hash.** 
+
+**10 Tabelas Hash II: Otimização de estruturas em tabelas hash.** 
+
+## **N2: Grafos, Aplicações Complexas e Encerramento** 
+
+**Aula Tema e Detalhamento** 
+
+**11 Grafos I: Análise e implementação de grafos.** 
+
+**12 Grafos II: Aplicação de grafos em problemas mais complexos.** 
+
+**13 Otimização: Técnicas avançadas de otimização de estruturas.** 
+
+**14 Prática de Algoritmos I: Aplicação de estruturas de dados em algoritmos eficientes.** 
+
+**15 Prática de Algoritmos II: Foco em casos reais e problemas complexos.** 
+
+**16 Laboratório I: Prática intensiva em linguagens de programação.**
+
+--Image of: https://lh3.googleusercontent.com/notebooklm/AKYWMX9IGOeNl_dzXyDeNX_XV90tCS7c8qsBZ-AEOgx9ShvSU20MNA7Qan_E_tNYlBwh2V8YE8AaFRTyP8PCy_8CdrajBug-WzVFIrFLWoB7xJZjCu7WdOWLLWgFmXbMnqhxpvn1uGiHrQ=w839-h1187-v0--
+
+**Aula Tema e Detalhamento** 
+
+**17 Laboratório II: Implementação de estruturas dinâmicas para cenários específicos.** 
+
+**18 Revisão Geral: Estudo aprofundado integrando árvores, hash e grafos.** 
+
+**19 Seminário N2: Apresentação de soluções para problemas reais utilizando as** estruturas estudadas. 
+
+**20 Avaliação N2: Verificação de aprendizagem final.**
+
+--Image of: https://lh3.googleusercontent.com/notebooklm/AKYWMX96fFMaVE-bMbMhiNnINY7Ttosow5ow0o2BnzvOKopOFLhp21LaGnU3uO-164fgzuDJ2YahflgHV8A_QPAa8HFNKRlKelacQCc-0tbsD24MiIlekXyjUiReMrOcLQm-DHCm2acngg=w839-h1187-v0--

@@ -62,9 +62,12 @@ type CourseAtRiskReport struct {
 
 // DetectAtRiskStudents cruza inatividade, notas abaixo da média de corte da Afya e tarefas zeradas/faltantes
 func (c *CanvasClient) DetectAtRiskStudents(courseID string, inactivityDays int, gradeCutoff float64, consecutiveThreshold int) (*CourseAtRiskReport, error) {
-	if courseID == "" {
-		return nil, fmt.Errorf("ID da disciplina é obrigatório")
+	resolvedID, err := c.ResolveCourseID(courseID)
+	if err != nil {
+		return nil, err
 	}
+	courseID = resolvedID
+
 
 	if inactivityDays <= 0 {
 		inactivityDays = 10
@@ -281,10 +284,26 @@ func (c *CanvasClient) DetectAtRiskStudents(courseID string, inactivityDays int,
 		return atRiskList[i].DaysInactive > atRiskList[j].DaysInactive
 	})
 
+	// Buscar nome amigável da disciplina
+	courseName := courseID
+	if crsList, err := c.ListCourses(); err == nil {
+		for _, cr := range crsList {
+			if getCourseIDStr(cr) == courseID {
+				if cn, ok := cr["clean_name"].(string); ok && cn != "" {
+					courseName = cn
+					if p, ok := cr["period"].(string); ok && p != "" {
+						courseName = fmt.Sprintf("%s (%s)", cn, p)
+					}
+				}
+				break
+			}
+		}
+	}
+
 	// Gerar Tabela Executiva em Markdown
 	var md strings.Builder
 	md.WriteString(fmt.Sprintf("## 📊 Painel de Identificação Precoce e Risco de Evasão\n"))
-	md.WriteString(fmt.Sprintf("**Disciplina ID:** `%s` | **Data:** %s\n\n", courseID, formatBRT(now.Format(time.RFC3339))))
+	md.WriteString(fmt.Sprintf("**Disciplina:** %s (`%s`) | **Data:** %s\n\n", courseName, courseID, formatBRT(now.Format(time.RFC3339))))
 
 	md.WriteString("### 📈 Panorama Consolidado da Turma:\n")
 	md.WriteString(fmt.Sprintf("- **Total de Estudantes Matriculados:** %d\n", summary.TotalStudents))
@@ -338,6 +357,7 @@ func (c *CanvasClient) DetectAtRiskStudents(courseID string, inactivityDays int,
 
 	report := &CourseAtRiskReport{
 		CourseID:      courseID,
+		CourseName:    courseName,
 		GeneratedAtBR: formatBRT(now.Format(time.RFC3339)),
 		Summary:       summary,
 		Students:      atRiskList,

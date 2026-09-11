@@ -100,9 +100,10 @@ body {
 }
 
 .header-container {
-  max-width: 1280px;
+  max-width: 1640px;
+  width: 96%;
   margin: 0 auto;
-  padding: 1rem 1.5rem;
+  padding: 0.875rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -247,9 +248,10 @@ body {
    Main Layout
    ========================================================================== */
 .main-content {
-  max-width: 1280px;
+  max-width: 1640px;
+  width: 96%;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 1.25rem 1rem 3rem;
 }
 
 /* ==========================================================================
@@ -1838,10 +1840,19 @@ body {
 
 .chat-layout {
   display: grid;
-  grid-template-columns: 290px 1fr;
-  gap: 1.5rem;
-  height: calc(100vh - 240px);
-  min-height: 580px;
+  grid-template-columns: 280px 1fr;
+  gap: 1.25rem;
+  height: calc(100vh - 170px);
+  min-height: 600px;
+  transition: grid-template-columns var(--transition-normal);
+}
+
+.chat-layout.sidebar-collapsed {
+  grid-template-columns: 1fr;
+}
+
+.chat-layout.sidebar-collapsed .chat-sidebar {
+  display: none;
 }
 
 /* Sidebar do Chat */
@@ -1998,7 +2009,7 @@ body {
 /* Estado de Boas-Vindas */
 .chat-welcome-state {
   margin: auto;
-  max-width: 580px;
+  max-width: 760px;
   text-align: center;
   padding: 2.5rem 1.5rem;
 }
@@ -2018,7 +2029,7 @@ body {
 }
 
 .welcome-title {
-  font-size: 1.625rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: var(--text-primary);
   margin-bottom: 0.75rem;
@@ -2035,7 +2046,7 @@ body {
 .chat-msg {
   display: flex;
   gap: 1rem;
-  max-width: 86%;
+  width: 100%;
   animation: fadeIn 0.25s ease-out;
 }
 
@@ -2047,10 +2058,13 @@ body {
 .chat-msg.user {
   align-self: flex-end;
   flex-direction: row-reverse;
+  max-width: 80%;
 }
 
 .chat-msg.assistant {
-  align-self: flex-start;
+  align-self: stretch;
+  max-width: 100%;
+  width: 100%;
 }
 
 .msg-avatar {
@@ -2077,7 +2091,7 @@ body {
 }
 
 .msg-bubble {
-  padding: 1rem 1.25rem;
+  padding: 1.1rem 1.4rem;
   border-radius: var(--radius-lg);
   font-size: 0.9375rem;
   line-height: 1.65;
@@ -2095,6 +2109,9 @@ body {
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   border-top-left-radius: 4px;
+  flex: 1;
+  width: calc(100% - 48px);
+  overflow-x: auto;
 }
 
 /* Renderização de Markdown nas Respostas da IA */
@@ -2143,27 +2160,36 @@ body {
 
 .chat-msg.assistant .msg-bubble table {
   width: 100%;
+  min-width: 100%;
+  display: table;
   border-collapse: collapse;
-  margin: 1rem 0;
+  margin: 1.25rem 0;
   font-size: 0.875rem;
   border-radius: var(--radius-md);
   overflow: hidden;
   border: 1px solid var(--border-color);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .chat-msg.assistant .msg-bubble th {
   background: var(--bg-primary);
   color: var(--text-primary);
-  padding: 0.625rem 0.875rem;
-  font-weight: 600;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   text-align: left;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+  white-space: nowrap;
 }
 
 .chat-msg.assistant .msg-bubble td {
-  padding: 0.625rem 0.875rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-secondary);
+  line-height: 1.5;
+  vertical-align: middle;
 }
 
 .chat-msg.assistant .msg-bubble tr:last-child td {

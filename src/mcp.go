@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 type JSONRPCRequest struct {
@@ -845,7 +846,7 @@ var mcpTools = []MCPTool{
 			"properties": map[string]any{
 				"course_id": map[string]any{
 					"type":        "string",
-					"description": "ID numérico da disciplina no Canvas LMS.",
+					"description": "ID numérico ou nome/período da disciplina no Canvas LMS (ex: '162263', 'Estrutura de Dados', '4º Período', ou 'ativa'). Se omitido, analisa a turma ativa do semestre.",
 				},
 				"inactivity_days": map[string]any{
 					"type":        "integer",
@@ -860,7 +861,214 @@ var mcpTools = []MCPTool{
 					"description": "Número de atividades consecutivas não entregues ou com nota zero (padrão: 2 atividades).",
 				},
 			},
-			"required": []string{"course_id"},
+		},
+	},
+	{
+		Name:        "canvas_get_academic_calendar",
+		Description: "Consulta o Calendário Acadêmico Oficial 2026.2 da Afya / Centro Universitário São Lucas Ji-Paraná, retornando marcos oficiais, semanas de prova N1 e N2, 2ª chamada, exames finais, prazos limites de lançamento de notas no Canvas, feriados e compensações de sábados letivos para Ciência da Computação / SHE.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"term": map[string]any{
+					"type":        "string",
+					"description": "Semestre acadêmico (padrão: '2026.2').",
+				},
+				"category": map[string]any{
+					"type":        "string",
+					"description": "Filtro por categoria: 'she' (Computação/Engenharias), 'n1', 'n2', 'feriado', 'sabado_letivo', 'exames', 'docentes', 'online', ou 'all' (todas as categorias).",
+				},
+				"month": map[string]any{
+					"type":        "integer",
+					"description": "Filtrar eventos de um mês específico (ex: 7 para Julho, 8 para Agosto, 9 para Setembro, etc. Omitir para o semestre todo).",
+				},
+				"search": map[string]any{
+					"type":        "string",
+					"description": "Termo de busca textual para filtrar eventos por título ou data.",
+				},
+				"only_she": map[string]any{
+					"type":        "boolean",
+					"description": "Se verdadeiro, restringe a busca apenas a eventos aplicáveis à área de Computação / SHE.",
+				},
+			},
+		},
+	},
+	{
+		Name:        "canvas_get_recommended_reading",
+		Description: "Consulta a bibliografia oficial da disciplina (básica e complementar) na Minha Biblioteca da Afya, retornando indicações de leitura por tópico (ex: ponteiros, árvores, ordenação, tabelas hash, grafos), referências ABNT e links autenticados de acesso direto via LTI SSO.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico do curso, nome da disciplina ou período (ex: '4º Período', 'Estrutura de Dados', '160754'). Se omitido, detecta dinamicamente a turma ativa do professor no semestre corrente.",
+				},
+				"topic": map[string]any{
+					"type":        "string",
+					"description": "Tópico ou assunto da aula para filtrar capítulos e obras recomendadas (ex: 'ponteiros', 'arvores', 'ordenacao', 'hash', 'grafos', 'complexidade', 'c'). Omitir para listar todas as obras da ementa.",
+				},
+				"type": map[string]any{
+					"type":        "string",
+					"description": "Tipo de bibliografia: 'basica', 'complementar' ou 'todas' (padrão: 'todas').",
+				},
+			},
+		},
+	},
+	{
+		Name:        "canvas_clone_module",
+		Description: "Clona e replica integralmente um módulo (com todas as suas páginas wiki, simuladores HTML, tarefas, quizzes e links da Minha Biblioteca) de uma turma de origem para uma turma de destino no Canvas LMS (ex: do 2º para o 4º período).",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"source_course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico, nome da matéria ou período da turma de origem (ex: '2º Período' ou '160754').",
+				},
+				"dest_course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico, nome da matéria ou período da turma de destino (ex: '4º Período' ou '162263').",
+				},
+				"module_id_or_name": map[string]any{
+					"type":        "string",
+					"description": "ID numérico ou nome do módulo a ser clonado (ex: 'Módulo: Controle de Versão Colaborativo (Git & GitHub)').",
+				},
+				"publish_after_clone": map[string]any{
+					"type":        "boolean",
+					"description": "Se verdadeiro (padrão), publica os itens clonados no curso de destino.",
+				},
+			},
+			"required": []string{"source_course_id", "dest_course_id", "module_id_or_name"},
+		},
+	},
+	{
+		Name:        "canvas_export_course_blueprint",
+		Description: "Exporta a matriz didática completa de uma disciplina (módulos, páginas wiki, simuladores, tarefas e questionários) em formato estruturado (JSON e Markdown) para reaproveitamento em futuros semestres (2027.1+) ou replicação em massa.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico, nome da matéria ou período da disciplina a exportar. Se omitido, utiliza a turma ativa do professor no semestre vigente.",
+				},
+				"output_format": map[string]any{
+					"type":        "string",
+					"description": "Formato do artefato gerado: 'both' (padrão), 'json' ou 'markdown'.",
+				},
+			},
+		},
+	},
+	{
+		Name:        "canvas_create_question_bank",
+		Description: "Cria e organiza um banco de itens institucional por disciplina e competência curricular (DCNs / ENADE) para calibração de questões e sorteio em simulados.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"title": map[string]any{
+					"type":        "string",
+					"description": "Título do banco de itens (ex: 'Banco de Itens: Estruturas Lineares e Memória').",
+				},
+				"subject": map[string]any{
+					"type":        "string",
+					"description": "Disciplina associada (ex: 'Estrutura de Dados', 'Algoritmos').",
+				},
+				"competence": map[string]any{
+					"type":        "string",
+					"description": "Competência ou habilidade avaliada no padrão ENADE (ex: 'Alocação Dinâmica e Aritmética de Ponteiros').",
+				},
+				"description": map[string]any{
+					"type":        "string",
+					"description": "Descrição pedagógica do propósito deste banco de questões.",
+				},
+			},
+			"required": []string{"title"},
+		},
+	},
+	{
+		Name:        "canvas_add_item_to_bank",
+		Description: "Adiciona uma questão calibrada no modelo ENADE/CONSEPE a um banco de itens, contendo texto-base contextualizado, situação-problema, gabarito e distratores explicados com justificativa pedagógica imediata.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"bank_id": map[string]any{
+					"type":        "string",
+					"description": "ID do banco de itens onde a questão será inserida (ex: 'bank_banco_de_itens__estruturas_lineares_e_memoria').",
+				},
+				"context_text": map[string]any{
+					"type":        "string",
+					"description": "Texto-base contextualizado com a situação-problema técnica a ser analisada pelo estudante.",
+				},
+				"competence": map[string]any{
+					"type":        "string",
+					"description": "Competência específica avaliada neste item.",
+				},
+				"difficulty": map[string]any{
+					"type":        "string",
+					"description": "Nível de dificuldade: 'Fácil', 'Médio' ou 'Difícil'.",
+				},
+				"points": map[string]any{
+					"type":        "number",
+					"description": "Pontuação padrão da questão (padrão: 10.0).",
+				},
+				"answers": map[string]any{
+					"type":        "array",
+					"description": "Lista de alternativas (mínimo 2). Cada alternativa deve conter text, is_correct (boolean) e pedagogical_justification (justificativa de acerto ou explicação do erro do distrator).",
+					"items": map[string]any{
+						"type": "object",
+						"properties": map[string]any{
+							"text": map[string]any{"type": "string"},
+							"is_correct": map[string]any{"type": "boolean"},
+							"pedagogical_justification": map[string]any{"type": "string"},
+						},
+						"required": []string{"text", "is_correct"},
+					},
+				},
+			},
+			"required": []string{"bank_id", "context_text", "answers"},
+		},
+	},
+	{
+		Name:        "canvas_generate_mock_exam",
+		Description: "Cria e publica um simulado ou prova formativa no Canvas LMS sorteando aleatoriamente N questões dos bancos de itens ENADE, injetando autocorreção e justificativas pedagógicas imediatas no SpeedGrader.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico, nome da matéria ou período da turma no Canvas. Se omitido, seleciona a turma ativa.",
+				},
+				"exam_title": map[string]any{
+					"type":        "string",
+					"description": "Título oficial do simulado/teste no Canvas (ex: 'Simulado Preparatório ENADE / N1').",
+				},
+				"bank_ids": map[string]any{
+					"type":        "array",
+					"items":       map[string]any{"type": "string"},
+					"description": "Lista de IDs de bancos de itens para sorteio. Omitir para sortear de todos os bancos cadastrados da disciplina.",
+				},
+				"pick_count": map[string]any{
+					"type":        "integer",
+					"description": "Quantidade de questões a serem sorteadas para o simulado (padrão: 10).",
+				},
+				"points_per_question": map[string]any{
+					"type":        "number",
+					"description": "Pontos atribuídos a cada questão (padrão: 10.0).",
+				},
+				"time_limit_minutes": map[string]any{
+					"type":        "integer",
+					"description": "Tempo limite de realização em minutos (padrão: 60).",
+				},
+				"due_at": map[string]any{
+					"type":        "string",
+					"description": "Data e hora de entrega no formato ISO UTC (ex: '2026-09-30T23:59:59Z').",
+				},
+				"publish_now": map[string]any{
+					"type":        "boolean",
+					"description": "Se verdadeiro (padrão), publica o quiz imediatamente no Canvas.",
+				},
+				"target_module_name": map[string]any{
+					"type":        "string",
+					"description": "Nome ou ID do módulo onde o simulado deve ser inserido (ex: 'Simulados & Avaliações').",
+				},
+			},
 		},
 	},
 }
@@ -1417,8 +1625,8 @@ func executeMCPTool(client *CanvasClient, name string, rawArgs json.RawMessage) 
 		if err := json.Unmarshal(rawArgs, &args); err != nil {
 			return nil, err
 		}
-		if args.CourseID == "" {
-			return nil, fmt.Errorf("parâmetro 'course_id' é obrigatório")
+		if strings.TrimSpace(args.CourseID) == "" {
+			args.CourseID = "ativa"
 		}
 
 		inactDays := 10
@@ -1437,6 +1645,110 @@ func executeMCPTool(client *CanvasClient, name string, rawArgs json.RawMessage) 
 		}
 
 		return client.DetectAtRiskStudents(args.CourseID, inactDays, gradeCut, consecThresh)
+
+	case "canvas_get_academic_calendar":
+		var args struct {
+			Term     string `json:"term"`
+			Category string `json:"category"`
+			Month    int    `json:"month"`
+			Search   string `json:"search"`
+			OnlySHE  bool   `json:"only_she"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return client.GetAcademicCalendar(args.Term, args.Category, args.Month, args.Search, args.OnlySHE)
+
+	case "canvas_get_recommended_reading":
+		var args struct {
+			CourseID string `json:"course_id"`
+			Topic    string `json:"topic"`
+			Type     string `json:"type"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return client.GetRecommendedReadings(args.CourseID, args.Topic, args.Type)
+
+	case "canvas_clone_module":
+		var args struct {
+			SourceCourseID    string `json:"source_course_id"`
+			DestCourseID      string `json:"dest_course_id"`
+			ModuleIDOrName    string `json:"module_id_or_name"`
+			PublishAfterClone *bool  `json:"publish_after_clone"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		pub := true
+		if args.PublishAfterClone != nil {
+			pub = *args.PublishAfterClone
+		}
+		return client.CloneModule(args.SourceCourseID, args.DestCourseID, args.ModuleIDOrName, pub)
+
+	case "canvas_export_course_blueprint":
+		var args struct {
+			CourseID     string `json:"course_id"`
+			OutputFormat string `json:"output_format"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return client.ExportCourseBlueprint(args.CourseID, args.OutputFormat)
+
+	case "canvas_create_question_bank":
+		var args struct {
+			Title       string `json:"title"`
+			Subject     string `json:"subject"`
+			Competence  string `json:"competence"`
+			Description string `json:"description"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return client.CreateQuestionBank(args.Title, args.Subject, args.Competence, args.Description)
+
+	case "canvas_add_item_to_bank":
+		var args struct {
+			BankID      string        `json:"bank_id"`
+			ContextText string        `json:"context_text"`
+			Competence  string        `json:"competence"`
+			Difficulty  string        `json:"difficulty"`
+			Points      float64       `json:"points"`
+			Answers     []ENADEAnswer `json:"answers"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		q := ENADEQuestion{
+			ContextText: args.ContextText,
+			Competence:  args.Competence,
+			Difficulty:  args.Difficulty,
+			Points:      args.Points,
+			Answers:     args.Answers,
+		}
+		return client.AddItemToBank(args.BankID, q)
+
+	case "canvas_generate_mock_exam":
+		var args struct {
+			CourseID          string   `json:"course_id"`
+			ExamTitle         string   `json:"exam_title"`
+			BankIDs           []string `json:"bank_ids"`
+			PickCount         int      `json:"pick_count"`
+			PointsPerQuestion float64  `json:"points_per_question"`
+			TimeLimitMinutes  int      `json:"time_limit_minutes"`
+			DueAt             string   `json:"due_at"`
+			PublishNow        *bool    `json:"publish_now"`
+			TargetModuleName  string   `json:"target_module_name"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		pub := true
+		if args.PublishNow != nil {
+			pub = *args.PublishNow
+		}
+		return client.GenerateMockExam(args.CourseID, args.ExamTitle, args.BankIDs, args.PickCount, args.PointsPerQuestion, args.TimeLimitMinutes, args.DueAt, pub, args.TargetModuleName)
 
 	default:
 		return nil, fmt.Errorf("ferramenta desconhecida: %s", name)

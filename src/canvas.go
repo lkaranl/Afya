@@ -321,7 +321,145 @@ func (c *CanvasClient) ListCourses() ([]map[string]any, error) {
 	return enriched, nil
 }
 
+// getCourseIDStr extrai com segurança o ID do curso como string
+func getCourseIDStr(course map[string]any) string {
+	if idVal, ok := course["id"]; ok {
+		switch v := idVal.(type) {
+		case string:
+			return v
+		case float64:
+			return strconv.FormatInt(int64(v), 10)
+		case int:
+			return strconv.Itoa(v)
+		case int64:
+			return strconv.FormatInt(v, 10)
+		default:
+			return fmt.Sprintf("%v", v)
+		}
+	}
+	return ""
+}
+
+// ResolveCourseID converte um identificador flexível (ID numérico, nome da matéria, período como '4º período', etc.)
+// no ID numérico do curso no Canvas LMS. Nunca exige que o professor saiba IDs numéricos de cabeça.
+func (c *CanvasClient) ResolveCourseID(courseIDOrQuery string) (string, error) {
+	trimmed := strings.TrimSpace(courseIDOrQuery)
+
+	// Se for puramente numérico e não vazio, já é o ID direto
+	if _, err := strconv.ParseInt(trimmed, 10, 64); err == nil && trimmed != "" {
+		return trimmed, nil
+	}
+
+	// Busca lista de disciplinas do Canvas
+	courses, err := c.ListCourses()
+	if err != nil {
+		return "", fmt.Errorf("não foi possível consultar as disciplinas no Canvas: %w", err)
+	}
+
+	lowerQuery := strings.ToLower(trimmed)
+
+	// Caso 1: Vazio ou palavras-chave de turma ativa
+	if trimmed == "" || lowerQuery == "ativa" || lowerQuery == "atual" || lowerQuery == "turma ativa" || lowerQuery == "semestre atual" || lowerQuery == "vigente" {
+		var currentCourses []map[string]any
+		for _, crs := range courses {
+			if isCur, ok := crs["is_current_term"].(bool); ok && isCur {
+				currentCourses = append(currentCourses, crs)
+			}
+		}
+		if len(currentCourses) == 1 {
+			return getCourseIDStr(currentCourses[0]), nil
+		}
+		if len(currentCourses) > 1 {
+			var lines []string
+			for _, crs := range currentCourses {
+				period, _ := crs["period"].(string)
+				cleanName, _ := crs["clean_name"].(string)
+				if period != "" {
+					lines = append(lines, fmt.Sprintf("- **%s (%s)**", cleanName, period))
+				} else {
+					lines = append(lines, fmt.Sprintf("- **%s**", cleanName))
+				}
+			}
+			return "", fmt.Errorf("existem %d turmas ativas neste semestre:\n%s\nPor favor, informe em qual matéria ou período deseja executar (ex: '4º Período' ou '2º Período').", len(currentCourses), strings.Join(lines, "\n"))
+		}
+		return "", fmt.Errorf("nenhuma disciplina ativa encontrada no semestre atual")
+	}
+
+	// Caso 2: Busca por termo (nome, período, código) entre as turmas do semestre atual
+	var currentMatches []map[string]any
+	for _, crs := range courses {
+		if isCur, ok := crs["is_current_term"].(bool); ok && isCur {
+			name, _ := crs["name"].(string)
+			cleanName, _ := crs["clean_name"].(string)
+			courseCode, _ := crs["course_code"].(string)
+			period, _ := crs["period"].(string)
+
+			// Normalizações para capturar termos como "4", "4o", "4º", "2", "2o", "2º"
+			periodNum := strings.TrimSuffix(strings.TrimSuffix(period, " Período"), "º")
+			matchPeriod := period != "" && (strings.Contains(strings.ToLower(period), lowerQuery) ||
+				lowerQuery == strings.ToLower(periodNum) ||
+				strings.HasPrefix(lowerQuery, strings.ToLower(periodNum)))
+
+			if strings.Contains(strings.ToLower(name), lowerQuery) ||
+				strings.Contains(strings.ToLower(cleanName), lowerQuery) ||
+				strings.Contains(strings.ToLower(courseCode), lowerQuery) ||
+				matchPeriod {
+				currentMatches = append(currentMatches, crs)
+			}
+		}
+	}
+
+	if len(currentMatches) == 1 {
+		return getCourseIDStr(currentMatches[0]), nil
+	}
+
+	// Caso 3: Se não encontrou único nas turmas ativas, busca em todas as matérias
+	var allMatches []map[string]any
+	for _, crs := range courses {
+		name, _ := crs["name"].(string)
+		cleanName, _ := crs["clean_name"].(string)
+		courseCode, _ := crs["course_code"].(string)
+		period, _ := crs["period"].(string)
+
+		if strings.Contains(strings.ToLower(name), lowerQuery) ||
+			strings.Contains(strings.ToLower(cleanName), lowerQuery) ||
+			strings.Contains(strings.ToLower(courseCode), lowerQuery) ||
+			(period != "" && strings.Contains(strings.ToLower(period), lowerQuery)) {
+			allMatches = append(allMatches, crs)
+		}
+	}
+
+	if len(allMatches) == 1 {
+		return getCourseIDStr(allMatches[0]), nil
+	}
+
+	if len(currentMatches) > 1 {
+		var lines []string
+		for _, crs := range currentMatches {
+			period, _ := crs["period"].(string)
+			cleanName, _ := crs["clean_name"].(string)
+			lines = append(lines, fmt.Sprintf("- **%s (%s)**", cleanName, period))
+		}
+		return "", fmt.Errorf("encontrei mais de uma turma ativa correspondente a '%s':\n%s\nPor favor, informe qual período deseja analisar (ex: '4º Período').", trimmed, strings.Join(lines, "\n"))
+	}
+
+	if len(allMatches) > 1 {
+		var lines []string
+		for _, crs := range allMatches {
+			period, _ := crs["period"].(string)
+			name, _ := crs["name"].(string)
+			lines = append(lines, fmt.Sprintf("- **%s (%s)**", name, period))
+		}
+		return "", fmt.Errorf("encontrei múltiplas disciplinas correspondentes a '%s':\n%s\nPor favor, refine o nome da matéria.", trimmed, strings.Join(lines, "\n"))
+	}
+
+	return "", fmt.Errorf("nenhuma disciplina encontrada com o nome ou termo '%s'", trimmed)
+}
+
 func (c *CanvasClient) ListAssignments(courseID string) (any, error) {
+	if resolved, err := c.ResolveCourseID(courseID); err == nil && resolved != "" {
+		courseID = resolved
+	}
 	cacheKey := fmt.Sprintf("assignments:%s", courseID)
 	if c.Cache != nil {
 		if cached, found := c.Cache.Get(cacheKey); found {
@@ -342,6 +480,9 @@ func (c *CanvasClient) ListAssignments(courseID string) (any, error) {
 }
 
 func (c *CanvasClient) GetAssignment(courseID, assignmentID string) (any, error) {
+	if resolved, err := c.ResolveCourseID(courseID); err == nil && resolved != "" {
+		courseID = resolved
+	}
 	cacheKey := fmt.Sprintf("assignment:%s:%s", courseID, assignmentID)
 	if c.Cache != nil {
 		if cached, found := c.Cache.Get(cacheKey); found {
@@ -362,6 +503,9 @@ func (c *CanvasClient) GetAssignment(courseID, assignmentID string) (any, error)
 }
 
 func (c *CanvasClient) ListStudents(courseID string) (any, error) {
+	if resolved, err := c.ResolveCourseID(courseID); err == nil && resolved != "" {
+		courseID = resolved
+	}
 	cacheKey := fmt.Sprintf("students:%s", courseID)
 	if c.Cache != nil {
 		if cached, found := c.Cache.Get(cacheKey); found {
@@ -1092,7 +1236,11 @@ func (c *CanvasClient) AddModuleItem(p AddModuleItemParams) (any, error) {
 		itemMap["title"] = p.Title
 	}
 	if p.ContentID != "" {
-		itemMap["content_id"] = p.ContentID
+		if idInt, err := strconv.ParseInt(p.ContentID, 10, 64); err == nil {
+			itemMap["content_id"] = idInt
+		} else {
+			itemMap["content_id"] = p.ContentID
+		}
 	}
 	if p.PageURL != "" {
 		itemMap["page_url"] = p.PageURL
@@ -2258,3 +2406,122 @@ func (c *CanvasClient) UnpackSubmissionsZip(zipPath, courseID, outputDir string)
 
 	return extracted, nil
 }
+
+// GetCourseDetails obtém os dados detalhados de um curso, incluindo syllabus_body e termo letivo
+func (c *CanvasClient) GetCourseDetails(courseID string) (map[string]any, error) {
+	cacheKey := fmt.Sprintf("course_details_%s", courseID)
+	if c.Cache != nil {
+		if cached, found := c.Cache.Get(cacheKey); found {
+			if crs, ok := cached.(map[string]any); ok {
+				return crs, nil
+			}
+		}
+	}
+
+	endpoint := fmt.Sprintf("/api/v1/courses/%s?include[]=syllabus_body&include[]=term", url.PathEscape(courseID))
+	data, _, err := c.Request("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao obter detalhes do curso %s: %w", courseID, err)
+	}
+
+	var course map[string]any
+	if err := json.Unmarshal(data, &course); err != nil {
+		return nil, err
+	}
+
+	enriched := EnrichCourses([]map[string]any{course})
+	if len(enriched) > 0 {
+		course = enriched[0]
+	}
+
+	if c.Cache != nil {
+		c.Cache.Set(cacheKey, course, 0)
+	}
+	return course, nil
+}
+
+// GetCoursePages lista as páginas wiki disponíveis no curso
+func (c *CanvasClient) GetCoursePages(courseID string) ([]map[string]any, error) {
+	cacheKey := fmt.Sprintf("course_pages_%s", courseID)
+	if c.Cache != nil {
+		if cached, found := c.Cache.Get(cacheKey); found {
+			if pages, ok := cached.([]map[string]any); ok {
+				return pages, nil
+			}
+		}
+	}
+
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/pages?per_page=100", url.PathEscape(courseID))
+	data, _, err := c.Request("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao listar páginas do curso %s: %w", courseID, err)
+	}
+
+	var pages []map[string]any
+	if err := json.Unmarshal(data, &pages); err != nil {
+		return nil, err
+	}
+
+	if c.Cache != nil {
+		c.Cache.Set(cacheKey, pages, 0)
+	}
+	return pages, nil
+}
+
+// GetCoursePage busca o conteúdo completo de uma página wiki específica
+func (c *CanvasClient) GetCoursePage(courseID string, pageURL string) (map[string]any, error) {
+	cacheKey := fmt.Sprintf("course_page_%s_%s", courseID, pageURL)
+	if c.Cache != nil {
+		if cached, found := c.Cache.Get(cacheKey); found {
+			if page, ok := cached.(map[string]any); ok {
+				return page, nil
+			}
+		}
+	}
+
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/pages/%s", url.PathEscape(courseID), url.PathEscape(pageURL))
+	data, _, err := c.Request("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao obter página %s do curso %s: %w", pageURL, courseID, err)
+	}
+
+	var page map[string]any
+	if err := json.Unmarshal(data, &page); err != nil {
+		return nil, err
+	}
+
+	if c.Cache != nil {
+		c.Cache.Set(cacheKey, page, 0)
+	}
+	return page, nil
+}
+
+// GetQuiz obtém os detalhes de um quiz no Canvas LMS
+func (c *CanvasClient) GetQuiz(courseID, quizID string) (map[string]any, error) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/quizzes/%s", url.PathEscape(courseID), url.PathEscape(quizID))
+	data, _, err := c.Request("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao obter quiz %s do curso %s: %w", quizID, courseID, err)
+	}
+	var res map[string]any
+	if err := json.Unmarshal(data, &res); err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+// GetQuizQuestions busca todas as questões cadastradas em um quiz
+func (c *CanvasClient) GetQuizQuestions(courseID, quizID string) ([]map[string]any, error) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/quizzes/%s/questions?per_page=100", url.PathEscape(courseID), url.PathEscape(quizID))
+	data, _, err := c.Request("GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao obter questões do quiz %s: %w", quizID, err)
+	}
+	var questions []map[string]any
+	if err := json.Unmarshal(data, &questions); err != nil {
+		return nil, err
+	}
+	return questions, nil
+}
+
+
