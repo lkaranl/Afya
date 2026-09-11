@@ -88,6 +88,7 @@ type CanvasClient struct {
 	BaseURL    string
 	Token      string
 	HTTPClient *http.Client
+	Cache      *MemoryCache
 }
 
 func NewCanvasClient(baseURL, token string) *CanvasClient {
@@ -114,6 +115,13 @@ func NewCanvasClient(baseURL, token string) *CanvasClient {
 		TLSHandshakeTimeout: 10 * time.Second,
 	}
 
+	ttl := 5 * time.Minute
+	if ttlStr := os.Getenv("CANVAS_CACHE_TTL_MINUTES"); ttlStr != "" {
+		if minutes, err := strconv.Atoi(ttlStr); err == nil && minutes > 0 {
+			ttl = time.Duration(minutes) * time.Minute
+		}
+	}
+
 	return &CanvasClient{
 		BaseURL:    strings.TrimRight(baseURL, "/"),
 		Token:      token,
@@ -121,6 +129,7 @@ func NewCanvasClient(baseURL, token string) *CanvasClient {
 			Transport: transport,
 			Timeout:   45 * time.Second,
 		},
+		Cache: NewMemoryCache(ttl),
 	}
 }
 
@@ -169,12 +178,20 @@ func (c *CanvasClient) Request(method, endpoint string, body any) ([]byte, int, 
 }
 
 func (c *CanvasClient) GetUserProfile() (any, error) {
+	if c.Cache != nil {
+		if cached, found := c.Cache.Get("profile"); found {
+			return cached, nil
+		}
+	}
 	data, _, err := c.Request("GET", "/api/v1/users/self", nil)
 	if err != nil {
 		return nil, err
 	}
 	var result any
 	err = json.Unmarshal(data, &result)
+	if err == nil && c.Cache != nil {
+		c.Cache.Set("profile", result, 0)
+	}
 	return result, err
 }
 
@@ -282,6 +299,13 @@ func EnrichCourses(courses []map[string]any) []map[string]any {
 }
 
 func (c *CanvasClient) ListCourses() ([]map[string]any, error) {
+	if c.Cache != nil {
+		if cached, found := c.Cache.Get("courses"); found {
+			if courses, ok := cached.([]map[string]any); ok {
+				return courses, nil
+			}
+		}
+	}
 	data, _, err := c.Request("GET", "/api/v1/courses?per_page=50&include[]=total_students&include[]=term", nil)
 	if err != nil {
 		return nil, err
@@ -290,10 +314,20 @@ func (c *CanvasClient) ListCourses() ([]map[string]any, error) {
 	if err := json.Unmarshal(data, &courses); err != nil {
 		return nil, err
 	}
-	return EnrichCourses(courses), nil
+	enriched := EnrichCourses(courses)
+	if c.Cache != nil {
+		c.Cache.Set("courses", enriched, 0)
+	}
+	return enriched, nil
 }
 
 func (c *CanvasClient) ListAssignments(courseID string) (any, error) {
+	cacheKey := fmt.Sprintf("assignments:%s", courseID)
+	if c.Cache != nil {
+		if cached, found := c.Cache.Get(cacheKey); found {
+			return cached, nil
+		}
+	}
 	endpoint := fmt.Sprintf("/api/v1/courses/%s/assignments?per_page=100&order_by=due_at", url.PathEscape(courseID))
 	data, _, err := c.Request("GET", endpoint, nil)
 	if err != nil {
@@ -301,10 +335,19 @@ func (c *CanvasClient) ListAssignments(courseID string) (any, error) {
 	}
 	var result any
 	err = json.Unmarshal(data, &result)
+	if err == nil && c.Cache != nil {
+		c.Cache.Set(cacheKey, result, 0)
+	}
 	return result, err
 }
 
 func (c *CanvasClient) GetAssignment(courseID, assignmentID string) (any, error) {
+	cacheKey := fmt.Sprintf("assignment:%s:%s", courseID, assignmentID)
+	if c.Cache != nil {
+		if cached, found := c.Cache.Get(cacheKey); found {
+			return cached, nil
+		}
+	}
 	endpoint := fmt.Sprintf("/api/v1/courses/%s/assignments/%s", url.PathEscape(courseID), url.PathEscape(assignmentID))
 	data, _, err := c.Request("GET", endpoint, nil)
 	if err != nil {
@@ -312,10 +355,19 @@ func (c *CanvasClient) GetAssignment(courseID, assignmentID string) (any, error)
 	}
 	var result any
 	err = json.Unmarshal(data, &result)
+	if err == nil && c.Cache != nil {
+		c.Cache.Set(cacheKey, result, 0)
+	}
 	return result, err
 }
 
 func (c *CanvasClient) ListStudents(courseID string) (any, error) {
+	cacheKey := fmt.Sprintf("students:%s", courseID)
+	if c.Cache != nil {
+		if cached, found := c.Cache.Get(cacheKey); found {
+			return cached, nil
+		}
+	}
 	endpoint := fmt.Sprintf("/api/v1/courses/%s/users?enrollment_type[]=student&per_page=100", url.PathEscape(courseID))
 	data, _, err := c.Request("GET", endpoint, nil)
 	if err != nil {
@@ -323,7 +375,39 @@ func (c *CanvasClient) ListStudents(courseID string) (any, error) {
 	}
 	var result any
 	err = json.Unmarshal(data, &result)
+	if err == nil && c.Cache != nil {
+		c.Cache.Set(cacheKey, result, 0)
+	}
 	return result, err
+}
+
+// ClearCache limpa todos os itens mantidos em memória
+func (c *CanvasClient) ClearCache() int {
+	if c.Cache == nil {
+		return 0
+	}
+	return c.Cache.Clear()
+}
+
+// ClearCourseCache limpa o cache específico de uma disciplina
+func (c *CanvasClient) ClearCourseCache(courseID string) int {
+	if c.Cache == nil {
+		return 0
+	}
+	removed := c.Cache.DeletePrefix("students:" + courseID)
+	removed += c.Cache.DeletePrefix("assignments:" + courseID)
+	removed += c.Cache.DeletePrefix("assignment:" + courseID)
+	c.Cache.Delete("modules:" + courseID)
+	c.Cache.Delete("groups:" + courseID)
+	return removed
+}
+
+// GetCacheStats retorna as métricas de performance e taxa de acerto do cache
+func (c *CanvasClient) GetCacheStats() CacheStats {
+	if c.Cache == nil {
+		return CacheStats{}
+	}
+	return c.Cache.Stats()
 }
 
 type PendingAssignment struct {
@@ -718,6 +802,9 @@ func (c *CanvasClient) CreateAssignment(p CreateAssignmentParams) (any, error) {
 
 	var result any
 	err = json.Unmarshal(data, &result)
+	if err == nil && c.Cache != nil {
+		c.Cache.DeletePrefix("assignments:" + p.CourseID)
+	}
 	return result, err
 }
 
@@ -861,6 +948,10 @@ func (c *CanvasClient) CreateQuiz(p CreateQuizParams) (any, error) {
 		} else {
 			createdQuestions++
 		}
+	}
+
+	if c.Cache != nil {
+		c.Cache.DeletePrefix("assignments:" + p.CourseID)
 	}
 
 	return map[string]any{

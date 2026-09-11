@@ -226,6 +226,30 @@ func runWebServer(client *CanvasClient, port string) {
 		sendWebJSON(w, res, err)
 	})
 
+	// Endpoints de Gerenciamento de Cache
+	mux.HandleFunc("GET /api/cache/stats", func(w http.ResponseWriter, r *http.Request) {
+		stats := client.GetCacheStats()
+		sendWebJSON(w, stats, nil)
+	})
+
+	mux.HandleFunc("POST /api/cache/clear", func(w http.ResponseWriter, r *http.Request) {
+		courseID := r.URL.Query().Get("course_id")
+		if courseID != "" {
+			removed := client.ClearCourseCache(courseID)
+			sendWebJSON(w, map[string]any{
+				"status":       "ok",
+				"keys_removed": removed,
+				"course_id":    courseID,
+			}, nil)
+			return
+		}
+		removed := client.ClearCache()
+		sendWebJSON(w, map[string]any{
+			"status":       "ok",
+			"keys_removed": removed,
+		}, nil)
+	})
+
 	// Arquivos estáticos da interface web
 	var staticFS http.FileSystem
 	if fi, err := os.Stat("src/public"); err == nil && fi.IsDir() {

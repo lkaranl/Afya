@@ -21,6 +21,7 @@ Abaixo estão divididas as possibilidades entre o que **já temos**, o que **pod
 - ✅ Ponto de parada com aprovação humana obrigatória e validação de limites de nota.
 - ✅ Lançamento de notas e feedbacks individuais e em lote (`canvas_submit_grades_batch`).
 - ✅ **Detecção Inteligente de Similaridade e Plágio (`canvas_detect_plagiarism`):** Compara automaticamente todos os códigos entregues na turma, aplicando normalização canônica de identificadores locais (desmascara renomeação de variáveis), k-shingles e coeficientes Dice/Jaccard com alertas de risco ALTO/MÉDIO/BAIXO.
+- ✅ **Cache Inteligente de Requisições em Memória (`canvas_clear_cache`, `canvas_get_cache_stats`):** Armazenamento temporário thread-safe com TTL configurável para turmas, alunos e atividades, reduzindo o tempo de carregamento de centenas de ms para sub-milissegundo (< 1ms).
 
 ### 💡 O que seria excelente implementar:
 1. **Harness de Testes Automatizados em Sandbox Local:**

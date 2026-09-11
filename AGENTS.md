@@ -92,6 +92,8 @@ O MCP e os agentes determinam dinamicamente em tempo de execução quais discipl
 - `canvas_get_inbox_conversation`: Resgata toda a linha do tempo (thread) de mensagens, autores, anexos e datas no fuso horário de Brasília.
 - `canvas_reply_inbox_message`: Responde diretamente na conversa do aluno no Canvas após aprovação da minuta pelo professor.
 - `canvas_send_inbox_message`: Inicia uma nova conversa direta privada com um ou mais estudantes pelo Canvas.
+- `canvas_clear_cache`: Limpa o cache em memória (global ou por ID de turma) para forçar sincronização fresca com a API do Canvas.
+- `canvas_get_cache_stats`: Retorna as métricas de performance do cache (total de requisições, hits, misses e taxa de acerto).
 
 ### 🐍 Utilitários de Suporte (`scripts/`):
 - `scripts/canvas_cli.py`: Utilitário central de linha de comando para invocar as ferramentas MCP via terminal caso necessário.

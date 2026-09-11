@@ -816,6 +816,27 @@ var mcpTools = []MCPTool{
 			"required": []string{"recipient_ids", "subject", "message"},
 		},
 	},
+	{
+		Name:        "canvas_clear_cache",
+		Description: "Limpa o cache em memória das requisições do Canvas (turmas, alunos, atividades). Permite forçar sincronização fresca com a API da Afya.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina para limpar apenas os dados daquela turma específica (opcional, se omitido limpa todo o cache global)",
+				},
+			},
+		},
+	},
+	{
+		Name:        "canvas_get_cache_stats",
+		Description: "Obtém as estatísticas de desempenho do cache em memória (hits, misses, total de requisições, porcentagem de acertos e tempo economizado).",
+		InputSchema: map[string]any{
+			"type":       "object",
+			"properties": map[string]any{},
+		},
+	},
 }
 
 func runMCPServer(client *CanvasClient) {
@@ -1328,6 +1349,37 @@ func executeMCPTool(client *CanvasClient, name string, rawArgs json.RawMessage) 
 			return nil, fmt.Errorf("parâmetros 'recipient_ids', 'subject' e 'message' são obrigatórios")
 		}
 		return client.SendInboxMessage(args.RecipientIDs, args.Subject, args.Message, args.CourseID)
+
+	case "canvas_clear_cache":
+		var args struct {
+			CourseID string `json:"course_id"`
+		}
+		_ = json.Unmarshal(rawArgs, &args)
+
+		if args.CourseID != "" {
+			removed := client.ClearCourseCache(args.CourseID)
+			return map[string]any{
+				"status":           "ok",
+				"message":          fmt.Sprintf("Cache da disciplina %s limpo com sucesso (%d chaves removidas)", args.CourseID, removed),
+				"keys_removed":     removed,
+				"target_course_id": args.CourseID,
+			}, nil
+		}
+
+		removed := client.ClearCache()
+		return map[string]any{
+			"status":       "ok",
+			"message":      fmt.Sprintf("Cache global em memória limpo com sucesso (%d itens removidos)", removed),
+			"keys_removed": removed,
+		}, nil
+
+	case "canvas_get_cache_stats":
+		stats := client.GetCacheStats()
+		return map[string]any{
+			"status":      "ok",
+			"stats":       stats,
+			"description": fmt.Sprintf("%d hits, %d misses (Taxa de acerto: %.1f%%, %d itens em memória)", stats.Hits, stats.Misses, stats.HitRate, stats.ItemCount),
+		}, nil
 
 	default:
 		return nil, fmt.Errorf("ferramenta desconhecida: %s", name)
