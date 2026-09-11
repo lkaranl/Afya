@@ -71,14 +71,17 @@ Em vez de preencher formulários manuais no Canvas para cadastrar aulas e tarefa
 
 O Canvas possui um sistema de mensagens internas (`Conversations API`).
 
-### 💡 O que podemos fazer:
+### O que já temos:
+- ✅ **Triagem Inteligente do Inbox do Professor (`canvas_list_inbox_messages`):** Lista mensagens não lidas ou por disciplina, contabiliza pendências e monta tabela Markdown de triagem com fuso de Brasília.
+- ✅ **Histórico Completo de Threads (`canvas_get_inbox_conversation`):** Extrai a íntegra das mensagens, datas em BRT, autores e links diretos de anexos.
+- ✅ **Resposta Oficial Direta (`canvas_reply_inbox_message`):** Publica a resposta elaborada pelo assistente diretamente na conversa do estudante após o aval do professor.
+- ✅ **Envio de Mensagens Diretas (`canvas_send_inbox_message`):** Envia comunicados e orientações privadas individuais para alunos.
+- ✅ **Publicação de Anúncios da Turma (`canvas_post_announcement`):** Publica avisos oficiais no mural da disciplina.
+
+### 💡 O que podemos fazer a seguir:
 1. **Disparo de Lembretes Proativos para Quem Não Entregou:**
    - Faltando 24 horas para o prazo de uma atividade importante:
    - O MCP detecta quais alunos ainda não submeteram e dispara uma mensagem individual pelo Canvas: *"Olá [Nome], lembre-se de que a atividade de Grafos encerra amanhã às 23h59. Qualquer dúvida, estou à disposição."*
-2. **Triagem do Inbox do Professor:**
-   - O MCP lista as mensagens não lidas enviadas pelos alunos no Canvas, resume os assuntos e já sugere minutas de respostas técnicas para o professor aprovar.
-3. **Publicação de Anúncios da Turma:**
-   - Publicar avisos de aula, erratas de listas de exercícios ou orientações de provas no mural oficial do curso em segundos.
 
 ---
 

@@ -88,6 +88,10 @@ O MCP e os agentes determinam dinamicamente em tempo de execução quais discipl
 - `canvas_submit_grade`: Publica nota e feedback para um único aluno.
 - `canvas_list_courses`: Lista as disciplinas do professor com enriquecimento automático de período e semestre letivo.
 - `canvas_list_students`: Lista oficial de matriculados da turma.
+- `canvas_list_inbox_messages`: Lista mensagens e conversas do Inbox do Canvas com triagem de dúvidas, identificação de não lidas e tabela Markdown formatada.
+- `canvas_get_inbox_conversation`: Resgata toda a linha do tempo (thread) de mensagens, autores, anexos e datas no fuso horário de Brasília.
+- `canvas_reply_inbox_message`: Responde diretamente na conversa do aluno no Canvas após aprovação da minuta pelo professor.
+- `canvas_send_inbox_message`: Inicia uma nova conversa direta privada com um ou mais estudantes pelo Canvas.
 
 ### 🐍 Utilitários de Suporte (`scripts/`):
 - `scripts/canvas_cli.py`: Utilitário central de linha de comando para invocar as ferramentas MCP via terminal caso necessário.
@@ -138,6 +142,24 @@ O MCP e os agentes determinam dinamicamente em tempo de execução quais discipl
 
 ### Cenário 3: O Professor envia um arquivo ZIP manual
 - Utilize `canvas_unpack_zip(zip_path, course_id)` para extrair e organizar automaticamente os arquivos dos alunos na pasta `scratch/` e siga o mesmo fluxo de avaliação e aprovação acima.
+
+### Cenário 4: O Professor pede para verificar mensagens ou dúvidas de alunos (Inbox)
+1. **Triagem de Mensagens:**
+   - Execute `canvas_list_inbox_messages(scope: "unread")` para identificar estudantes aguardando retorno.
+   - Apresente a tabela de mensagens pendentes (ID da conversa, remetente, assunto, data em BRT).
+2. **Leitura e Diagnóstico da Dúvida:**
+   - Obtenha a íntegra da conversa com `canvas_get_inbox_conversation(conversation_id)`.
+   - Analise o problema técnico ou conceitual trazido pelo estudante.
+3. **Elaboração da Minuta Pedagógica (Tom Neutro, Institucional e Didático):**
+   - Redija uma resposta clara, objetiva e acolhedora sem intimidade ou adjetivação pessoal.
+   - Forneça a orientação técnica direta (ex: explicação do erro de compilação, orientação sobre ponteiros, etc.).
+4. **🛑 PONTO DE PARADA (APROVAÇÃO HUMANA):**
+   - Apresente a minuta ao Professor Karan:
+     > *"Professor, o aluno [Nome] enviou a seguinte dúvida: '[resumo]'. Sugiro responder com o seguinte texto:*
+     > *[Minuta da resposta]*
+     > *Deseja que eu envie essa resposta para o aluno no Canvas?"*
+5. **Envio da Resposta:**
+   - Após o "OK" do professor, envie via `canvas_reply_inbox_message(conversation_id, message)`.
 
 ---
 

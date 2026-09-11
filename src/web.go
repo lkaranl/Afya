@@ -177,6 +177,55 @@ func runWebServer(client *CanvasClient, port string) {
 		}
 	})
 
+	// Endpoints do Inbox de Mensagens do Canvas
+	mux.HandleFunc("GET /api/inbox", func(w http.ResponseWriter, r *http.Request) {
+		scope := r.URL.Query().Get("scope")
+		courseID := r.URL.Query().Get("course_id")
+		limitStr := r.URL.Query().Get("limit")
+		limit := 25
+		if limitStr != "" {
+			if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+				limit = l
+			}
+		}
+		res, err := client.ListInboxConversations(scope, courseID, limit)
+		sendWebJSON(w, res, err)
+	})
+
+	mux.HandleFunc("GET /api/inbox/{id}", func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		res, err := client.GetInboxConversation(id)
+		sendWebJSON(w, res, err)
+	})
+
+	mux.HandleFunc("POST /api/inbox/{id}/reply", func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		var body struct {
+			Message string `json:"message"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(w, "JSON inválido", http.StatusBadRequest)
+			return
+		}
+		res, err := client.ReplyInboxConversation(id, body.Message)
+		sendWebJSON(w, res, err)
+	})
+
+	mux.HandleFunc("POST /api/inbox", func(w http.ResponseWriter, r *http.Request) {
+		var body struct {
+			RecipientIDs []string `json:"recipient_ids"`
+			Subject      string   `json:"subject"`
+			Message      string   `json:"message"`
+			CourseID     string   `json:"course_id"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(w, "JSON inválido", http.StatusBadRequest)
+			return
+		}
+		res, err := client.SendInboxMessage(body.RecipientIDs, body.Subject, body.Message, body.CourseID)
+		sendWebJSON(w, res, err)
+	})
+
 	// Arquivos estáticos da interface web
 	var staticFS http.FileSystem
 	if fi, err := os.Stat("src/public"); err == nil && fi.IsDir() {

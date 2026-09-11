@@ -736,6 +736,86 @@ var mcpTools = []MCPTool{
 			"required": []string{"course_id", "assignment_id"},
 		},
 	},
+	{
+		Name:        "canvas_list_inbox_messages",
+		Description: "Lista conversas e mensagens diretas do Inbox do Canvas LMS com triagem de dúvidas de estudantes, contagem de não lidas, identificação de participantes, disciplina vinculada e tabela Markdown formatada.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"scope": map[string]any{
+					"type":        "string",
+					"description": "Filtro de visualização: 'unread' (padrão, para focar nas dúvidas pendentes de atendimento), 'inbox' (todas as recebidas), 'starred', 'sent', 'archived'",
+				},
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina para filtrar apenas mensagens enviadas por alunos daquela matéria específica (opcional)",
+				},
+				"limit": map[string]any{
+					"type":        "integer",
+					"description": "Quantidade máxima de conversas a retornar (padrão: 25)",
+				},
+			},
+		},
+	},
+	{
+		Name:        "canvas_get_inbox_conversation",
+		Description: "Obtém o histórico completo e a íntegra de uma conversa no Canvas LMS (thread com todas as mensagens trocadas, autores, datas em BRT, links de anexos e resumo para elaboração de resposta pedagógica).",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"conversation_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da conversa no Canvas LMS",
+				},
+			},
+			"required": []string{"conversation_id"},
+		},
+	},
+	{
+		Name:        "canvas_reply_inbox_message",
+		Description: "Envia uma resposta oficial e direta em uma conversa existente no Inbox do Canvas LMS. Utilize após sugerir a minuta pedagógica/técnica e obter a aprovação do professor.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"conversation_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da conversa no Canvas LMS",
+				},
+				"message": map[string]any{
+					"type":        "string",
+					"description": "Conteúdo da resposta que será enviada para o aluno no Canvas",
+				},
+			},
+			"required": []string{"conversation_id", "message"},
+		},
+	},
+	{
+		Name:        "canvas_send_inbox_message",
+		Description: "Envia uma nova mensagem direta privada para um ou mais estudantes pelo Canvas LMS (inicia uma nova conversa no Inbox com assunto e contexto da disciplina).",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"recipient_ids": map[string]any{
+					"type":        "array",
+					"description": "Lista de IDs numéricos dos alunos destinatários no Canvas",
+					"items":       map[string]any{"type": "string"},
+				},
+				"subject": map[string]any{
+					"type":        "string",
+					"description": "Assunto da mensagem",
+				},
+				"message": map[string]any{
+					"type":        "string",
+					"description": "Corpo da mensagem a ser enviada",
+				},
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID da disciplina para vincular o contexto da mensagem (opcional)",
+				},
+			},
+			"required": []string{"recipient_ids", "subject", "message"},
+		},
+	},
 }
 
 func runMCPServer(client *CanvasClient) {
@@ -1194,6 +1274,60 @@ func executeMCPTool(client *CanvasClient, name string, rawArgs json.RawMessage) 
 		}
 
 		return client.CheckSubmissionsSimilarity(args.CourseID, args.AssignmentID, threshold, normalizeVars)
+
+	case "canvas_list_inbox_messages":
+		var args struct {
+			Scope    string `json:"scope"`
+			CourseID string `json:"course_id"`
+			Limit    int    `json:"limit"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		if args.Scope == "" {
+			args.Scope = "unread"
+		}
+		return client.ListInboxConversations(args.Scope, args.CourseID, args.Limit)
+
+	case "canvas_get_inbox_conversation":
+		var args struct {
+			ConversationID string `json:"conversation_id"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		if args.ConversationID == "" {
+			return nil, fmt.Errorf("parâmetro 'conversation_id' é obrigatório")
+		}
+		return client.GetInboxConversation(args.ConversationID)
+
+	case "canvas_reply_inbox_message":
+		var args struct {
+			ConversationID string `json:"conversation_id"`
+			Message        string `json:"message"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		if args.ConversationID == "" || args.Message == "" {
+			return nil, fmt.Errorf("parâmetros 'conversation_id' e 'message' são obrigatórios")
+		}
+		return client.ReplyInboxConversation(args.ConversationID, args.Message)
+
+	case "canvas_send_inbox_message":
+		var args struct {
+			RecipientIDs []string `json:"recipient_ids"`
+			Subject      string   `json:"subject"`
+			Message      string   `json:"message"`
+			CourseID     string   `json:"course_id"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		if len(args.RecipientIDs) == 0 || args.Subject == "" || args.Message == "" {
+			return nil, fmt.Errorf("parâmetros 'recipient_ids', 'subject' e 'message' são obrigatórios")
+		}
+		return client.SendInboxMessage(args.RecipientIDs, args.Subject, args.Message, args.CourseID)
 
 	default:
 		return nil, fmt.Errorf("ferramenta desconhecida: %s", name)
