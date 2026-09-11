@@ -53,18 +53,33 @@ type MCPContentItem struct {
 var mcpTools = []MCPTool{
 	{
 		Name:        "canvas_list_pending_assignments",
-		Description: "Varre todas as disciplinas ativas do professor e retorna a lista de tarefas que possuem submissões de alunos aguardando correção (com prazos formatados em português, notas máximas e contagem de pendências).",
+		Description: "Varre as disciplinas do professor e lista as atividades com submissões pendentes de correção (needs_grading_count > 0), identificando período e semestre.",
 		InputSchema: map[string]any{
-			"type":       "object",
-			"properties": map[string]any{},
+			"type": "object",
+			"properties": map[string]any{
+				"current_term_only": map[string]any{
+					"type":        "boolean",
+					"description": "Se verdadeiro (ou omitido), filtra para retornar apenas pendências das disciplinas do semestre atual/vigente. Se falso, inclui matérias anteriores.",
+				},
+			},
 		},
 	},
 	{
 		Name:        "canvas_list_courses",
-		Description: "Lista todas as disciplinas ativas do docente no Canvas LMS com seus respectivos IDs, nomes e total de alunos matriculados.",
+		Description: "Lista de forma inteligente as disciplinas do docente no Canvas LMS, identificando automaticamente quais pertencem ao semestre atual (vigente) e quais são de semestres anteriores (concluídos), com períodos curriculares, total de alunos e status.",
 		InputSchema: map[string]any{
-			"type":       "object",
-			"properties": map[string]any{},
+			"type": "object",
+			"properties": map[string]any{
+				"term_filter": map[string]any{
+					"type":        "string",
+					"enum":        []string{"all", "current", "past"},
+					"description": "Filtro de período letivo: 'current' (somente matérias do semestre atual/vigente), 'past' (somente matérias de semestres anteriores já concluídos) ou 'all' (todas as matérias cadastradas). Padrão: 'all'.",
+				},
+				"grouped": map[string]any{
+					"type":        "boolean",
+					"description": "Se verdadeiro, agrupa o resultado em duas listas organizadas: 'current_courses' (semestre atual) e 'past_courses' (semestres anteriores).",
+				},
+			},
 		},
 	},
 	{
@@ -789,10 +804,86 @@ func handleMCPRequest(w *bufio.Writer, logger *log.Logger, client *CanvasClient,
 func executeMCPTool(client *CanvasClient, name string, rawArgs json.RawMessage) (any, error) {
 	switch name {
 	case "canvas_list_pending_assignments":
-		return client.ListPendingAssignments()
+		var args struct {
+			CurrentTermOnly *bool `json:"current_term_only"`
+		}
+		if len(rawArgs) > 0 {
+			_ = json.Unmarshal(rawArgs, &args)
+		}
+
+		pending, err := client.ListPendingAssignments()
+		if err != nil {
+			return nil, err
+		}
+
+		if args.CurrentTermOnly == nil || *args.CurrentTermOnly {
+			var currentPending []PendingAssignment
+			for _, p := range pending {
+				if p.IsCurrentTerm {
+					currentPending = append(currentPending, p)
+				}
+			}
+			return currentPending, nil
+		}
+		return pending, nil
 
 	case "canvas_list_courses":
-		return client.ListCourses()
+		var args struct {
+			TermFilter string `json:"term_filter"`
+			Grouped    bool   `json:"grouped"`
+		}
+		if len(rawArgs) > 0 {
+			_ = json.Unmarshal(rawArgs, &args)
+		}
+
+		courses, err := client.ListCourses()
+		if err != nil {
+			return nil, err
+		}
+
+		if args.Grouped {
+			var currentCourses, pastCourses []map[string]any
+			currentTermName := ""
+			for _, crs := range courses {
+				if isCur, ok := crs["is_current_term"].(bool); ok && isCur {
+					currentCourses = append(currentCourses, crs)
+					if currentTermName == "" {
+						if tn, ok := crs["term_name"].(string); ok {
+							currentTermName = tn
+						}
+					}
+				} else {
+					pastCourses = append(pastCourses, crs)
+				}
+			}
+			return map[string]any{
+				"current_term":    currentTermName,
+				"total_current":   len(currentCourses),
+				"current_courses": currentCourses,
+				"total_past":      len(pastCourses),
+				"past_courses":    pastCourses,
+			}, nil
+		}
+
+		if args.TermFilter == "current" {
+			var filtered []map[string]any
+			for _, crs := range courses {
+				if isCur, ok := crs["is_current_term"].(bool); ok && isCur {
+					filtered = append(filtered, crs)
+				}
+			}
+			return filtered, nil
+		} else if args.TermFilter == "past" {
+			var filtered []map[string]any
+			for _, crs := range courses {
+				if isCur, ok := crs["is_current_term"].(bool); !ok || !isCur {
+					filtered = append(filtered, crs)
+				}
+			}
+			return filtered, nil
+		}
+
+		return courses, nil
 
 	case "canvas_list_assignments":
 		var args struct {

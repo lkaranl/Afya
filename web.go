@@ -16,6 +16,45 @@ var embeddedPublic embed.FS
 
 func runWebServer(client *CanvasClient, port string) {
 	mux := http.NewServeMux()
+	engine := NewAgentEngine(client)
+
+	// Endpoints do Assistente Conversacional IA (Chat)
+	mux.HandleFunc("GET /api/agent/info", func(w http.ResponseWriter, r *http.Request) {
+		info := map[string]any{
+			"provider":         engine.Provider,
+			"model":            engine.Model,
+			"has_key":          engine.APIKey != "" || engine.Provider == "ollama",
+			"canvas_connected": client.Token != "",
+		}
+		sendWebJSON(w, info, nil)
+	})
+
+	mux.HandleFunc("POST /api/chat", func(w http.ResponseWriter, r *http.Request) {
+		var req struct {
+			Message string        `json:"message"`
+			History []ChatMessage `json:"history"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "JSON inválido", http.StatusBadRequest)
+			return
+		}
+		res, err := engine.Chat(r.Context(), req.Message, req.History)
+		sendWebJSON(w, res, err)
+	})
+
+	mux.HandleFunc("POST /api/chat/confirm", func(w http.ResponseWriter, r *http.Request) {
+		var req struct {
+			CourseID     string        `json:"course_id"`
+			AssignmentID string        `json:"assignment_id"`
+			Grades       []GradeEntry `json:"grades"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "JSON inválido", http.StatusBadRequest)
+			return
+		}
+		res, err := client.SubmitGradesBatch(req.CourseID, req.AssignmentID, req.Grades)
+		sendWebJSON(w, res, err)
+	})
 
 	// Endpoints da API para o frontend
 	mux.HandleFunc("GET /api/me", func(w http.ResponseWriter, r *http.Request) {

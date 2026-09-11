@@ -65,14 +65,27 @@ O projeto contém um binário em Go (`./afya-canvas`) que implementa o protocolo
 - `canvas_validate_grades`: Valida limites de nota (contra a pontuação máxima da atividade), valida integridade dos alunos matriculados, calcula estatísticas (média, menor/maior nota) e **já gera automaticamente a tabela formatada em Markdown** para o ponto de parada obrigatório de aprovação humana.
 - `canvas_unpack_zip`: Descompacta e normaliza automaticamente pacotes ZIP exportados do Canvas SpeedGrader mapeando para os alunos da disciplina.
 
+### 🎓 Inteligência Dinâmica de Semestres e Disciplinas:
+O MCP e os agentes determinam dinamicamente em tempo de execução quais disciplinas são do semestre vigente e quais são históricas, sem necessidade de dados fixos:
+- **Detecção Temporal Automática:** O algoritmo do MCP analisa as datas de vigência oficial (`start_at` e `end_at`) dos termos do Canvas LMS contra o calendário corrente, além dos padrões de ano/semestre nos termos cadastrados.
+- **Campos Enriquecidos Retornados:**
+  - `is_current_term: true` (`term_status: 'atual'`): Disciplinas em andamento no semestre vigente.
+  - `is_current_term: false` (`term_status: 'anterior'`): Disciplinas de semestres anteriores já concluídos.
+  - `period`: Período curricular extraído dinamicamente da turma (ex: `2º Período`, `4º Período`).
+  - `clean_name`: Nome didático da disciplina higienizado sem códigos de turma.
+- **Comportamento Padrão dos Agentes:**
+  - NUNCA assuma matérias, IDs ou semestres fixos. Sempre consulte o Canvas via ferramentas MCP.
+  - Quando o professor solicitar pendências, tarefas ou status sem especificar o período, priorize SEMPRE as turmas identificadas com `is_current_term: true`.
+  - Utilize `canvas_list_courses(term_filter: 'current')` ou com `grouped: true` para obter turmas ativas e históricas organizadas.
+
 ### Ferramentas MCP Complementares:
-- `canvas_list_pending_assignments`: Varre todas as turmas do professor e lista todas as atividades que têm alunos aguardando correção (`needs_grading_count > 0`), com datas em português e IDs.
+- `canvas_list_pending_assignments`: Varre as turmas do professor e lista as tarefas que têm alunos aguardando correção (`needs_grading_count > 0`), com datas em português, período e status de semestre.
 - `canvas_get_assignment`: Obtém os detalhes completos, enunciado oficial e pontuação de uma tarefa.
 - `canvas_get_submissions`: Puxa as submissões dos alunos já com os campos `clean_body` (sem HTML) e `submitted_at_br` (fuso de Brasília).
 - `canvas_download_attachment`: Baixa para o disco local um arquivo individual anexado pelo aluno.
 - `canvas_submit_grades_batch`: Publica notas e feedbacks para múltiplos alunos de uma vez só no Canvas.
 - `canvas_submit_grade`: Publica nota e feedback para um único aluno.
-- `canvas_list_courses`: Lista as disciplinas do professor.
+- `canvas_list_courses`: Lista as disciplinas do professor com enriquecimento automático de período e semestre letivo.
 - `canvas_list_students`: Lista oficial de matriculados da turma.
 
 ### 🐍 Utilitários de Suporte (`scripts/`):

@@ -6,8 +6,9 @@
   <title>Afya Canvas Hub | Gestão Acadêmica</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
   <!-- Cabeçalho Principal -->
@@ -86,7 +87,12 @@
 
     <!-- Navegação em Abas -->
     <nav class="tabs-nav" aria-label="Navegação da Aplicação">
-      <button class="tab-btn active" data-tab="courses-tab" id="tabBtnCourses">
+      <button class="tab-btn active" data-tab="chat-tab" id="tabBtnChat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+        Assistente IA (Chat)
+        <span class="badge-ai-pill">Online</span>
+      </button>
+      <button class="tab-btn" data-tab="courses-tab" id="tabBtnCourses">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
         Cursos & Atividades
       </button>
@@ -100,12 +106,120 @@
       </button>
     </nav>
 
+    <!-- Conteúdo da Aba 0: Assistente IA (Chat Estilo ChatGPT) -->
+    <section class="tab-content active" id="chat-tab">
+      <div class="chat-layout">
+        <!-- Sidebar do Chat -->
+        <aside class="chat-sidebar">
+          <button class="btn-new-chat" id="btnNewChat">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Nova Conversa
+          </button>
+
+          <!-- Card de Status do Modelo -->
+          <div class="ai-status-card" id="aiStatusCard">
+            <div class="ai-status-header">
+              <span class="ai-dot-indicator"></span>
+              <span class="ai-provider-badge" id="aiProviderBadge">Google Gemini</span>
+            </div>
+            <div class="ai-model-name" id="aiModelName">gemini-2.0-flash</div>
+            <div class="ai-canvas-status" id="aiCanvasStatus">Canvas LMS Conectado</div>
+          </div>
+
+          <!-- Ações Rápidas -->
+          <div class="quick-prompts-section">
+            <span class="sidebar-heading">Perguntas Rápidas</span>
+            <div class="quick-prompts-list">
+              <button class="quick-prompt-btn" data-prompt="Quais atividades estão aguardando correção nas minhas turmas hoje?">
+                <span class="qp-icon">📋</span>
+                <span class="qp-text">Minhas Pendências</span>
+              </button>
+              <button class="quick-prompt-btn" data-prompt="Audite os grupos de notas das turmas de Estrutura de Dados do 2º e 4º períodos e veja se estão em conformidade com as regras da Afya.">
+                <span class="qp-icon">📊</span>
+                <span class="qp-text">Auditar Grupos de Notas</span>
+              </button>
+              <button class="quick-prompt-btn" data-prompt="Crie um questionário interativo no modelo ENADE sobre Árvores Binárias de Busca com 5 questões de múltipla escolha.">
+                <span class="qp-icon">📝</span>
+                <span class="qp-text">Criar Quiz Modelo ENADE</span>
+              </button>
+              <button class="quick-prompt-btn" data-prompt="Quais são as regras institucionais e prazos de devolutiva da Afya segundo o CONSEPE?">
+                <span class="qp-icon">⚖️</span>
+                <span class="qp-text">Regulamento Afya</span>
+              </button>
+              <button class="quick-prompt-btn" data-prompt="Liste todos os módulos de aula e conteúdos cadastrados no curso de Estrutura de Dados.">
+                <span class="qp-icon">📦</span>
+                <span class="qp-text">Ver Módulos de Aula</span>
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Área Principal de Mensagens -->
+        <div class="chat-main-area">
+          <!-- Barra Superior do Chat -->
+          <div class="chat-top-bar">
+            <div class="chat-top-info">
+              <span class="chat-status-pill">
+                <span class="chat-status-dot"></span>
+                Canvas MCP Conectado
+              </span>
+              <span class="chat-capabilities">Correção de Código C • Notas • ENADE • Módulos</span>
+            </div>
+            <div class="chat-top-actions">
+              <button type="button" class="btn-top-chat" id="btnClearChatHistory" title="Limpar conversa">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Limpar Conversa
+              </button>
+            </div>
+          </div>
+
+          <div class="chat-messages-scroll" id="chatMessages">
+            <div class="chat-welcome-state">
+              <div class="welcome-badge">Afya Canvas Assistant</div>
+              <h3 class="welcome-title">Olá, Professor Karan! Como posso apoiar você hoje?</h3>
+              <p class="welcome-subtitle">
+                Sou seu assistente inteligente conectado diretamente ao Canvas LMS. Posso auditar notas, verificar entregas de alunos, criar questionários e preparar materiais em segundos.
+              </p>
+            </div>
+          </div>
+
+          <!-- Indicador de Pensando / Executando Ferramenta -->
+          <div class="chat-thinking-bar" id="chatThinking" style="display: none;">
+            <div class="thinking-spinner"></div>
+            <span id="thinkingStatusText">Consultando dados no Canvas LMS...</span>
+          </div>
+
+          <!-- Card de Confirmação Interativa de Notas -->
+          <div class="chat-action-card-wrapper" id="chatActionCard" style="display: none;"></div>
+
+          <!-- Input Inferior -->
+          <div class="chat-input-area">
+            <form id="chatForm" class="chat-form">
+              <textarea 
+                id="chatInput" 
+                class="chat-input-field" 
+                rows="1" 
+                placeholder="Envie uma instrução ou pergunta... (Pressione Enter para enviar, Shift+Enter para quebra de linha)"
+                required
+              ></textarea>
+              <button type="submit" id="btnSendChat" class="btn-chat-send" title="Enviar Mensagem">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              </button>
+            </form>
+            <div class="chat-footer-note">
+              Operações de alteração de notas no Canvas sempre solicitam sua aprovação prévia.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Conteúdo da Aba 1: Cursos & Atividades -->
-    <section class="tab-content active" id="courses-tab">
+    <section class="tab-content" id="courses-tab">
       <div class="content-header">
         <div>
           <h2 class="section-title">Minhas Disciplinas e Tarefas</h2>
-          <p class="section-desc">Selecione uma disciplina para visualizar as atividades e submissões pendentes</p>
+          <p class="section-desc">Visão organizada por período letivo com acompanhamento de prazos e pendências de avaliação</p>
         </div>
         <div class="filter-controls">
           <label for="courseSelect" class="sr-only">Filtrar por Disciplina</label>
@@ -119,21 +233,72 @@
         </div>
       </div>
 
-      <!-- Grid de Cursos -->
-      <div class="courses-cards-grid" id="coursesCardsGrid">
-        <!-- Renderizado dinamicamente -->
+      <!-- Barra de Controle de Semestres (Segmented Pills) -->
+      <div class="semester-control-bar">
+        <div class="semester-pills" id="semesterPills">
+          <button class="semester-pill active" data-term="current" id="pillTermCurrent">
+            <span class="pill-dot"></span>
+            Semestre Vigente (Atual)
+            <span class="pill-badge" id="pillCurrentCount">0</span>
+          </button>
+          <button class="semester-pill" data-term="past" id="pillTermPast">
+            <span class="pill-dot past"></span>
+            Semestres Anteriores (Histórico)
+            <span class="pill-badge" id="pillPastCount">0</span>
+          </button>
+          <button class="semester-pill" data-term="all" id="pillTermAll">
+            Todas as Turmas
+            <span class="pill-badge" id="pillAllCount">0</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Lista de Atividades do Curso Selecionado -->
+      <!-- Container de Cursos (Renderizado dinamicamente por semestre) -->
+      <div class="courses-container" id="coursesCardsGrid">
+        <!-- Renderizado dinamicamente via app.js -->
+      </div>
+
+      <!-- Seção de Detalhes e Atividades da Turma -->
       <div class="assignments-section" id="assignmentsSection">
+        <!-- Banner Contextual do Curso Selecionado -->
+        <div class="selected-course-banner" id="selectedCourseBanner">
+          <div class="sc-info">
+            <div class="sc-badges">
+              <span class="sc-badge-period" id="scPeriodBadge">Período</span>
+              <span class="sc-badge-term" id="scTermBadge">Semestre</span>
+              <span class="sc-badge-id" id="scIdBadge">ID: -</span>
+            </div>
+            <h3 class="sc-title" id="scTitle">Todas as Disciplinas</h3>
+            <p class="sc-subtitle" id="scSubtitle">Visão geral consolidada de todas as atividades</p>
+          </div>
+          <div class="sc-actions">
+            <button class="btn btn-secondary" id="btnAskAIAboutCourse">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+              Analisar com IA
+            </button>
+            <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" id="btnOpenCanvasCourse">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+              Abrir no Canvas
+            </a>
+          </div>
+        </div>
+
+        <!-- Cabeçalho e Filtros de Atividades -->
         <div class="assignments-header">
           <div>
             <h3 class="subsection-title" id="assignmentsTitle">Atividades da Disciplina</h3>
-            <span class="subtext" id="assignmentsSubtitle">Exibindo atividades cadastradas</span>
+            <span class="subtext" id="assignmentsSubtitle">Exibindo tarefas cadastradas</span>
           </div>
-          <div class="assignments-filters">
-            <button class="filter-chip active" data-filter="all">Todas</button>
-            <button class="filter-chip" data-filter="pending">Apenas com Pendências</button>
+          <div class="assignments-filters-wrapper">
+            <div class="search-box-mini">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="assignmentSearchInput" placeholder="Filtrar atividades por nome...">
+            </div>
+            <div class="assignments-filters">
+              <button class="filter-chip active" data-filter="all">Todas (<span id="countFilterAll">0</span>)</button>
+              <button class="filter-chip" data-filter="pending">⚠️ Pendentes (<span id="countFilterPending">0</span>)</button>
+              <button class="filter-chip" data-filter="done">✓ Concluídas (<span id="countFilterDone">0</span>)</button>
+            </div>
           </div>
         </div>
 
@@ -151,53 +316,88 @@
       <div class="content-header">
         <div>
           <h2 class="section-title">Publicador de Comunicados</h2>
-          <p class="section-desc">Publique avisos e comunicados instantaneamente em uma ou mais turmas</p>
+          <p class="section-desc">Dispare avisos institucionais e lembretes acadêmicos diretamente no Canvas das suas turmas</p>
         </div>
       </div>
 
       <div class="announcements-layout">
-        <!-- Formulário -->
+        <!-- Formulário de Disparo -->
         <div class="announcement-form-card">
+          <div class="afc-header">
+            <h3 class="afc-title">Novo Comunicado</h3>
+            <p class="afc-desc">Preencha os campos abaixo para publicar simultaneamente no Canvas das turmas selecionadas</p>
+          </div>
+
+          <!-- Templates Rápidos de Comunicado -->
+          <div class="announcement-templates-bar">
+            <div class="templates-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+              <span>Modelos Rápidos Pré-formatados:</span>
+            </div>
+            <div class="templates-chips">
+              <button type="button" class="template-chip" data-template="reminder">⏰ Lembrete de Prazo</button>
+              <button type="button" class="template-chip" data-template="exam">📝 Instruções de Prova (ENADE)</button>
+              <button type="button" class="template-chip" data-template="feedback">📊 Devolutiva de Notas</button>
+              <button type="button" class="template-chip" data-template="office">🤝 Horário de Atendimento</button>
+            </div>
+          </div>
+
           <form id="announcementForm">
             <div class="form-group">
-              <label class="form-label">Selecionar Disciplinas Destino</label>
-              <div class="course-checkboxes-list" id="announcementCoursesList">
-                <!-- Checkboxes dos cursos -->
+              <div class="destination-header">
+                <label class="form-label" style="margin-bottom: 0;">Disciplinas Destino</label>
+                <span class="audience-counter" id="audienceCounter">👥 Alcance: 0 alunos</span>
               </div>
               <div class="selection-actions">
-                <button type="button" class="btn-link" id="selectAllCoursesBtn">Marcar Todas</button>
-                <button type="button" class="btn-link" id="unselectAllCoursesBtn">Desmarcar Todas</button>
+                <button type="button" class="btn-filter-action highlight" id="btnSelectCurrentTermCourses">🟢 Apenas Semestre Vigente</button>
+                <button type="button" class="btn-filter-action" id="selectAllCoursesBtn">Marcar Todas</button>
+                <button type="button" class="btn-filter-action" id="unselectAllCoursesBtn">Desmarcar Todas</button>
+              </div>
+              <div class="course-checkboxes-list" id="announcementCoursesList">
+                <!-- Checkboxes categorizadas por semestre -->
               </div>
             </div>
 
             <div class="form-group">
               <label for="announcementTitle" class="form-label">Título do Comunicado *</label>
-              <input type="text" id="announcementTitle" class="text-input" placeholder="Ex: Informações sobre a avaliação presencial" required>
+              <input type="text" id="announcementTitle" class="text-input" placeholder="Ex: [Importante] Orientações para a Prova Escrita Presencial" required>
             </div>
 
             <div class="form-group">
-              <label for="announcementMessage" class="form-label">Mensagem *</label>
-              <textarea id="announcementMessage" class="textarea-input" rows="7" placeholder="Escreva aqui o comunicado para os alunos..." required></textarea>
+              <div class="message-header-bar">
+                <label for="announcementMessage" class="form-label" style="margin-bottom: 0;">Mensagem *</label>
+                <button type="button" class="btn-enhance-ai" id="btnEnhanceAnnouncementAI">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                  Refinar Texto com IA
+                </button>
+              </div>
+              <textarea id="announcementMessage" class="textarea-input" rows="8" placeholder="Escreva o comunicado com clareza e orientações para os estudantes..." required></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-submit" id="sendAnnouncementBtn">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-              <span>Disparar Comunicado</span>
-            </button>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary btn-submit" id="sendAnnouncementBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                <span>Disparar Comunicado Oficial</span>
+              </button>
+            </div>
           </form>
         </div>
 
-        <!-- Painel Lateral: Histórico de Avisos do Curso Ativo -->
+        <!-- Painel Lateral: Histórico de Avisos -->
         <div class="announcements-history-card">
           <div class="card-header-row">
-            <h3 class="subsection-title">Avisos Recentes</h3>
+            <div class="ahc-title-group">
+              <h3 class="subsection-title">Histórico de Avisos</h3>
+              <span class="subtext">Comunicados já publicados no Canvas</span>
+            </div>
             <select id="announcementHistoryCourseSelect" class="select-input select-sm">
               <!-- Cursos para filtrar histórico -->
             </select>
           </div>
           <div class="announcements-history-list" id="announcementsHistoryList">
             <div class="empty-state sm">
-              <p>Nenhum aviso carregado.</p>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              <p>Nenhum comunicado recente nesta disciplina.</p>
             </div>
           </div>
         </div>
@@ -208,40 +408,70 @@
     <section class="tab-content" id="students-tab">
       <div class="content-header">
         <div>
-          <h2 class="section-title">Alunos Matriculados</h2>
-          <p class="section-desc">Consulte a listagem de estudantes e exporte relatórios em CSV</p>
+          <h2 class="section-title">Quadro de Alunos & Turmas</h2>
+          <p class="section-desc">Consulte a listagem oficial de matriculados, verifique status e exporte relatórios acadêmicos</p>
         </div>
         <div class="filter-controls">
+          <label for="studentsCourseSelect" class="sr-only">Selecione a Turma</label>
           <select id="studentsCourseSelect" class="select-input">
-            <!-- Cursos -->
+            <!-- Cursos com grupos de semestre -->
           </select>
           <button id="exportCsvBtn" class="btn btn-primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            Exportar CSV
+            Exportar CSV (Excel)
           </button>
+        </div>
+      </div>
+
+      <!-- Resumo Analítico da Turma Selecionada -->
+      <div class="students-stats-grid" id="studentsStatsGrid">
+        <div class="stat-mini-card">
+          <span class="smc-label">Total de Matriculados</span>
+          <span class="smc-value" id="statTotalStudents">0</span>
+        </div>
+        <div class="stat-mini-card">
+          <span class="smc-label">Período Curricular</span>
+          <span class="smc-value" id="statPeriod">-</span>
+        </div>
+        <div class="stat-mini-card">
+          <span class="smc-label">Status da Turma</span>
+          <span class="smc-value" id="statTermStatus">-</span>
+        </div>
+        <div class="stat-mini-card highlight">
+          <span class="smc-label">Atividades Cadastradas</span>
+          <span class="smc-value" id="statTotalAssignments">0</span>
         </div>
       </div>
 
       <div class="table-container">
         <div class="table-search-bar">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <input type="text" id="studentsSearchInput" placeholder="Buscar aluno por nome...">
-          <span class="students-counter" id="studentsCounter">0 alunos</span>
+          <div class="search-input-wrapper">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="studentsSearchInput" placeholder="Buscar por nome ou ID do aluno...">
+          </div>
+          <div class="table-actions-right">
+            <span class="students-counter" id="studentsCounter">0 alunos listados</span>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnCopyStudentsNames">
+              📋 Copiar Nomes
+            </button>
+          </div>
         </div>
 
         <div class="table-responsive">
           <table class="data-table">
             <thead>
               <tr>
-                <th>Foto</th>
-                <th>Nome Completo</th>
+                <th style="width: 60px;">Foto</th>
+                <th>Nome do Estudante</th>
                 <th>ID Canvas</th>
+                <th>Papel / Matrícula</th>
                 <th>Status</th>
+                <th style="text-align: right;">Ações</th>
               </tr>
             </thead>
             <tbody id="studentsTableBody">
               <tr>
-                <td colspan="4" class="table-placeholder">Selecione uma disciplina para ver os alunos.</td>
+                <td colspan="6" class="table-placeholder">Selecione uma disciplina acima para carregar a lista de alunos.</td>
               </tr>
             </tbody>
           </table>

@@ -178,14 +178,119 @@ func (c *CanvasClient) GetUserProfile() (any, error) {
 	return result, err
 }
 
-func (c *CanvasClient) ListCourses() (any, error) {
+var (
+	periodRegex    = regexp.MustCompile(`(?i)\.N\.(\d+)\.`)
+	altPeriodRegex = regexp.MustCompile(`(?i)(\d+)º\s*per[ií]odo`)
+	yearSemRegex   = regexp.MustCompile(`(20\d\d)[/_.-]([12])`)
+)
+
+// EnrichCourses analisa os cursos do Canvas e adiciona metadados inteligentes:
+// - is_current_term: identifica se pertence ao semestre letivo vigente
+// - term_status: "atual" ou "anterior"
+// - term_name: nome oficial do termo (ex: "Semestre 2026/2")
+// - period: período curricular extraído do código da turma (ex: "2º Período", "4º Período")
+// - clean_name: nome limpo da matéria sem códigos técnicos de turma (ex: "ESTRUTURA DE DADOS")
+func EnrichCourses(courses []map[string]any) []map[string]any {
+	now := time.Now()
+
+	// 1ª Passada: identificar o semestre mais recente / vigente
+	maxYearSemScore := 0
+	latestTermName := ""
+	for _, crs := range courses {
+		termObj, _ := crs["term"].(map[string]any)
+		termName, _ := termObj["name"].(string)
+		courseCode, _ := crs["course_code"].(string)
+		name, _ := crs["name"].(string)
+
+		targetStr := termName + " " + courseCode + " " + name
+		if m := yearSemRegex.FindStringSubmatch(targetStr); len(m) == 3 {
+			yr, _ := strconv.Atoi(m[1])
+			sem, _ := strconv.Atoi(m[2])
+			score := yr*10 + sem
+			if score > maxYearSemScore {
+				maxYearSemScore = score
+				if termName != "" {
+					latestTermName = termName
+				}
+			}
+		}
+	}
+
+	// 2ª Passada: enriquecer cada disciplina com status, período e nomes limpos
+	for _, crs := range courses {
+		termObj, _ := crs["term"].(map[string]any)
+		termName, _ := termObj["name"].(string)
+		courseCode, _ := crs["course_code"].(string)
+		name, _ := crs["name"].(string)
+
+		// Extrai nome limpo (antes do primeiro " - ")
+		cleanName := name
+		if parts := strings.Split(name, " - "); len(parts) > 1 {
+			cleanName = strings.TrimSpace(parts[0])
+		}
+		crs["clean_name"] = cleanName
+
+		// Extrai período da turma (ex: 2º Período, 4º Período, 7º Período)
+		period := ""
+		if m := periodRegex.FindStringSubmatch(courseCode + " " + name); len(m) >= 2 {
+			period = fmt.Sprintf("%sº Período", m[1])
+		} else if m := altPeriodRegex.FindStringSubmatch(courseCode + " " + name); len(m) >= 2 {
+			period = fmt.Sprintf("%sº Período", m[1])
+		}
+		crs["period"] = period
+
+		// Calcula ano/semestre score deste curso
+		score := 0
+		targetStr := termName + " " + courseCode + " " + name
+		if m := yearSemRegex.FindStringSubmatch(targetStr); len(m) == 3 {
+			yr, _ := strconv.Atoi(m[1])
+			sem, _ := strconv.Atoi(m[2])
+			score = yr*10 + sem
+		}
+
+		// Determina se é o semestre atual
+		isCurrent := false
+		if maxYearSemScore > 0 && score == maxYearSemScore {
+			isCurrent = true
+		} else if termObj != nil {
+			if endAtStr, ok := termObj["end_at"].(string); ok && endAtStr != "" {
+				if endAt, err := time.Parse(time.RFC3339, endAtStr); err == nil {
+					if endAt.After(now) {
+						isCurrent = true
+					}
+				}
+			}
+		}
+
+		if termName == "" {
+			if isCurrent && latestTermName != "" {
+				termName = latestTermName
+			} else if score > 0 {
+				termName = fmt.Sprintf("Semestre %d/%d", score/10, score%10)
+			}
+		}
+		crs["term_name"] = termName
+		crs["is_current_term"] = isCurrent
+		if isCurrent {
+			crs["term_status"] = "atual"
+		} else {
+			crs["term_status"] = "anterior"
+		}
+	}
+
+	return courses
+}
+
+func (c *CanvasClient) ListCourses() ([]map[string]any, error) {
 	data, _, err := c.Request("GET", "/api/v1/courses?per_page=50&include[]=total_students&include[]=term", nil)
 	if err != nil {
 		return nil, err
 	}
-	var result any
-	err = json.Unmarshal(data, &result)
-	return result, err
+	var courses []map[string]any
+	if err := json.Unmarshal(data, &courses); err != nil {
+		return nil, err
+	}
+	return EnrichCourses(courses), nil
 }
 
 func (c *CanvasClient) ListAssignments(courseID string) (any, error) {
@@ -224,6 +329,11 @@ func (c *CanvasClient) ListStudents(courseID string) (any, error) {
 type PendingAssignment struct {
 	CourseID          string  `json:"course_id"`
 	CourseName        string  `json:"course_name"`
+	CleanCourseName   string  `json:"clean_course_name,omitempty"`
+	CoursePeriod      string  `json:"course_period,omitempty"`
+	TermName          string  `json:"term_name,omitempty"`
+	IsCurrentTerm     bool    `json:"is_current_term"`
+	TermStatus        string  `json:"term_status"`
 	AssignmentID      string  `json:"assignment_id"`
 	AssignmentName    string  `json:"assignment_name"`
 	DueAt             string  `json:"due_at"`
@@ -233,17 +343,18 @@ type PendingAssignment struct {
 	HTMLURL           string  `json:"html_url"`
 }
 
-// ListPendingAssignments varre todas as disciplinas do professor e retorna as atividades que têm tarefas aguardando correção
+// ListPendingAssignments varre as disciplinas do professor e retorna as atividades que têm tarefas aguardando correção
 func (c *CanvasClient) ListPendingAssignments() ([]PendingAssignment, error) {
-	coursesData, _, err := c.Request("GET", "/api/v1/courses?per_page=50", nil)
+	coursesData, _, err := c.Request("GET", "/api/v1/courses?per_page=50&include[]=term", nil)
 	if err != nil {
 		return nil, err
 	}
 
-	var courses []map[string]any
-	if err := json.Unmarshal(coursesData, &courses); err != nil {
+	var rawCourses []map[string]any
+	if err := json.Unmarshal(coursesData, &rawCourses); err != nil {
 		return nil, err
 	}
+	courses := EnrichCourses(rawCourses)
 
 	var pending []PendingAssignment
 	var mu sync.Mutex
@@ -252,9 +363,14 @@ func (c *CanvasClient) ListPendingAssignments() ([]PendingAssignment, error) {
 	for _, crs := range courses {
 		courseID := fmt.Sprintf("%v", crs["id"])
 		courseName := fmt.Sprintf("%v", crs["name"])
+		cleanName, _ := crs["clean_name"].(string)
+		period, _ := crs["period"].(string)
+		termName, _ := crs["term_name"].(string)
+		isCurrent, _ := crs["is_current_term"].(bool)
+		termStatus, _ := crs["term_status"].(string)
 
 		wg.Add(1)
-		go func(cID, cName string) {
+		go func(cID, cName, cClean, cPeriod, cTerm string, cCurrent bool, cStatus string) {
 			defer wg.Done()
 			endpoint := fmt.Sprintf("/api/v1/courses/%s/assignments?per_page=50", url.PathEscape(cID))
 			assignData, _, err := c.Request("GET", endpoint, nil)
@@ -291,6 +407,11 @@ func (c *CanvasClient) ListPendingAssignments() ([]PendingAssignment, error) {
 					pending = append(pending, PendingAssignment{
 						CourseID:          cID,
 						CourseName:        cName,
+						CleanCourseName:   cClean,
+						CoursePeriod:      cPeriod,
+						TermName:          cTerm,
+						IsCurrentTerm:     cCurrent,
+						TermStatus:        cStatus,
 						AssignmentID:      fmt.Sprintf("%v", a["id"]),
 						AssignmentName:    fmt.Sprintf("%v", a["name"]),
 						DueAt:             due,
@@ -302,7 +423,7 @@ func (c *CanvasClient) ListPendingAssignments() ([]PendingAssignment, error) {
 					mu.Unlock()
 				}
 			}
-		}(courseID, courseName)
+		}(courseID, courseName, cleanName, period, termName, isCurrent, termStatus)
 	}
 
 	wg.Wait()
