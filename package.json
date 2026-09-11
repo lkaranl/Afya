@@ -1,6 +1,6 @@
 {
   "name": "afya-canvas",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Servidor MCP (Model Context Protocol) e CLI para automação de correções pedagógicas no Canvas LMS da Afya",
   "bin": {
     "afya-canvas": "bin/cli.js"
@@ -24,13 +24,17 @@
     "cli",
     "golang"
   ],
-  "author": "Karan <lnarakl>",
+  "author": "Karan <lkaranl>",
   "license": "MIT",
   "engines": {
     "node": ">=16.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lnarakl/Afya.git"
-  }
+    "url": "git+https://github.com/lkaranl/Afya.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lkaranl/Afya/issues"
+  },
+  "homepage": "https://github.com/lkaranl/Afya#readme"
 }
