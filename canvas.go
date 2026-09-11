@@ -530,6 +530,666 @@ func (c *CanvasClient) PostAnnouncement(courseID, title, message string) (any, e
 }
 
 // -------------------------------------------------------------
+// GESTÃO E CRIAÇÃO DE CONTEÚDO (ATIVIDADES, QUIZZES E MÓDULOS)
+// -------------------------------------------------------------
+
+type CreateAssignmentParams struct {
+	CourseID          string   `json:"course_id"`
+	Name              string   `json:"name"`
+	Description       string   `json:"description"`                 // Enunciado em HTML
+	PointsPossible    float64  `json:"points_possible"`             // Pontos (ex: 100.0)
+	SubmissionTypes   []string `json:"submission_types,omitempty"`  // ["online_url"], ["online_upload"], etc.
+	DueAt             string   `json:"due_at,omitempty"`            // Prazo (ISO UTC, ex: "2026-09-25T02:59:59Z")
+	UnlockAt          string   `json:"unlock_at,omitempty"`         // Data de abertura
+	LockAt            string   `json:"lock_at,omitempty"`           // Data de encerramento
+	GroupCategoryID   string   `json:"group_category_id,omitempty"`
+	Published         *bool    `json:"published,omitempty"`         // default: true
+	AllowedExtensions []string `json:"allowed_extensions,omitempty"` // ex: ["c", "h", "zip"]
+}
+
+func (c *CanvasClient) CreateAssignment(p CreateAssignmentParams) (any, error) {
+	if p.CourseID == "" || p.Name == "" {
+		return nil, fmt.Errorf("course_id e name são obrigatórios para criar atividade")
+	}
+
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/assignments", url.PathEscape(p.CourseID))
+	assignMap := map[string]any{
+		"name":            p.Name,
+		"description":     p.Description,
+		"points_possible": p.PointsPossible,
+	}
+
+	if len(p.SubmissionTypes) > 0 {
+		assignMap["submission_types"] = p.SubmissionTypes
+	} else {
+		assignMap["submission_types"] = []string{"online_url"}
+	}
+
+	if p.DueAt != "" {
+		assignMap["due_at"] = p.DueAt
+	}
+	if p.UnlockAt != "" {
+		assignMap["unlock_at"] = p.UnlockAt
+	}
+	if p.LockAt != "" {
+		assignMap["lock_at"] = p.LockAt
+	}
+	if p.GroupCategoryID != "" {
+		assignMap["group_category_id"] = p.GroupCategoryID
+	}
+	if p.Published != nil {
+		assignMap["published"] = *p.Published
+	} else {
+		assignMap["published"] = true
+	}
+	if len(p.AllowedExtensions) > 0 {
+		assignMap["allowed_extensions"] = p.AllowedExtensions
+	}
+
+	payload := map[string]any{
+		"assignment": assignMap,
+	}
+
+	data, _, err := c.Request("POST", endpoint, payload)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao criar atividade no Canvas: %w", err)
+	}
+
+	var result any
+	err = json.Unmarshal(data, &result)
+	return result, err
+}
+
+type QuizAnswer struct {
+	Text             string `json:"text,omitempty"`
+	Weight           int    `json:"weight,omitempty"` // 100 para correta, 0 para incorreta
+	Comment          string `json:"comment,omitempty"`
+	BlankID          string `json:"blank_id,omitempty"`           // Para fill_in_multiple_blanks_question
+	AnswerMatchLeft  string `json:"answer_match_left,omitempty"`  // Para matching_question
+	AnswerMatchRight string `json:"answer_match_right,omitempty"` // Para matching_question
+}
+
+type QuizQuestion struct {
+	Title          string       `json:"title,omitempty"`
+	Text           string       `json:"text"`                      // Enunciado da questão (HTML)
+	Type           string       `json:"type,omitempty"`            // default: "multiple_choice_question"
+	PointsPossible float64      `json:"points_possible,omitempty"` // default: 10
+	Answers        []QuizAnswer `json:"answers"`
+}
+
+type CreateQuizParams struct {
+	CourseID        string         `json:"course_id"`
+	Title           string         `json:"title"`
+	Description     string         `json:"description,omitempty"`
+	QuizType        string         `json:"quiz_type,omitempty"`  // default: "assignment"
+	TimeLimit       int            `json:"time_limit,omitempty"` // minutos
+	ShuffleAnswers  *bool          `json:"shuffle_answers,omitempty"`
+	AllowedAttempts int            `json:"allowed_attempts,omitempty"`
+	DueAt           string         `json:"due_at,omitempty"`
+	Published       *bool          `json:"published,omitempty"`
+	Questions       []QuizQuestion `json:"questions,omitempty"`
+}
+
+func (c *CanvasClient) CreateQuiz(p CreateQuizParams) (any, error) {
+	if p.CourseID == "" || p.Title == "" {
+		return nil, fmt.Errorf("course_id e title são obrigatórios para criar quiz")
+	}
+
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/quizzes", url.PathEscape(p.CourseID))
+	quizMap := map[string]any{
+		"title":       p.Title,
+		"description": p.Description,
+	}
+
+	if p.QuizType != "" {
+		quizMap["quiz_type"] = p.QuizType
+	} else {
+		quizMap["quiz_type"] = "assignment"
+	}
+
+	if p.TimeLimit > 0 {
+		quizMap["time_limit"] = p.TimeLimit
+	}
+	if p.ShuffleAnswers != nil {
+		quizMap["shuffle_answers"] = *p.ShuffleAnswers
+	} else {
+		quizMap["shuffle_answers"] = true
+	}
+	if p.AllowedAttempts > 0 {
+		quizMap["allowed_attempts"] = p.AllowedAttempts
+	}
+	if p.DueAt != "" {
+		quizMap["due_at"] = p.DueAt
+	}
+	if p.Published != nil {
+		quizMap["published"] = *p.Published
+	} else {
+		quizMap["published"] = true
+	}
+
+	payload := map[string]any{
+		"quiz": quizMap,
+	}
+
+	data, _, err := c.Request("POST", endpoint, payload)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao criar quiz no Canvas: %w", err)
+	}
+
+	var quizRes map[string]any
+	if err := json.Unmarshal(data, &quizRes); err != nil {
+		return nil, err
+	}
+
+	quizIDRaw, ok := quizRes["id"]
+	if !ok {
+		return quizRes, nil
+	}
+	quizID := fmt.Sprintf("%v", quizIDRaw)
+
+	createdQuestions := 0
+	var questionErrors []string
+
+	for idx, q := range p.Questions {
+		qTitle := q.Title
+		if qTitle == "" {
+			qTitle = fmt.Sprintf("Questão %d", idx+1)
+		}
+		qType := q.Type
+		if qType == "" {
+			qType = "multiple_choice_question"
+		}
+		qPoints := q.PointsPossible
+		if qPoints == 0 {
+			qPoints = 10.0
+		}
+
+		var answersList []map[string]any
+		for _, a := range q.Answers {
+			ansMap := map[string]any{}
+			if a.AnswerMatchLeft != "" || a.AnswerMatchRight != "" {
+				ansMap["answer_match_left"] = a.AnswerMatchLeft
+				ansMap["answer_match_right"] = a.AnswerMatchRight
+			} else {
+				ansMap["answer_text"] = a.Text
+				ansMap["answer_weight"] = a.Weight
+				if a.BlankID != "" {
+					ansMap["blank_id"] = a.BlankID
+				}
+				if a.Comment != "" {
+					ansMap["answer_comment"] = a.Comment
+				}
+			}
+			answersList = append(answersList, ansMap)
+		}
+
+		qPayload := map[string]any{
+			"question": map[string]any{
+				"question_name":   qTitle,
+				"question_text":   q.Text,
+				"question_type":   qType,
+				"points_possible": qPoints,
+				"answers":         answersList,
+			},
+		}
+
+		qEndpoint := fmt.Sprintf("/api/v1/courses/%s/quizzes/%s/questions", url.PathEscape(p.CourseID), url.PathEscape(quizID))
+		_, _, qErr := c.Request("POST", qEndpoint, qPayload)
+		if qErr != nil {
+			questionErrors = append(questionErrors, fmt.Sprintf("Erro na questão %d (%s): %v", idx+1, qTitle, qErr))
+		} else {
+			createdQuestions++
+		}
+	}
+
+	return map[string]any{
+		"quiz_id":                 quizID,
+		"title":                   quizRes["title"],
+		"html_url":                quizRes["html_url"],
+		"published":               quizRes["published"],
+		"total_questions_created": createdQuestions,
+		"questions_errors":        questionErrors,
+	}, nil
+}
+
+type CreateModuleParams struct {
+	CourseID string                `json:"course_id"`
+	Name     string                `json:"name"`
+	Position int                   `json:"position,omitempty"`
+	UnlockAt string                `json:"unlock_at,omitempty"`
+	Items    []AddModuleItemParams `json:"items,omitempty"` // Cria e vincula itens automaticamente
+}
+
+func (c *CanvasClient) CreateModule(p CreateModuleParams) (any, error) {
+	if p.CourseID == "" || p.Name == "" {
+		return nil, fmt.Errorf("course_id e name são obrigatórios para criar módulo")
+	}
+
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/modules", url.PathEscape(p.CourseID))
+	modMap := map[string]any{
+		"name": p.Name,
+	}
+	if p.Position > 0 {
+		modMap["position"] = p.Position
+	}
+	if p.UnlockAt != "" {
+		modMap["unlock_at"] = p.UnlockAt
+	}
+
+	payload := map[string]any{
+		"module": modMap,
+	}
+
+	data, _, err := c.Request("POST", endpoint, payload)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao criar módulo no Canvas: %w", err)
+	}
+
+	var modRes map[string]any
+	if err := json.Unmarshal(data, &modRes); err != nil {
+		return nil, err
+	}
+
+	modIDRaw, ok := modRes["id"]
+	if !ok {
+		return modRes, nil
+	}
+	modID := fmt.Sprintf("%v", modIDRaw)
+
+	var createdItems []any
+	var itemErrors []string
+
+	for _, item := range p.Items {
+		item.CourseID = p.CourseID
+		item.ModuleID = modID
+		itemRes, itemErr := c.AddModuleItem(item)
+		if itemErr != nil {
+			itemErrors = append(itemErrors, fmt.Sprintf("Erro ao adicionar item %s: %v", item.Title, itemErr))
+		} else {
+			createdItems = append(createdItems, itemRes)
+		}
+	}
+
+	modRes["items_created"] = createdItems
+	if len(itemErrors) > 0 {
+		modRes["items_errors"] = itemErrors
+	}
+
+	return modRes, nil
+}
+
+type CreatePageParams struct {
+	CourseID  string `json:"course_id"`
+	Title     string `json:"title"`
+	Body      string `json:"body"` // HTML da página
+	Published *bool  `json:"published,omitempty"`
+}
+
+func (c *CanvasClient) CreatePage(p CreatePageParams) (any, error) {
+	if p.CourseID == "" || p.Title == "" {
+		return nil, fmt.Errorf("course_id e title são obrigatórios para criar página")
+	}
+
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/pages", url.PathEscape(p.CourseID))
+	pageMap := map[string]any{
+		"title": p.Title,
+		"body":  p.Body,
+	}
+	if p.Published != nil {
+		pageMap["published"] = *p.Published
+	} else {
+		pageMap["published"] = true
+	}
+
+	payload := map[string]any{
+		"wiki_page": pageMap,
+	}
+
+	data, _, err := c.Request("POST", endpoint, payload)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao criar página no Canvas: %w", err)
+	}
+
+	var result any
+	err = json.Unmarshal(data, &result)
+	return result, err
+}
+
+type AddModuleItemParams struct {
+	CourseID    string `json:"course_id"`
+	ModuleID    string `json:"module_id"`
+	Title       string `json:"title,omitempty"`
+	Type        string `json:"type"` // "Assignment", "Quiz", "ExternalUrl", "Page", "SubHeader"
+	ContentID   string `json:"content_id,omitempty"`
+	PageURL     string `json:"page_url,omitempty"`   // URL slug da página (obrigatório se type for Page)
+	ExternalURL string `json:"external_url,omitempty"`
+	Position    int    `json:"position,omitempty"`
+	NewTab      bool   `json:"new_tab,omitempty"`
+}
+
+func (c *CanvasClient) AddModuleItem(p AddModuleItemParams) (any, error) {
+	if p.CourseID == "" || p.ModuleID == "" || p.Type == "" {
+		return nil, fmt.Errorf("course_id, module_id e type são obrigatórios para adicionar item ao módulo")
+	}
+
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/modules/%s/items", url.PathEscape(p.CourseID), url.PathEscape(p.ModuleID))
+	itemMap := map[string]any{
+		"type": p.Type,
+	}
+	if p.Title != "" {
+		itemMap["title"] = p.Title
+	}
+	if p.ContentID != "" {
+		itemMap["content_id"] = p.ContentID
+	}
+	if p.PageURL != "" {
+		itemMap["page_url"] = p.PageURL
+	}
+	if p.ExternalURL != "" {
+		itemMap["external_url"] = p.ExternalURL
+		itemMap["new_tab"] = p.NewTab
+	}
+	if p.Position > 0 {
+		itemMap["position"] = p.Position
+	}
+
+	payload := map[string]any{
+		"module_item": itemMap,
+	}
+
+	data, _, err := c.Request("POST", endpoint, payload)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao adicionar item ao módulo no Canvas: %w", err)
+	}
+
+	var result any
+	err = json.Unmarshal(data, &result)
+	return result, err
+}
+
+func (c *CanvasClient) ListModules(courseID string) (any, error) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/modules?include[]=items&per_page=50", url.PathEscape(courseID))
+	data, _, err := c.Request("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	var result any
+	err = json.Unmarshal(data, &result)
+	return result, err
+}
+
+// -------------------------------------------------------------
+// GESTÃO DE GRUPOS DE NOTAS PONDERADAS (ASSIGNMENT GROUPS)
+// -------------------------------------------------------------
+
+type AssignmentGroupItem struct {
+	ID          int64   `json:"id"`
+	Name        string  `json:"name"`
+	GroupWeight float64 `json:"group_weight"`
+	Position    int     `json:"position,omitempty"`
+	Assignments []any   `json:"assignments,omitempty"`
+}
+
+type SetupGradingSchemeParams struct {
+	CourseID      string `json:"course_id"`
+	EnableWeights bool   `json:"enable_weights"`
+}
+
+// ListAssignmentGroups obtém todos os grupos de tarefas e suas ponderações
+func (c *CanvasClient) ListAssignmentGroups(courseID string) (any, error) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/assignment_groups?include[]=assignments", url.PathEscape(courseID))
+	data, _, err := c.Request("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+	var result any
+	err = json.Unmarshal(data, &result)
+	return result, err
+}
+
+// SetCourseWeighting ativa ou desativa o cálculo ponderado por grupos no curso
+func (c *CanvasClient) SetCourseWeighting(courseID string, enable bool) (any, error) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s", url.PathEscape(courseID))
+	payload := map[string]any{
+		"course": map[string]any{
+			"apply_assignment_group_weights": enable,
+		},
+	}
+	data, _, err := c.Request("PUT", endpoint, payload)
+	if err != nil {
+		return nil, err
+	}
+	var result any
+	err = json.Unmarshal(data, &result)
+	return result, err
+}
+
+// CreateAssignmentGroup cria um novo grupo de atividades com peso específico
+func (c *CanvasClient) CreateAssignmentGroup(courseID, name string, weight float64) (any, error) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/assignment_groups", url.PathEscape(courseID))
+	payload := map[string]any{
+		"name":         name,
+		"group_weight": weight,
+	}
+	data, _, err := c.Request("POST", endpoint, payload)
+	if err != nil {
+		return nil, err
+	}
+	var result any
+	err = json.Unmarshal(data, &result)
+	return result, err
+}
+
+// UpdateAssignmentGroup atualiza o nome e peso de um grupo de atividades
+func (c *CanvasClient) UpdateAssignmentGroup(courseID, groupID, name string, weight float64) (any, error) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/assignment_groups/%s", url.PathEscape(courseID), url.PathEscape(groupID))
+	payload := map[string]any{
+		"name":         name,
+		"group_weight": weight,
+	}
+	data, _, err := c.Request("PUT", endpoint, payload)
+	if err != nil {
+		return nil, err
+	}
+	var result any
+	err = json.Unmarshal(data, &result)
+	return result, err
+}
+
+// MoveAssignmentToGroup transfere uma atividade para um grupo de notas específico
+func (c *CanvasClient) MoveAssignmentToGroup(courseID, assignmentID, groupID string) (any, error) {
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/assignments/%s", url.PathEscape(courseID), url.PathEscape(assignmentID))
+	payload := map[string]any{
+		"assignment": map[string]any{
+			"assignment_group_id": groupID,
+		},
+	}
+	data, _, err := c.Request("PUT", endpoint, payload)
+	if err != nil {
+		return nil, err
+	}
+	var result any
+	err = json.Unmarshal(data, &result)
+	return result, err
+}
+
+// -------------------------------------------------------------
+// REGRAS E DIRETRIZES INSTITUCIONAIS AFYA (CONSEPE & NAPED 2026)
+// -------------------------------------------------------------
+
+type AfyaGroupRule struct {
+	Name   string  `json:"name"`
+	Weight float64 `json:"weight"`
+	Points float64 `json:"points"`
+	Notes  string  `json:"notes"`
+}
+
+type AfyaModalityRules struct {
+	ModalityCode     string            `json:"modality_code"`
+	ModalityName     string            `json:"modality_name"`
+	Description      string            `json:"description"`
+	Groups           []AfyaGroupRule   `json:"groups"`
+	PassingGrade     float64           `json:"passing_grade"`
+	MinAttendance    float64           `json:"min_attendance_percent"`
+	ExamFinalRange   string            `json:"exam_final_range"`
+	ExamFinalFormula string            `json:"exam_final_formula"`
+	OfficialDeadlines map[string]string `json:"official_deadlines"`
+}
+
+// GetInstitutionalRules retorna a matriz de notas e critérios oficiais da Afya / São Lucas 2026
+func (c *CanvasClient) GetInstitutionalRules(modality string) (any, error) {
+	deadlines := map[string]string{
+		"devolutiva_correcao_sala": "Até 10 dias após a aplicação da prova/atividade (Art. 16, § 2º).",
+		"revisao_de_prova_aluno":   "Até 2 dias letivos após a devolutiva em sala (Art. 5º, § 1º e Art. 17, § 3º).",
+		"prazo_professor_revisao":  "Até 7 dias após receber a notificação da Coordenação (Art. 17, § 4º).",
+		"segunda_chamada_pedido":   "Até 72 horas após aplicação com atestado/justificativa legal (Art. 19).",
+	}
+
+	catalog := map[string]AfyaModalityRules{
+		"presencial_sem_tpi": {
+			ModalityCode: "PR_SEM_TPI",
+			ModalityName: "Presencial - Cursos sem TPI (Ciência da Computação, Engenharias, etc.)",
+			Description:  "Matriz 2022 e seguintes. N1 (50 pts) + N2 (50 pts) = 100 pontos totais.",
+			Groups: []AfyaGroupRule{
+				{Name: "N1 - Prova Escrita Individual", Weight: 30.0, Points: 30.0, Notes: "Sem consulta, modelo ENADE"},
+				{Name: "N1 - Atividades Teóricas/Práticas", Weight: 20.0, Points: 20.0, Notes: "Trabalhos, exercícios práticos de programação"},
+				{Name: "N2 - Prova Escrita Individual", Weight: 30.0, Points: 30.0, Notes: "Sem consulta, modelo ENADE"},
+				{Name: "N2 - Atividades Teóricas/Práticas", Weight: 20.0, Points: 20.0, Notes: "Trabalhos, exercícios práticos de programação"},
+			},
+			PassingGrade:     70.0,
+			MinAttendance:    75.0,
+			ExamFinalRange:   "De 40.0 a 69.0 pontos (abaixo de 40.0 é reprovação direta sem exame)",
+			ExamFinalFormula: "(Nota Semestral + Exame Final) / 2 >= 60.0 pontos",
+			OfficialDeadlines: deadlines,
+		},
+		"presencial_com_tpi": {
+			ModalityCode: "PR_COM_TPI",
+			ModalityName: "Presencial - Cursos com TPI (Direito, Enfermagem, Fisioterapia, Psicologia)",
+			Description:  "Matriz 2022 e seguintes. Inclui Teste de Progresso Institucional (TPI).",
+			Groups: []AfyaGroupRule{
+				{Name: "N1 - Prova Escrita Individual", Weight: 30.0, Points: 30.0, Notes: "Sem consulta, modelo ENADE"},
+				{Name: "N1 - Atividades Teóricas/Práticas", Weight: 20.0, Points: 20.0, Notes: "Atividades em sala e práticas"},
+				{Name: "N2 - Prova Escrita Individual", Weight: 20.0, Points: 20.0, Notes: "Sem consulta, modelo ENADE"},
+				{Name: "N2 - Atividades Teóricas/Práticas", Weight: 20.0, Points: 20.0, Notes: "Atividades em sala e práticas"},
+				{Name: "N2 - Teste de Progresso Institucional (TPI)", Weight: 10.0, Points: 10.0, Notes: "Aplicação institucional presencial"},
+			},
+			PassingGrade:     70.0,
+			MinAttendance:    75.0,
+			ExamFinalRange:   "De 40.0 a 69.0 pontos",
+			ExamFinalFormula: "(Nota Semestral + Exame Final) / 2 >= 60.0 pontos",
+			OfficialDeadlines: deadlines,
+		},
+		"hibrida_sem_tpi": {
+			ModalityCode: "HB_SEM_TPI",
+			ModalityName: "Híbrida (HB) - Cursos sem TPI",
+			Description:  "Combina aulas presenciais com atividades online no Canvas.",
+			Groups: []AfyaGroupRule{
+				{Name: "N1 - Prova Escrita Presencial", Weight: 30.0, Points: 30.0, Notes: "Presencial, sem consulta"},
+				{Name: "N1 - Atividade Teórica/Prática", Weight: 15.0, Points: 15.0, Notes: "Elaborada pelo professor"},
+				{Name: "N2 - Prova Escrita Presencial", Weight: 30.0, Points: 30.0, Notes: "Presencial, sem consulta"},
+				{Name: "N2 - Simulado Revisional Canvas", Weight: 10.0, Points: 10.0, Notes: "Autocorreção no Canvas, 1 tentativa"},
+				{Name: "N2 - Atividade Presencial", Weight: 10.0, Points: 10.0, Notes: "Elaborada pelo professor"},
+				{Name: "N2 - Atividade AVA Canvas", Weight: 5.0, Points: 5.0, Notes: "Escolhida pelo professor no Canvas"},
+			},
+			PassingGrade:     70.0,
+			MinAttendance:    75.0,
+			ExamFinalRange:   "De 40.0 a 69.0 pontos",
+			ExamFinalFormula: "(Nota Semestral + Exame Final) / 2 >= 60.0 pontos",
+			OfficialDeadlines: deadlines,
+		},
+		"online_assincrona": {
+			ModalityCode: "ON_A",
+			ModalityName: "Online Assíncrona (100% Online)",
+			Description:  "Conteúdo integral no Canvas, sem aulas ao vivo. Prova em laboratório da IES.",
+			Groups: []AfyaGroupRule{
+				{Name: "N1 - Roteiro de Atividade 1", Weight: 25.0, Points: 25.0, Notes: "Envio pelo Canvas"},
+				{Name: "N1 - Roteiro de Atividade 2", Weight: 25.0, Points: 25.0, Notes: "Envio pelo Canvas"},
+				{Name: "N2 - Simulado para Avaliação Final", Weight: 10.0, Points: 10.0, Notes: "Autocorreção Canvas, tentativa única"},
+				{Name: "N2 - Prova Presencial no Laboratório", Weight: 40.0, Points: 40.0, Notes: "20 questões via Canvas em laboratório"},
+			},
+			PassingGrade:     70.0,
+			MinAttendance:    75.0,
+			ExamFinalRange:   "De 40.0 a 69.0 pontos",
+			ExamFinalFormula: "(Nota Semestral + Exame Final) / 2 >= 60.0 pontos",
+			OfficialDeadlines: deadlines,
+		},
+		"simplificado_50_50": {
+			ModalityCode: "SIMPLIFICADO_50_50",
+			ModalityName: "Modelo Ponderado Contínuo (50% Atividades / 50% Prova)",
+			Description:  "Ideal para turmas em andamento onde surgem múltiplas atividades práticas contínuas.",
+			Groups: []AfyaGroupRule{
+				{Name: "Atividades e Trabalhos Práticos", Weight: 50.0, Points: 100.0, Notes: "Compreende todas as listas, quizzes e projetos do semestre"},
+				{Name: "Avaliação Oficial / Prova", Weight: 50.0, Points: 100.0, Notes: "Prova individual semestral"},
+			},
+			PassingGrade:     70.0,
+			MinAttendance:    75.0,
+			ExamFinalRange:   "De 40.0 a 69.0 pontos",
+			ExamFinalFormula: "(Nota Semestral + Exame Final) / 2 >= 60.0 pontos",
+			OfficialDeadlines: deadlines,
+		},
+	}
+
+	if modality != "" {
+		if rule, ok := catalog[strings.ToLower(strings.TrimSpace(modality))]; ok {
+			return rule, nil
+		}
+		return nil, fmt.Errorf("modalidade desconhecida '%s'. Opções válidas: presencial_sem_tpi, presencial_com_tpi, hibrida_sem_tpi, online_assincrona, simplificado_50_50", modality)
+	}
+
+	return catalog, nil
+}
+
+// SetupAfyaGradingScheme configura os grupos ponderados do Canvas em conformidade com as regras institucionais
+func (c *CanvasClient) SetupAfyaGradingScheme(courseID, modality string) (any, error) {
+	rulesRaw, err := c.GetInstitutionalRules(modality)
+	if err != nil {
+		return nil, err
+	}
+	rule := rulesRaw.(AfyaModalityRules)
+
+	// 1. Ativar ponderação no curso
+	if _, err := c.SetCourseWeighting(courseID, true); err != nil {
+		return nil, fmt.Errorf("falha ao ativar ponderação no curso: %w", err)
+	}
+
+	// 2. Listar grupos atuais
+	groupsData, _, err := c.Request("GET", fmt.Sprintf("/api/v1/courses/%s/assignment_groups", url.PathEscape(courseID)), nil)
+	if err != nil {
+		return nil, fmt.Errorf("falha ao obter grupos atuais: %w", err)
+	}
+	var existingGroups []map[string]any
+	json.Unmarshal(groupsData, &existingGroups)
+
+	createdOrUpdated := []string{}
+
+	// Reutilizar o primeiro grupo existente para o primeiro item da regra
+	for i, gRule := range rule.Groups {
+		if i < len(existingGroups) {
+			targetID := fmt.Sprintf("%v", existingGroups[i]["id"])
+			_, upErr := c.UpdateAssignmentGroup(courseID, targetID, gRule.Name, gRule.Weight)
+			if upErr == nil {
+				createdOrUpdated = append(createdOrUpdated, fmt.Sprintf("Grupo ID %s atualizado para: '%s' (Peso: %.1f%%)", targetID, gRule.Name, gRule.Weight))
+			}
+		} else {
+			res, crErr := c.CreateAssignmentGroup(courseID, gRule.Name, gRule.Weight)
+			if crErr == nil {
+				createdOrUpdated = append(createdOrUpdated, fmt.Sprintf("Novo grupo criado: '%s' (Peso: %.1f%%)", gRule.Name, gRule.Weight))
+				_ = res
+			}
+		}
+	}
+
+	return map[string]any{
+		"course_id":          courseID,
+		"modality_applied":   rule.ModalityName,
+		"weights_enabled":    true,
+		"actions_performed":  createdOrUpdated,
+		"passing_grade":      rule.PassingGrade,
+		"official_deadlines": rule.OfficialDeadlines,
+	}, nil
+}
+
+// -------------------------------------------------------------
 // NOVAS FERRAMENTAS DE ALTO NÍVEL MCP
 // -------------------------------------------------------------
 

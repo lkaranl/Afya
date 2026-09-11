@@ -7,3 +7,15 @@ bin/
 *.exe
 scratch/
 .agents/
+
+# Caches e Bytecodes Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node / NPM
+node_modules/
+npm-debug.log*
+
+# Logs
+*.log

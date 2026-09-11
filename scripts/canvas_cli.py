@@ -466,8 +466,12 @@ def main():
         course_id = clean_args[0]
         if len(clean_args) >= 2:
             print_single_assignment(course_id, clean_args[1], as_json=as_json)
-        else:
-            print_course_status(course_id, as_json=as_json)
+    elif cmd == "modules":
+        if len(sys.argv) < 3:
+            print("Uso: python3 canvas_cli.py modules <course_id>")
+            sys.exit(1)
+        res = call_mcp("canvas_list_modules", {"course_id": str(sys.argv[2])})
+        print(json.dumps(res, indent=2, ensure_ascii=False))
 
     else:
         print(f"Comando desconhecido: {cmd}")

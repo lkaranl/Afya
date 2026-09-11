@@ -32,6 +32,19 @@ Permite que o **Agente de IA** atue como seu assistente pedagógico de ponta a p
 | `canvas_get_assignment` | Obtém o enunciado completo, rubrica e regras cadastradas na tarefa do Canvas. |
 | `canvas_submit_grades_batch` | Publica notas e feedbacks para toda a turma de uma vez só no Canvas. |
 | `canvas_submit_grade` | Lança nota e feedback para um aluno específico. |
+| `canvas_create_assignment` | **Criação de Atividades**: Cadastra uma nova atividade no Canvas com enunciado HTML institucional, pontuação, prazos, tipos de entrega e grupos via IA. |
+| `canvas_create_quiz` | **Criação de Questionários**: Cadastra um Quiz completo com questões de múltipla escolha ou abertas, alternativas, pontuação e comentários pedagógicos. |
+| `canvas_create_module` | **Criação de Módulos**: Cria um novo módulo semanal/temático no Canvas para estruturação do plano de ensino da disciplina. |
+| `canvas_add_module_item` | **Vinculação em Módulos**: Adiciona tarefas, questionários, links externos ou páginas a um módulo existente. |
+| `canvas_list_modules` | **Consulta de Módulos**: Lista módulos e conteúdos cadastrados no curso com status de publicação e datas. |
+| `canvas_create_page` | **Páginas de Teoria/Conteúdo**: Cria páginas Wiki formatadas em HTML institucional para materiais de apoio. |
+| `canvas_list_assignment_groups` | **Grupos de Notas**: Lista os grupos de tarefas e suas porcentagens de ponderação (ex: 50% atividades, 50% prova). |
+| `canvas_set_course_weighting` | **Ativação de Ponderação**: Ativa ou desativa a ponderação da nota final por grupos de avaliação. |
+| `canvas_create_assignment_group` | **Criação de Grupo**: Cria um novo grupo ponderado (ex: 'Avaliação Oficial / Prova' com peso 50%). |
+| `canvas_update_assignment_group` | **Atualização de Grupo**: Atualiza peso percentual ou nome de um grupo de atividades existente. |
+| `canvas_move_assignment_to_group` | **Organização de Notas**: Move atividades ou quizzes para o seu respectivo grupo ponderado. |
+| `canvas_get_institutional_rules` | **Regulamento Acadêmico Afya**: Consulta diretrizes de avaliação oficiais (CONSEPE 005/2024 e Guia NAPED 2026), limites N1/N2, prazos de devolutiva e revisão. |
+| `canvas_setup_afya_grading_scheme` | **Conformidade Institucional Automática**: Aplica no Canvas a matriz de notas oficial da Afya para a modalidade do curso (Presencial com/sem TPI, Híbrida, Online). |
 | `canvas_list_courses` | Lista as disciplinas ativas do professor (com IDs e nomes). |
 | `canvas_list_assignments` | Lista tarefas de uma disciplina com prazos e pendências. |
 | `canvas_list_students` | Lista os alunos matriculados para conferência de nomes e IDs. |

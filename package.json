@@ -1,6 +1,6 @@
 {
   "name": "afya-canvas",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Servidor MCP (Model Context Protocol) e CLI para automação de correções pedagógicas no Canvas LMS da Afya",
   "bin": {
     "afya-canvas": "bin/cli.js"

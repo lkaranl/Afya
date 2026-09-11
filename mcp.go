@@ -329,6 +329,372 @@ var mcpTools = []MCPTool{
 			"required": []string{"course_id", "assignment_id", "grades"},
 		},
 	},
+	{
+		Name:        "canvas_create_assignment",
+		Description: "Cria uma nova atividade acadêmica no Canvas LMS diretamente com enunciado formatado em HTML, pontuação, prazos, tipos de entrega e regras de grupo.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+				"name": map[string]any{
+					"type":        "string",
+					"description": "Título da atividade",
+				},
+				"description": map[string]any{
+					"type":        "string",
+					"description": "Enunciado e instruções da atividade formatados em HTML institucional",
+				},
+				"points_possible": map[string]any{
+					"type":        "number",
+					"description": "Pontuação máxima da atividade (ex: 100.0 ou 10.0)",
+				},
+				"submission_types": map[string]any{
+					"type":        "array",
+					"description": "Tipos de entrega aceitos (ex: ['online_url'], ['online_upload'], ['online_text_entry']). Padrão: ['online_url']",
+					"items":       map[string]any{"type": "string"},
+				},
+				"due_at": map[string]any{
+					"type":        "string",
+					"description": "Data e hora de vencimento no padrão ISO UTC (ex: '2026-09-25T02:59:59Z')",
+				},
+				"unlock_at": map[string]any{
+					"type":        "string",
+					"description": "Data e hora de liberação da atividade (opcional)",
+				},
+				"lock_at": map[string]any{
+					"type":        "string",
+					"description": "Data e hora de bloqueio final para envios (opcional)",
+				},
+				"group_category_id": map[string]any{
+					"type":        "string",
+					"description": "ID do conjunto de grupos caso seja uma tarefa em equipe (opcional)",
+				},
+				"published": map[string]any{
+					"type":        "boolean",
+					"description": "Se verdadeiro, publica a atividade imediatamente para os alunos (padrão: true)",
+				},
+				"allowed_extensions": map[string]any{
+					"type":        "array",
+					"description": "Extensões permitidas em caso de upload de arquivos (ex: ['c', 'h', 'zip'])",
+					"items":       map[string]any{"type": "string"},
+				},
+			},
+			"required": []string{"course_id", "name", "description", "points_possible"},
+		},
+	},
+	{
+		Name:        "canvas_create_quiz",
+		Description: "Cria um Questionário / Quiz completo no Canvas LMS com perguntas de múltipla escolha ou discursivas, alternativas, pesos de pontuação e feedbacks dos distratores em uma só chamada.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+				"title": map[string]any{
+					"type":        "string",
+					"description": "Título do questionário",
+				},
+				"description": map[string]any{
+					"type":        "string",
+					"description": "Instruções do questionário em HTML",
+				},
+				"time_limit": map[string]any{
+					"type":        "integer",
+					"description": "Tempo limite em minutos para responder à prova/quiz (opcional)",
+				},
+				"shuffle_answers": map[string]any{
+					"type":        "boolean",
+					"description": "Embaralhar as opções de resposta para os estudantes (padrão: true)",
+				},
+				"allowed_attempts": map[string]any{
+					"type":        "integer",
+					"description": "Número de tentativas permitidas (padrão: 1)",
+				},
+				"due_at": map[string]any{
+					"type":        "string",
+					"description": "Prazo de entrega em formato ISO UTC",
+				},
+				"published": map[string]any{
+					"type":        "boolean",
+					"description": "Publicar o quiz imediatamente (padrão: true)",
+				},
+				"questions": map[string]any{
+					"type":        "array",
+					"description": "Lista de questões do questionário",
+					"items": map[string]any{
+						"type": "object",
+						"properties": map[string]any{
+							"title":           map[string]any{"type": "string", "description": "Título/Identificador da questão"},
+							"text":            map[string]any{"type": "string", "description": "Enunciado da questão (HTML)"},
+							"type":            map[string]any{"type": "string", "description": "Tipo da questão (ex: 'multiple_choice_question', 'true_false_question')"},
+							"points_possible": map[string]any{"type": "number", "description": "Pontos desta questão (padrão: 10.0)"},
+							"answers": map[string]any{
+								"type": "array",
+								"description": "Alternativas da questão (para múltipla escolha)",
+								"items": map[string]any{
+									"type": "object",
+									"properties": map[string]any{
+										"text":    map[string]any{"type": "string", "description": "Texto da alternativa"},
+										"weight":  map[string]any{"type": "integer", "description": "100 para correta, 0 para incorreta"},
+										"comment": map[string]any{"type": "string", "description": "Feedback explicativo para quem marcar esta alternativa"},
+									},
+									"required": []string{"text", "weight"},
+								},
+							},
+						},
+						"required": []string{"text", "answers"},
+					},
+				},
+			},
+			"required": []string{"course_id", "title"},
+		},
+	},
+	{
+		Name:        "canvas_create_module",
+		Description: "Cria um novo Módulo semanal ou temático na disciplina do Canvas LMS para estruturar o plano de ensino.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+				"name": map[string]any{
+					"type":        "string",
+					"description": "Nome do módulo (ex: 'Semana 4: Árvores Binárias de Busca')",
+				},
+				"position": map[string]any{
+					"type":        "integer",
+					"description": "Posição ordinal do módulo na lista do curso (opcional)",
+				},
+				"unlock_at": map[string]any{
+					"type":        "string",
+					"description": "Data de desbloqueio automático do módulo (opcional)",
+				},
+			},
+			"required": []string{"course_id", "name"},
+		},
+	},
+	{
+		Name:        "canvas_add_module_item",
+		Description: "Vincula uma tarefa, questionário, link externo ou página a um Módulo de aula existente.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+				"module_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico do módulo",
+				},
+				"title": map[string]any{
+					"type":        "string",
+					"description": "Título de exibição do item no módulo",
+				},
+				"type": map[string]any{
+					"type":        "string",
+					"description": "Tipo do item: 'Assignment', 'Quiz', 'ExternalUrl', 'Page', 'SubHeader'",
+				},
+				"content_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da atividade ou quiz correspondente (obrigatório se type for Assignment ou Quiz)",
+				},
+				"page_url": map[string]any{
+					"type":        "string",
+					"description": "URL slug da página Wiki no Canvas (obrigatório se type for Page)",
+				},
+				"external_url": map[string]any{
+					"type":        "string",
+					"description": "URL externa caso o tipo seja ExternalUrl",
+				},
+				"new_tab": map[string]any{
+					"type":        "boolean",
+					"description": "Abrir em nova aba (para ExternalUrl)",
+				},
+			},
+			"required": []string{"course_id", "module_id", "type"},
+		},
+	},
+	{
+		Name:        "canvas_list_modules",
+		Description: "Lista todos os módulos de aula e seus respectivos itens cadastrados em uma disciplina do Canvas LMS.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+			},
+			"required": []string{"course_id"},
+		},
+	},
+	{
+		Name:        "canvas_create_page",
+		Description: "Cria uma nova Página de Conteúdo/Teoria (Wiki Page) no Canvas LMS com formatação rica em HTML para aulas e materiais de apoio.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+				"title": map[string]any{
+					"type":        "string",
+					"description": "Título da página",
+				},
+				"body": map[string]any{
+					"type":        "string",
+					"description": "Conteúdo da aula formatado em HTML",
+				},
+				"published": map[string]any{
+					"type":        "boolean",
+					"description": "Publicar a página imediatamente (padrão: true)",
+				},
+			},
+			"required": []string{"course_id", "title", "body"},
+		},
+	},
+	{
+		Name:        "canvas_list_assignment_groups",
+		Description: "Lista os grupos de notas/tarefas da disciplina com suas respectivas porcentagens de peso (ponderação) e atividades vinculadas.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+			},
+			"required": []string{"course_id"},
+		},
+	},
+	{
+		Name:        "canvas_set_course_weighting",
+		Description: "Ativa ou desativa a ponderação de notas final baseada em grupos de tarefas (ex: 50% atividades + 50% prova).",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+				"enable_weights": map[string]any{
+					"type":        "boolean",
+					"description": "True para ativar cálculo ponderado por grupos, False para pontos corridos",
+				},
+			},
+			"required": []string{"course_id", "enable_weights"},
+		},
+	},
+	{
+		Name:        "canvas_create_assignment_group",
+		Description: "Cria um novo grupo de atividades com peso percentual (ex: 'Avaliação Oficial / Prova' com peso 50%).",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+				"name": map[string]any{
+					"type":        "string",
+					"description": "Nome do grupo (ex: 'Atividades Práticas', 'Avaliação Oficial / Prova')",
+				},
+				"group_weight": map[string]any{
+					"type":        "number",
+					"description": "Peso percentual do grupo no cálculo da média final (ex: 50.0)",
+				},
+			},
+			"required": []string{"course_id", "name", "group_weight"},
+		},
+	},
+	{
+		Name:        "canvas_update_assignment_group",
+		Description: "Atualiza o nome e o peso percentual de um grupo de atividades existente.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+				"group_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico do grupo de tarefas",
+				},
+				"name": map[string]any{
+					"type":        "string",
+					"description": "Novo nome do grupo",
+				},
+				"group_weight": map[string]any{
+					"type":        "number",
+					"description": "Novo peso percentual (ex: 50.0)",
+				},
+			},
+			"required": []string{"course_id", "group_id", "name", "group_weight"},
+		},
+	},
+	{
+		Name:        "canvas_move_assignment_to_group",
+		Description: "Move uma atividade ou quiz para um grupo de notas específico.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+				"assignment_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da atividade",
+				},
+				"group_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico do grupo de destino",
+				},
+			},
+			"required": []string{"course_id", "assignment_id", "group_id"},
+		},
+	},
+	{
+		Name:        "canvas_get_institutional_rules",
+		Description: "Consulta as regras e diretrizes institucionais da Afya / São Lucas Ji-Paraná (Resolução CONSEPE 005/2024 e Guia NAPED 2026), incluindo composição de notas N1/N2, prazos de devolutiva, revisão de prova e critérios de aprovação.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"modality": map[string]any{
+					"type":        "string",
+					"description": "Modalidade da disciplina: 'presencial_sem_tpi', 'presencial_com_tpi', 'hibrida_sem_tpi', 'online_assincrona', 'simplificado_50_50' (deixe vazio para listar todas)",
+				},
+			},
+		},
+	},
+	{
+		Name:        "canvas_setup_afya_grading_scheme",
+		Description: "Aplica e configura automaticamente a matriz de avaliação oficial da Afya no Canvas LMS, ativando grupos ponderados e estruturando N1 e N2 em conformidade com o regimento.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+				"modality": map[string]any{
+					"type":        "string",
+					"description": "Modalidade oficial da disciplina: 'presencial_sem_tpi', 'presencial_com_tpi', 'hibrida_sem_tpi', 'online_assincrona', 'simplificado_50_50'",
+				},
+			},
+			"required": []string{"course_id", "modality"},
+		},
+	},
 }
 
 func runMCPServer(client *CanvasClient) {
@@ -569,6 +935,122 @@ func executeMCPTool(client *CanvasClient, name string, rawArgs json.RawMessage) 
 			return nil, err
 		}
 		return client.SubmitGradesBatch(args.CourseID, args.AssignmentID, args.Grades)
+
+	case "canvas_create_assignment":
+		var params CreateAssignmentParams
+		if err := json.Unmarshal(rawArgs, &params); err != nil {
+			return nil, err
+		}
+		return client.CreateAssignment(params)
+
+	case "canvas_create_quiz":
+		var params CreateQuizParams
+		if err := json.Unmarshal(rawArgs, &params); err != nil {
+			return nil, err
+		}
+		return client.CreateQuiz(params)
+
+	case "canvas_create_module":
+		var params CreateModuleParams
+		if err := json.Unmarshal(rawArgs, &params); err != nil {
+			return nil, err
+		}
+		return client.CreateModule(params)
+
+	case "canvas_add_module_item":
+		var params AddModuleItemParams
+		if err := json.Unmarshal(rawArgs, &params); err != nil {
+			return nil, err
+		}
+		return client.AddModuleItem(params)
+
+	case "canvas_list_modules":
+		var args struct {
+			CourseID string `json:"course_id"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return client.ListModules(args.CourseID)
+
+	case "canvas_create_page":
+		var params CreatePageParams
+		if err := json.Unmarshal(rawArgs, &params); err != nil {
+			return nil, err
+		}
+		return client.CreatePage(params)
+
+	case "canvas_list_assignment_groups":
+		var args struct {
+			CourseID string `json:"course_id"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return client.ListAssignmentGroups(args.CourseID)
+
+	case "canvas_set_course_weighting":
+		var args struct {
+			CourseID      string `json:"course_id"`
+			EnableWeights bool   `json:"enable_weights"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return client.SetCourseWeighting(args.CourseID, args.EnableWeights)
+
+	case "canvas_create_assignment_group":
+		var args struct {
+			CourseID    string  `json:"course_id"`
+			Name        string  `json:"name"`
+			GroupWeight float64 `json:"group_weight"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return client.CreateAssignmentGroup(args.CourseID, args.Name, args.GroupWeight)
+
+	case "canvas_update_assignment_group":
+		var args struct {
+			CourseID    string  `json:"course_id"`
+			GroupID     string  `json:"group_id"`
+			Name        string  `json:"name"`
+			GroupWeight float64 `json:"group_weight"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return client.UpdateAssignmentGroup(args.CourseID, args.GroupID, args.Name, args.GroupWeight)
+
+	case "canvas_move_assignment_to_group":
+		var args struct {
+			CourseID     string `json:"course_id"`
+			AssignmentID string `json:"assignment_id"`
+			GroupID      string `json:"group_id"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return client.MoveAssignmentToGroup(args.CourseID, args.AssignmentID, args.GroupID)
+
+	case "canvas_get_institutional_rules":
+		var args struct {
+			Modality string `json:"modality"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return client.GetInstitutionalRules(args.Modality)
+
+	case "canvas_setup_afya_grading_scheme":
+		var args struct {
+			CourseID string `json:"course_id"`
+			Modality string `json:"modality"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return client.SetupAfyaGradingScheme(args.CourseID, args.Modality)
 
 	default:
 		return nil, fmt.Errorf("ferramenta desconhecida: %s", name)

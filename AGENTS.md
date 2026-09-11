@@ -19,7 +19,39 @@ Seu objetivo principal é automatizar o fluxo de **identificação, leitura, ava
 5. **Tom dos Feedbacks (Estritamente Neutro, Impessoal e Sem Elogios Pessoais):** Seja sempre objetivo, formal, direto e estritamente técnico ao redigir comentários aos alunos. **Cuidado redobrado com o tom:** evite qualquer adjetivação calorosa, bajulação ou elogio excessivo (especialmente ao avaliar alunas), para que em hipótese alguma pareça intimidade, flerte, 'dar em cima' ou favorecimento. A comunicação deve ser puramente institucional, séria, impessoal e restrita aos aspectos técnicos do código e aos critérios da avaliação.
 6. **Apontamento Preciso de Erros:** Havendo qualquer erro (de compilação, sintaxe, lógica, caso de borda ou regra de negócio não atendida), aponte de maneira explícita e cirúrgica **onde está o erro** (indicando o trecho exato, expressão, linha ou condição afetada), explicando com clareza o motivo técnico da falha.
 7. **Linguagem Acessível e Didática (Alunos Iniciantes):** No geral, os alunos são leigos em programação. A linguagem dos feedbacks deve ser simples, clara e de fácil compreensão, evitando jargões excessivamente acadêmicos ou herméticos. Explique o problema de forma que um estudante iniciante consiga entender imediatamente o que aconteceu e como resolver.
-8. **Prioridade para Ferramentas MCP Nativas:** O MCP Server em Go `./afya-canvas` fornece ferramentas consolidadas e mastigadas de alto nível (`canvas_prepare_assignment`, `canvas_get_grading_status`, `canvas_validate_grades`). Priorize sempre essas ferramentas MCP diretas, evitando scripts ad-hoc ou comandos inline longos de shell.
+8. **Prioridade para Ferramentas MCP Nativas:** O MCP Server em Go `./afya-canvas` fornece ferramentas consolidadas e mastigadas de alto nível (`canvas_prepare_assignment`, `canvas_get_grading_status`, `canvas_validate_grades`, etc.). Priorize sempre essas ferramentas MCP diretas, evitando scripts ad-hoc ou comandos inline longos de shell.
+
+---
+
+## 🏛️ Diretrizes Institucionais Afya (Resolução CONSEPE 005/2024 & NAPED 2026)
+
+O agente deve pautar toda criação de atividades, questionários, cálculo de notas e feedbacks pelos regulamentos acadêmicos oficiais da Afya / Centro Universitário São Lucas Ji-Paraná:
+
+### 1. Composição de Notas e Componentes Curriculares (Matrizes 2022+):
+- **Disciplinas Presenciais (PR) - Cursos sem TPI (Ciência da Computação, Engenharias, etc.):**
+  - **Etapa N1 (50 pontos):**
+    - Prova Escrita Individual: **30 pontos** (sem consulta, modelo ENADE).
+    - Atividades Teóricas/Práticas: **20 pontos** (distribuídas pelo professor).
+  - **Etapa N2 (50 pontos):**
+    - Prova Escrita Individual: **30 pontos** (sem consulta, modelo ENADE).
+    - Atividades Teóricas/Práticas: **20 pontos** (distribuídas pelo professor).
+  - **Total Semestral:** **100 pontos** (N1: 50 pts + N2: 50 pts).
+- **Disciplinas Presenciais (PR) - Cursos com TPI (Direito, Enfermagem, Fisioterapia, Psicologia):**
+  - N1: Prova (30 pts) + Atividades (20 pts) = 50 pts.
+  - N2: Prova (20 pts) + Atividades (20 pts) + Teste de Progresso Institucional - TPI (10 pts) = 50 pts.
+- **Disciplinas Híbridas (HB) e Online (HB-ON.S / ON-A):**
+  - Seguem as matrizes específicas com simulados no Canvas (10 pts), e-atividades/roteiros (25 pts cada) e provas presenciais em laboratório (30 a 40 pts).
+
+### 2. Regras de Aprovação e Frequência:
+- **Aprovação Direta:** Nota semestral final $\ge$ **70 pontos** e frequência $\ge$ **75%**.
+- **Direito a Exame Final:** Nota semestral entre **40 e 69 pontos** e frequência $\ge$ **75%**.
+- **Reprovação Direta:** Nota semestral $<$ **40 pontos** ou frequência $<$ **75%** (sem direito a exame final).
+- **Cálculo pós-Exame Final:** $\text{Média Final} = \frac{\text{Nota Semestral} + \text{Exame Final}}{2} \ge \mathbf{60\text{ pontos}}$ para aprovação.
+
+### 3. Padrão Pedagógico de Avaliações:
+- Questões teóricas e simulados devem seguir o **Modelo ENADE**, apresentando texto-base contextualizado, situação-problema e distratores com justificativa pedagógica explícita.
+- Devolutiva obrigatória: As atividades e provas devem ser devolvidas e discutidas com os alunos em até **10 dias** após a aplicação, apresentando gabarito e justificativa das questões (Art. 5º e Art. 16 § 2º).
+- Revisão de Prova: O aluno pode solicitar revisão fundamentada em até **2 dias letivos** após a devolutiva em sala. O professor tem até **7 dias** após a notificação para realizar a revisão.
 
 ---
 
