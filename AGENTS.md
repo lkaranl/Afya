@@ -94,6 +94,7 @@ O MCP e os agentes determinam dinamicamente em tempo de execução quais discipl
 - `canvas_send_inbox_message`: Inicia uma nova conversa direta privada com um ou mais estudantes pelo Canvas.
 - `canvas_clear_cache`: Limpa o cache em memória (global ou por ID de turma) para forçar sincronização fresca com a API do Canvas.
 - `canvas_get_cache_stats`: Retorna as métricas de performance do cache (total de requisições, hits, misses e taxa de acerto).
+- `canvas_detect_at_risk_students`: Radar de identificação precoce de estudantes em risco acadêmico e de evasão (inatividade > 10 dias, tarefas zeradas consecutivas e notas < 70 pontos).
 
 ### 🐍 Utilitários de Suporte (`scripts/`):
 - `scripts/canvas_cli.py`: Utilitário central de linha de comando para invocar as ferramentas MCP via terminal caso necessário.
@@ -162,6 +163,16 @@ O MCP e os agentes determinam dinamicamente em tempo de execução quais discipl
      > *Deseja que eu envie essa resposta para o aluno no Canvas?"*
 5. **Envio da Resposta:**
    - Após o "OK" do professor, envie via `canvas_reply_inbox_message(conversation_id, message)`.
+
+### Cenário 5: O Professor pede para analisar evasão ou identificar alunos em risco
+1. **Varredura Proativa:**
+   - Execute `canvas_detect_at_risk_students(course_id)` com os cortes institucionais da Afya (inatividade > 10 dias, tarefas zeradas $\ge 2$ e média $< 70$).
+2. **Apresentação do Diagnóstico:**
+   - Exiba o panorama executivo da turma (percentual em risco crítico, moderado e regular).
+   - Apresente a tabela dos estudantes que demandam intervenção com seus respectivos fatores de alerta.
+3. **Plano de Ação Proposto:**
+   - Para alunos em Risco Crítico: sugira acionamento da coordenação/NAPED ou busca ativa.
+   - Para alunos em Risco Moderado: pergunte se o professor deseja que você elabore minutas de mensagens personalizadas de incentivo para envio via `canvas_send_inbox_message`.
 
 ---
 

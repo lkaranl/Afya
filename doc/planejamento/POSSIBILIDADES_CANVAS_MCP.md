@@ -39,17 +39,13 @@ Abaixo estão divididas as possibilidades entre o que **já temos**, o que **pod
 
 A API do Canvas fornece dados ricos de engajamento através dos endpoints de **Analytics e Enrollments**.
 
-### 💡 O que podemos fazer:
-1. **Radar de Alunos em Risco (Early Warning System):**
-   - Comando: *"Agente, quem está em risco de reprovação no 2º período?"*
-   - O MCP cruza:
-     - Alunos que não acessam o Canvas há mais de 10 dias.
-     - Alunos com 2 ou mais atividades consecutivas não entregues.
-     - Alunos com média acumulada abaixo do corte (ex: < 60%).
-   - Gera um relatório visual apontando exatamente onde cada estudante está com dificuldades.
-2. **Engajamento e Acesso a Materiais:**
+### O que já temos:
+- ✅ **Radar de Alunos em Risco & Early Warning (`canvas_detect_at_risk_students`):** Cruza inatividade no Canvas (> 10 dias), entregas consecutivas zeradas/faltantes e média acumulada abaixo do corte oficial da Afya (70 pontos), classificando a turma em Risco Crítico, Moderado, Atenção e Regular com tabela executiva e plano de ação pedagógico.
+
+### 💡 O que podemos fazer a seguir:
+1. **Engajamento e Acesso a Materiais:**
    - Verificar quais alunos sequer baixaram os slides ou abriram a página da aula antes de uma entrega.
-3. **Estatísticas Avançadas de Notas:**
+2. **Estatísticas Avançadas de Notas:**
    - Distribuição de notas por turma (histograma, desvio padrão, mediana), identificando quais atividades foram desproporcionalmente difíceis e demandam revisão de conteúdo.
 
 ---

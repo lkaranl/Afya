@@ -103,6 +103,30 @@ func runWebServer(client *CanvasClient, port string) {
 		sendWebJSON(w, res, err)
 	})
 
+	mux.HandleFunc("GET /api/courses/{id}/at-risk", func(w http.ResponseWriter, r *http.Request) {
+		id := r.PathValue("id")
+		inactDays := 10
+		if dStr := r.URL.Query().Get("inactivity_days"); dStr != "" {
+			if dVal, err := strconv.Atoi(dStr); err == nil && dVal > 0 {
+				inactDays = dVal
+			}
+		}
+		gradeCut := 70.0
+		if gStr := r.URL.Query().Get("grade_cutoff"); gStr != "" {
+			if gVal, err := strconv.ParseFloat(gStr, 64); err == nil && gVal > 0 {
+				gradeCut = gVal
+			}
+		}
+		consecThresh := 2
+		if cStr := r.URL.Query().Get("consecutive_threshold"); cStr != "" {
+			if cVal, err := strconv.Atoi(cStr); err == nil && cVal > 0 {
+				consecThresh = cVal
+			}
+		}
+		res, err := client.DetectAtRiskStudents(id, inactDays, gradeCut, consecThresh)
+		sendWebJSON(w, res, err)
+	})
+
 	// Endpoints de Submissões e Visualização de Códigos dos Alunos
 	mux.HandleFunc("GET /api/courses/{id}/assignments/{assignment_id}/submissions", func(w http.ResponseWriter, r *http.Request) {
 		courseID := r.PathValue("id")

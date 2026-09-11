@@ -837,6 +837,32 @@ var mcpTools = []MCPTool{
 			"properties": map[string]any{},
 		},
 	},
+	{
+		Name:        "canvas_detect_at_risk_students",
+		Description: "Painel de identificação precoce de estudantes em risco acadêmico ou de evasão, cruzando alunos inativos há mais de 10 dias, tarefas consecutivas zeradas/faltantes e média acumulada abaixo do corte da Afya (70 pontos).",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas LMS.",
+				},
+				"inactivity_days": map[string]any{
+					"type":        "integer",
+					"description": "Número de dias sem acesso à disciplina para sinalizar alerta de ausência (padrão: 10 dias).",
+				},
+				"grade_cutoff": map[string]any{
+					"type":        "number",
+					"description": "Nota de corte institucional para aprovação direta (padrão oficial da Afya: 70.0 pontos).",
+				},
+				"consecutive_threshold": map[string]any{
+					"type":        "integer",
+					"description": "Número de atividades consecutivas não entregues ou com nota zero (padrão: 2 atividades).",
+				},
+			},
+			"required": []string{"course_id"},
+		},
+	},
 }
 
 func runMCPServer(client *CanvasClient) {
@@ -1380,6 +1406,37 @@ func executeMCPTool(client *CanvasClient, name string, rawArgs json.RawMessage) 
 			"stats":       stats,
 			"description": fmt.Sprintf("%d hits, %d misses (Taxa de acerto: %.1f%%, %d itens em memória)", stats.Hits, stats.Misses, stats.HitRate, stats.ItemCount),
 		}, nil
+
+	case "canvas_detect_at_risk_students":
+		var args struct {
+			CourseID             string   `json:"course_id"`
+			InactivityDays       *int     `json:"inactivity_days"`
+			GradeCutoff          *float64 `json:"grade_cutoff"`
+			ConsecutiveThreshold *int     `json:"consecutive_threshold"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		if args.CourseID == "" {
+			return nil, fmt.Errorf("parâmetro 'course_id' é obrigatório")
+		}
+
+		inactDays := 10
+		if args.InactivityDays != nil && *args.InactivityDays > 0 {
+			inactDays = *args.InactivityDays
+		}
+
+		gradeCut := 70.0
+		if args.GradeCutoff != nil && *args.GradeCutoff > 0 {
+			gradeCut = *args.GradeCutoff
+		}
+
+		consecThresh := 2
+		if args.ConsecutiveThreshold != nil && *args.ConsecutiveThreshold > 0 {
+			consecThresh = *args.ConsecutiveThreshold
+		}
+
+		return client.DetectAtRiskStudents(args.CourseID, inactDays, gradeCut, consecThresh)
 
 	default:
 		return nil, fmt.Errorf("ferramenta desconhecida: %s", name)
