@@ -668,9 +668,10 @@ type SubmissionDetail struct {
 	SubmissionType string           `json:"submission_type"`
 	URL            string           `json:"url,omitempty"`
 	Body           string           `json:"body,omitempty"`
-	CleanBody      string           `json:"clean_body,omitempty"`
-	HasCode        bool             `json:"has_code"`
-	Attachments    []map[string]any `json:"attachments,omitempty"`
+	CleanBody            string           `json:"clean_body,omitempty"`
+	HasCode              bool             `json:"has_code"`
+	Attachments          []map[string]any `json:"attachments,omitempty"`
+	SuspiciousInjections []string         `json:"suspicious_injections,omitempty"`
 }
 
 // GetSubmissionsDetails busca todas as submissões com dados do usuário, anexos e código higienizado
@@ -737,19 +738,25 @@ func (c *CanvasClient) GetSubmissionsDetails(courseID, assignmentID string, only
 			urlStr = u
 		}
 
+		suspicious := DetectPromptInjectionAttempts(cleanBody)
+		if len(suspicious) == 0 && bodyText != "" {
+			suspicious = DetectPromptInjectionAttempts(bodyText)
+		}
+
 		results = append(results, SubmissionDetail{
-			UserID:         fmt.Sprintf("%v", item["user_id"]),
-			UserName:       userName,
-			WorkflowState:  workflowState,
-			Grade:          gradeStr,
-			SubmittedAt:    submittedAt,
-			SubmittedAtBR:  FormatBRDateTime(submittedAt),
-			SubmissionType: subType,
-			URL:            urlStr,
-			Body:           bodyText,
-			CleanBody:      cleanBody,
-			HasCode:        hasCode,
-			Attachments:    atts,
+			UserID:               fmt.Sprintf("%v", item["user_id"]),
+			UserName:             userName,
+			WorkflowState:        workflowState,
+			Grade:                gradeStr,
+			SubmittedAt:          submittedAt,
+			SubmittedAtBR:        FormatBRDateTime(submittedAt),
+			SubmissionType:       subType,
+			URL:                  urlStr,
+			Body:                 bodyText,
+			CleanBody:            cleanBody,
+			HasCode:              hasCode,
+			Attachments:          atts,
+			SuspiciousInjections: suspicious,
 		})
 	}
 
@@ -1995,8 +2002,9 @@ type PreparedItem struct {
 	CodeSnippet     string   `json:"code_snippet,omitempty"`
 	HasCode         bool     `json:"has_code"`
 	WorkflowState   string   `json:"workflow_state"`
-	Grade           string   `json:"grade,omitempty"`
-	SubmittedAtBR   string   `json:"submitted_at_br"`
+	Grade                string   `json:"grade,omitempty"`
+	SubmittedAtBR        string   `json:"submitted_at_br"`
+	SuspiciousInjections []string `json:"suspicious_injections,omitempty"`
 }
 
 type PrepareResult struct {
@@ -2071,13 +2079,14 @@ func (c *CanvasClient) PrepareAssignment(courseID, assignmentID, outputDir strin
 	for idx, s := range submissions {
 		cleanName := sanitizeNameRegex.ReplaceAllString(s.UserName, "_")
 		pItem := PreparedItem{
-			UserID:         s.UserID,
-			UserName:       s.UserName,
-			SubmissionType: s.SubmissionType,
-			HasCode:        s.HasCode,
-			WorkflowState:  s.WorkflowState,
-			Grade:          s.Grade,
-			SubmittedAtBR:  s.SubmittedAtBR,
+			UserID:               s.UserID,
+			UserName:             s.UserName,
+			SubmissionType:       s.SubmissionType,
+			HasCode:              s.HasCode,
+			WorkflowState:        s.WorkflowState,
+			Grade:                s.Grade,
+			SubmittedAtBR:        s.SubmittedAtBR,
+			SuspiciousInjections: s.SuspiciousInjections,
 		}
 
 		// A. Código colado no body
@@ -2204,6 +2213,9 @@ func (c *CanvasClient) PrepareAssignment(courseID, assignmentID, outputDir strin
 						items[task.userIdx].PrimaryFile = repoRes.PrimaryFile
 						items[task.userIdx].CodeSnippet = repoRes.Snippet
 						items[task.userIdx].HasCode = true
+						if suspicious := DetectPromptInjectionAttempts(repoRes.Snippet); len(suspicious) > 0 {
+							items[task.userIdx].SuspiciousInjections = append(items[task.userIdx].SuspiciousInjections, suspicious...)
+						}
 					}
 					mu.Unlock()
 				}
