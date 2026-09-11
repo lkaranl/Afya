@@ -2125,24 +2125,6 @@ body {
   letter-spacing: 0.02em;
 }
 
-.qp-utility-group {
-  margin-top: 0.5rem;
-  padding-top: 0.5rem;
-  border-top: 1px dashed var(--border-color);
-}
-
-.quick-prompt-btn.btn-util {
-  background: rgba(245, 158, 11, 0.08);
-  border-color: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
-}
-
-.quick-prompt-btn.btn-util:hover {
-  background: rgba(245, 158, 11, 0.18);
-  border-color: #f59e0b;
-  color: #fef3c7;
-}
-
 /* Área Principal do Chat */
 .chat-main-area {
   flex: 1;
