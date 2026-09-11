@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "afya-canvas": {
-      "command": "/Users/karan/Github/Afya/afya-canvas",
+      "command": "/Users/karan/Github/Afya/bin/afya-canvas-darwin-arm64",
       "args": [],
       "env": {
         "CANVAS_BASE_URL": "https://afya.instructure.com"

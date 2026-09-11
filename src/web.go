@@ -101,7 +101,9 @@ func runWebServer(client *CanvasClient, port string) {
 
 	// Arquivos estáticos da interface web
 	var staticFS http.FileSystem
-	if fi, err := os.Stat("public"); err == nil && fi.IsDir() {
+	if fi, err := os.Stat("src/public"); err == nil && fi.IsDir() {
+		staticFS = http.Dir("src/public")
+	} else if fi, err := os.Stat("public"); err == nil && fi.IsDir() {
 		staticFS = http.Dir("public")
 	} else {
 		sub, err := fs.Sub(embeddedPublic, "public")

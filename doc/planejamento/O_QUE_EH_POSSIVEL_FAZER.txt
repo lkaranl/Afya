@@ -1,0 +1,5 @@
+Gestão de Cursos e Turmas: Listar cursos em que você leciona, ver módulos cadastrados, ementas e estrutura das disciplinas.
+Lançamento e Consulta de Notas: Ler submissões de tarefas, baixar anexos entregues por alunos e publicar notas/feedbacks em lote no livro de notas.
+Tarefas e Avisos: Criar ou atualizar atividades (assignments), tópicos de discussão e disparar avisos (announcements) sem acessar a interface web.
+Extração de Dados: Exportar a lista de estudantes matriculados, histórico de submissões e relatórios de engajamento para planilhas ou sistemas locais.
+Sincronização de Conteúdo: Fazer upload automático de materiais de aula (PDFs, slides, códigos de exemplo) diretamente nas pastas da disciplina.
