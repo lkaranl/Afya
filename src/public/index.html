@@ -110,7 +110,7 @@
     <section class="tab-content active" id="chat-tab">
       <div class="chat-layout">
         <!-- Sidebar do Chat -->
-        <aside class="chat-sidebar">
+        <aside class="chat-sidebar" id="chatSidebar">
           <button class="btn-new-chat" id="btnNewChat">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             Nova Conversa
@@ -142,21 +142,21 @@
                 <span class="qp-cat-chevron">▾</span>
               </button>
               <div class="qp-category-content">
-                <button class="quick-prompt-btn" data-prompt="Crie e publique um simulado preparatório no padrão ENADE com 5 questões de múltipla escolha e autocorreção imediata para a turma ativa.">
+                <button class="quick-prompt-btn" data-prompt="Elabore uma proposta de simulado preparatório no padrão ENADE com 5 questões contextualizadas para a turma ativa e apresente todas as questões, alternativas e justificativas pedagógicas para minha conferência antes de cadastrar no Canvas.">
                   <span class="qp-icon">📝</span>
-                  <span class="qp-text">Gerar Simulado ENADE</span>
+                  <span class="qp-text">Gerar Proposta de Simulado ENADE</span>
                   <span class="qp-badge-new">Novo</span>
                 </button>
-                <button class="quick-prompt-btn" data-prompt="Crie um novo banco de itens institucional organizado por competência curricular ENADE para a disciplina ativa.">
+                <button class="quick-prompt-btn" data-prompt="Sugira uma estrutura de banco de itens institucional organizado por competências curriculares e DCNs para a disciplina ativa e apresente para minha aprovação.">
                   <span class="qp-icon">📚</span>
                   <span class="qp-text">Banco de Itens por Competência</span>
                   <span class="qp-badge-new">Novo</span>
                 </button>
-                <button class="quick-prompt-btn" data-prompt="Crie uma nova atividade prática em linguagem C com upload de arquivo .c, valendo 20 pontos e prazo para próxima semana.">
-                  <span class="qp-icon">💻</span>
-                  <span class="qp-text">Criar Atividade Prática C</span>
+                <button class="quick-prompt-btn" data-prompt="Elabore uma proposta de atividade avaliativa (prática, teórica ou estudo de caso) com enunciado contextualizado, critérios de avaliação e prazo para a turma ativa, para minha conferência antes de cadastrar no Canvas.">
+                  <span class="qp-icon">📋</span>
+                  <span class="qp-text">Propor Atividade Prática / Teórica</span>
                 </button>
-                <button class="quick-prompt-btn" data-prompt="Audite os grupos de notas e os prazos regulamentares das turmas de Estrutura de Dados conforme a Resolução CONSEPE 005/2024.">
+                <button class="quick-prompt-btn" data-prompt="Audite os grupos de notas e os prazos regulamentares das turmas ativas conforme a Resolução CONSEPE 005/2024 e me mostre o relatório consolidado.">
                   <span class="qp-icon">📊</span>
                   <span class="qp-text">Auditar Prazos & Notas (CONSEPE)</span>
                 </button>
@@ -173,17 +173,17 @@
                 <span class="qp-cat-chevron">▾</span>
               </button>
               <div class="qp-category-content">
-                <button class="quick-prompt-btn" data-prompt="Clone o módulo de Controle de Versão Colaborativo (Git & GitHub) da turma do 2º Período para a turma do 4º Período, incluindo páginas, tarefas e testes.">
+                <button class="quick-prompt-btn" data-prompt="Identifique os módulos da minha disciplina de origem e pergunte para qual turma de destino desejo replicar, exibindo o inventário detalhado de conteúdos para minha conferência e autorização antes de clonar.">
                   <span class="qp-icon">🚀</span>
-                  <span class="qp-text">Clonar Módulo (2º → 4º Período)</span>
+                  <span class="qp-text">Clonar Módulo entre Turmas</span>
                   <span class="qp-badge-new">Novo</span>
                 </button>
                 <button class="quick-prompt-btn" data-prompt="Exporte a matriz didática e blueprint completo da disciplina ativa em JSON e Markdown para backup e replicação em semestres futuros.">
                   <span class="qp-icon">📐</span>
-                  <span class="qp-text">Exportar Blueprint (2027.1)</span>
+                  <span class="qp-text">Exportar Blueprint Curricular</span>
                   <span class="qp-badge-new">Novo</span>
                 </button>
-                <button class="quick-prompt-btn" data-prompt="Consulte dinamicamente as obras da ementa oficial (básica e complementar) e gere links diretos de acesso aos e-books no catálogo da Minha Biblioteca da Afya.">
+                <button class="quick-prompt-btn" data-prompt="Consulte dinamicamente as obras da ementa oficial (básica e complementar) da disciplina ativa e gere links diretos de acesso aos e-books no catálogo da Minha Biblioteca da Afya.">
                   <span class="qp-icon">📖</span>
                   <span class="qp-text">Bibliografia & Minha Biblioteca</span>
                   <span class="qp-badge-new">Novo</span>
@@ -206,19 +206,19 @@
                 <span class="qp-cat-chevron">▾</span>
               </button>
               <div class="qp-category-content">
-                <button class="quick-prompt-btn" data-prompt="Quais atividades estão aguardando correção nas minhas turmas hoje?">
+                <button class="quick-prompt-btn" data-prompt="Quais atividades estão aguardando correção nas minhas turmas hoje? Apresente a lista detalhada para minha conferência.">
                   <span class="qp-icon">📋</span>
                   <span class="qp-text">Minhas Pendências de Correção</span>
                 </button>
-                <button class="quick-prompt-btn" data-prompt="Execute a detecção de similaridade e plágio nos códigos entregues na última atividade da turma ativa de Estrutura de Dados.">
+                <button class="quick-prompt-btn" data-prompt="Execute a análise de similaridade e plágio nas entregas e submissões da última atividade da turma ativa e exiba a tabela de pares suspeitos para minha conferência.">
                   <span class="qp-icon">🛡️</span>
-                  <span class="qp-text">Detectar Plágio em Códigos C</span>
+                  <span class="qp-text">Detectar Plágio e Similaridade</span>
                 </button>
-                <button class="quick-prompt-btn" data-prompt="Execute o radar de identificação de alunos em risco e evasão na turma ativa e aponte quem está inativo há mais de 10 dias ou com notas baixas.">
+                <button class="quick-prompt-btn" data-prompt="Execute o radar de identificação de alunos em risco acadêmico e evasão na turma ativa e aponte quem está inativo há mais de 10 dias ou com notas baixas.">
                   <span class="qp-icon">🚨</span>
                   <span class="qp-text">Radar de Alunos em Risco</span>
                 </button>
-                <button class="quick-prompt-btn" data-prompt="Verifique as mensagens e dúvidas não lidas dos alunos no meu Inbox do Canvas e elabore as minutas de resposta técnica para aprovação.">
+                <button class="quick-prompt-btn" data-prompt="Verifique as mensagens e dúvidas não lidas dos alunos no meu Inbox do Canvas e elabore as minutas de resposta técnica para minha aprovação antes de qualquer envio.">
                   <span class="qp-icon">📬</span>
                   <span class="qp-text">Triagem de Dúvidas do Inbox</span>
                 </button>
@@ -235,6 +235,11 @@
           </div>
         </aside>
 
+        <!-- Divisor Redimensionável (Drag Handle) -->
+        <div class="chat-sidebar-resizer" id="chatSidebarResizer" title="Arraste para redimensionar a largura da barra lateral">
+          <div class="resizer-handle-grip"></div>
+        </div>
+
         <!-- Área Principal de Mensagens -->
         <div class="chat-main-area">
           <!-- Barra Superior do Chat -->
@@ -244,7 +249,13 @@
                 <span class="chat-status-dot"></span>
                 Canvas MCP Conectado
               </span>
-              <span class="chat-capabilities">Correção de Código C • Notas • ENADE • Módulos</span>
+              <span class="chat-capabilities">Gestão de Turmas • Notas CONSEPE • Questões ENADE • Módulos</span>
+              <div class="chat-meta-badge" id="chatMetaInfo" title="Tempo da última resposta e modelo ativo" style="display: none;">
+                <span class="meta-icon">⚡</span>
+                <span id="chatResponseTime">0.0s</span>
+                <span class="meta-sep">•</span>
+                <span id="chatActiveModel">gemini-2.0-flash</span>
+              </div>
             </div>
             <div class="chat-top-actions">
               <button type="button" class="btn-top-chat" id="btnToggleChatSidebar" title="Recolher / Expandir barra lateral">

@@ -60,6 +60,9 @@ const elements = {
   aiProviderBadge: document.getElementById('aiProviderBadge'),
   aiModelName: document.getElementById('aiModelName'),
   aiCanvasStatus: document.getElementById('aiCanvasStatus'),
+  chatMetaInfo: document.getElementById('chatMetaInfo'),
+  chatResponseTime: document.getElementById('chatResponseTime'),
+  chatActiveModel: document.getElementById('chatActiveModel'),
 
   toastContainer: document.getElementById('toastContainer')
 };
@@ -1176,7 +1179,242 @@ function parseMarkdown(text) {
     .replace(/\n/g, '<br>');
 }
 
-function renderChatMessage(role, content) {
+// ==========================================
+// Pós-processamento de UI/UX: Cópias, Tabelas e Badges
+// ==========================================
+
+function enhanceMessageContent(container) {
+  if (!container) return;
+
+  // 1. Processar blocos de código (<pre>) com botão Copiar
+  const preElements = container.querySelectorAll('pre');
+  preElements.forEach((pre) => {
+    if (pre.parentElement && pre.parentElement.classList.contains('code-block-wrapper')) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block-wrapper';
+
+    const codeEl = pre.querySelector('code');
+    const codeText = codeEl ? codeEl.innerText : pre.innerText;
+
+    // Detecta linguagem didática
+    let lang = 'Código';
+    if (codeEl && codeEl.className) {
+      const classMatch = codeEl.className.match(/language-(\w+)/);
+      if (classMatch) {
+        lang = classMatch[1].toUpperCase();
+      }
+    }
+    if (lang === 'C' || codeText.includes('#include') || codeText.includes('int main') || codeText.includes('printf(')) {
+      lang = 'Linguagem C';
+    } else if (codeText.trim().startsWith('{') || codeText.trim().startsWith('[')) {
+      lang = 'JSON';
+    }
+
+    const header = document.createElement('div');
+    header.className = 'code-block-header';
+    header.innerHTML = `
+      <span class="code-lang-tag">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        ${lang}
+      </span>
+      <button class="btn-copy-code" type="button" title="Copiar código para área de transferência">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copiar</span>
+      </button>
+    `;
+
+    const copyBtn = header.querySelector('.btn-copy-code');
+    copyBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      try {
+        await navigator.clipboard.writeText(codeText);
+        copyBtn.classList.add('copied');
+        copyBtn.querySelector('span').textContent = 'Copiado!';
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtn.querySelector('span').textContent = 'Copiar';
+        }, 2000);
+      } catch (err) {
+        console.error('Falha ao copiar:', err);
+      }
+    });
+
+    pre.parentNode.insertBefore(wrapper, pre);
+    wrapper.appendChild(header);
+    wrapper.appendChild(pre);
+  });
+
+  // 2. Processar tabelas (<table>) com botão Copiar TSV / Excel
+  const tables = container.querySelectorAll('table');
+  tables.forEach((table) => {
+    if (table.parentElement && table.parentElement.classList.contains('chat-table-wrapper')) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'chat-table-wrapper';
+
+    const headerBar = document.createElement('div');
+    headerBar.className = 'chat-table-header-bar';
+    headerBar.innerHTML = `
+      <span class="table-title-hint">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+        Tabela de Dados
+      </span>
+      <button class="btn-copy-table" type="button" title="Copiar tabela (formato compatível com Excel e Sheets)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copiar Tabela</span>
+      </button>
+    `;
+
+    const copyBtn = headerBar.querySelector('.btn-copy-table');
+    copyBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      try {
+        const rows = Array.from(table.querySelectorAll('tr'));
+        const tsv = rows.map(r => {
+          const cells = Array.from(r.querySelectorAll('th, td'));
+          return cells.map(c => c.innerText.trim().replace(/\t/g, ' ')).join('\t');
+        }).join('\n');
+
+        await navigator.clipboard.writeText(tsv);
+        copyBtn.classList.add('copied');
+        copyBtn.querySelector('span').textContent = 'Copiada!';
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtn.querySelector('span').textContent = 'Copiar Tabela';
+        }, 2000);
+      } catch (err) {
+        console.error('Falha ao copiar tabela:', err);
+      }
+    });
+
+    table.parentNode.insertBefore(wrapper, table);
+    wrapper.appendChild(headerBar);
+    wrapper.appendChild(table);
+
+    // Aplicar badges nas células
+    applyBadgesToTable(table);
+  });
+
+  // 3. Destacar notas e riscos em blocos de texto
+  applyBadgesToTextNodes(container);
+}
+
+function applyBadgesToTable(table) {
+  if (!table) return;
+  const rows = Array.from(table.querySelectorAll('tr'));
+  if (rows.length === 0) return;
+
+  const headerCells = Array.from(rows[0].querySelectorAll('th, td'));
+  let gradeColIdx = -1;
+  let riskColIdx = -1;
+  let plagColIdx = -1;
+
+  headerCells.forEach((th, idx) => {
+    const txt = th.innerText.toLowerCase();
+    if (txt.includes('nota') || txt.includes('pontos') || txt.includes('score')) gradeColIdx = idx;
+    if (txt.includes('risco') || txt.includes('alerta') || txt.includes('status')) riskColIdx = idx;
+    if (txt.includes('plágio') || txt.includes('plagio') || txt.includes('similaridade') || txt.includes('cópia')) plagColIdx = idx;
+  });
+
+  for (let i = 1; i < rows.length; i++) {
+    const cells = Array.from(rows[i].querySelectorAll('td'));
+
+    cells.forEach((cell, cellIdx) => {
+      const originalText = cell.innerText.trim();
+      const lower = originalText.toLowerCase();
+
+      // Notas: Formato "X / Y"
+      const gradeMatch = originalText.match(/^([0-9]{1,3}(?:\.[0-9]+)?)\s*(?:\/|\s*de\s*)\s*([0-9]{1,3}(?:\.[0-9]+)?)$/i);
+      if (gradeMatch) {
+        const val = parseFloat(gradeMatch[1]);
+        const max = parseFloat(gradeMatch[2]);
+        const pct = max > 0 ? (val / max) : 0;
+        const isPass = pct >= 0.70;
+        cell.innerHTML = `<span class="${isPass ? 'badge-grade-pass' : 'badge-grade-fail'}">${isPass ? '✓' : '⚠️'} ${val} / ${max}</span>`;
+        return;
+      }
+
+      // Coluna identificada de nota apenas numérica
+      if (cellIdx === gradeColIdx) {
+        const numVal = parseFloat(originalText.replace(',', '.'));
+        if (!isNaN(numVal)) {
+          let isPass = false;
+          if (numVal > 20) isPass = numVal >= 70;
+          else if (numVal > 10) isPass = numVal >= 14;
+          else isPass = numVal >= 7.0;
+          cell.innerHTML = `<span class="${isPass ? 'badge-grade-pass' : 'badge-grade-fail'}">${isPass ? '✓' : '⚠️'} ${numVal}</span>`;
+          return;
+        }
+      }
+
+      // Risco de Evasão
+      if (lower.includes('crítico') || lower.includes('critico')) {
+        cell.innerHTML = `<span class="badge-risk-critical">🚨 ${originalText}</span>`;
+        return;
+      } else if (lower.includes('moderado')) {
+        cell.innerHTML = `<span class="badge-risk-moderate">⚠️ ${originalText}</span>`;
+        return;
+      } else if (lower.includes('regular') || lower.includes('baixo risco') || lower.includes('sem risco')) {
+        cell.innerHTML = `<span class="badge-risk-low">🟢 ${originalText}</span>`;
+        return;
+      }
+
+      // Plágio e Similaridade
+      if (lower === 'alto' || lower === 'alto risco' || lower.includes('similaridade alta')) {
+        cell.innerHTML = `<span class="badge-plagiarism-high">⚠️ Alto</span>`;
+        return;
+      } else if (lower === 'médio' || lower === 'medio' || lower === 'médio risco' || lower.includes('similaridade média')) {
+        cell.innerHTML = `<span class="badge-plagiarism-medium">⚡ Médio</span>`;
+        return;
+      } else if (lower === 'baixo' || lower === 'baixo risco' || lower.includes('similaridade baixa')) {
+        cell.innerHTML = `<span class="badge-plagiarism-low">✓ Baixo</span>`;
+        return;
+      }
+
+      // Percentuais de similaridade (ex: "85%", "25%")
+      const pctMatch = originalText.match(/^([0-9]{1,3}(?:\.[0-9]+)?)\s*%$/);
+      if (pctMatch && (cellIdx === plagColIdx || lower.includes('%'))) {
+        const pctVal = parseFloat(pctMatch[1]);
+        if (pctVal >= 60) {
+          cell.innerHTML = `<span class="badge-plagiarism-high">⚠️ ${pctVal}%</span>`;
+        } else if (pctVal >= 30) {
+          cell.innerHTML = `<span class="badge-plagiarism-medium">⚡ ${pctVal}%</span>`;
+        } else {
+          cell.innerHTML = `<span class="badge-plagiarism-low">✓ ${pctVal}%</span>`;
+        }
+        return;
+      }
+    });
+  }
+}
+
+function applyBadgesToTextNodes(container) {
+  if (!container) return;
+  const elementsToScan = container.querySelectorAll('p, li');
+  elementsToScan.forEach(el => {
+    if (el.closest('pre') || el.closest('code') || el.closest('table')) return;
+
+    let html = el.innerHTML;
+    let modified = false;
+
+    // Destaca notas "X / 100", "X / 50", "X / 20"
+    html = html.replace(/\b([0-9]{1,3}(?:\.[0-9]+)?)\s*\/\s*(100|50|30|20|10)\b/g, (match, valStr, maxStr) => {
+      const val = parseFloat(valStr);
+      const max = parseFloat(maxStr);
+      const pct = max > 0 ? (val / max) : 0;
+      const isPass = pct >= 0.70;
+      modified = true;
+      return `<span class="${isPass ? 'badge-grade-pass' : 'badge-grade-fail'}">${isPass ? '✓' : '⚠️'} ${val} / ${max}</span>`;
+    });
+
+    if (modified) {
+      el.innerHTML = html;
+    }
+  });
+}
+
+function renderChatMessage(role, content, meta = null) {
   // Remove welcome state se presente
   const welcome = elements.chatMessages.querySelector('.chat-welcome-state');
   if (welcome) {
@@ -1195,6 +1433,21 @@ function renderChatMessage(role, content) {
 
   if (role === 'assistant') {
     bubble.innerHTML = parseMarkdown(content);
+    enhanceMessageContent(bubble);
+
+    // Se houver metadados de execução (tempo / modelo), exibe de forma sutil no rodapé da bolha
+    if (meta && (meta.duration_ms || meta.model)) {
+      const metaRow = document.createElement('div');
+      metaRow.className = 'msg-bubble-meta';
+      const timeStr = meta.duration_ms ? (meta.duration_ms / 1000).toFixed(1) + 's' : '';
+      const modelStr = meta.model || '';
+      metaRow.innerHTML = `
+        ${timeStr ? `<span class="meta-item">⏱️ ${timeStr}</span>` : ''}
+        ${timeStr && modelStr ? '<span class="meta-dot">•</span>' : ''}
+        ${modelStr ? `<span class="meta-item">${modelStr}</span>` : ''}
+      `;
+      bubble.appendChild(metaRow);
+    }
   } else {
     bubble.textContent = content;
   }
@@ -1322,8 +1575,27 @@ async function sendChatMessage(userText) {
     const data = await res.json();
     const reply = data.reply || 'Não obtive resposta do modelo de IA.';
 
-    renderChatMessage('assistant', reply);
-    state.chatHistory.push({ role: 'assistant', content: reply });
+    // Atualiza indicador superior de tempo e modelo
+    if (data.duration_ms && elements.chatResponseTime) {
+      elements.chatResponseTime.textContent = (data.duration_ms / 1000).toFixed(1) + 's';
+      if (elements.chatActiveModel) {
+        elements.chatActiveModel.textContent = data.model || 'gemini-2.0-flash';
+      }
+      if (elements.chatMetaInfo) {
+        elements.chatMetaInfo.style.display = 'inline-flex';
+      }
+    }
+
+    renderChatMessage('assistant', reply, {
+      duration_ms: data.duration_ms,
+      model: data.model
+    });
+    state.chatHistory.push({
+      role: 'assistant',
+      content: reply,
+      duration_ms: data.duration_ms,
+      model: data.model
+    });
     localStorage.setItem('afya_chat_history', JSON.stringify(state.chatHistory));
 
     // Se houver card de ação sensível
@@ -1405,6 +1677,92 @@ function initChatEvents() {
     });
   }
 
+  // ==========================================
+  // Redimensionamento Dinâmico da Barra Lateral (Drag-to-Resize)
+  // ==========================================
+  const chatSidebar = document.getElementById('chatSidebar');
+  const chatResizer = document.getElementById('chatSidebarResizer');
+
+  // Restaura largura salva da barra lateral
+  const savedSidebarWidth = localStorage.getItem('afya_chat_sidebar_width');
+  if (savedSidebarWidth && chatSidebar) {
+    const parsedWidth = parseInt(savedSidebarWidth, 10);
+    if (!isNaN(parsedWidth) && parsedWidth >= 240 && parsedWidth <= 750) {
+      chatSidebar.style.width = `${parsedWidth}px`;
+    }
+  }
+
+  if (chatResizer && chatSidebar && chatLayout) {
+    let isResizing = false;
+    let startX = 0;
+    let startWidth = 0;
+
+    const startResize = (clientX) => {
+      isResizing = true;
+      startX = clientX;
+      startWidth = chatSidebar.getBoundingClientRect().width;
+      chatResizer.classList.add('is-dragging');
+      chatLayout.classList.add('is-resizing');
+      document.body.style.cursor = 'col-resize';
+    };
+
+    const doResize = (clientX) => {
+      if (!isResizing) return;
+      const deltaX = clientX - startX;
+      const newWidth = Math.min(Math.max(startWidth + deltaX, 240), 750);
+      chatSidebar.style.width = `${newWidth}px`;
+    };
+
+    const stopResize = () => {
+      if (!isResizing) return;
+      isResizing = false;
+      chatResizer.classList.remove('is-dragging');
+      chatLayout.classList.remove('is-resizing');
+      document.body.style.cursor = '';
+      const finalWidth = parseInt(chatSidebar.style.width, 10);
+      if (!isNaN(finalWidth)) {
+        localStorage.setItem('afya_chat_sidebar_width', finalWidth);
+      }
+    };
+
+    // Eventos de Mouse
+    chatResizer.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      startResize(e.clientX);
+
+      const onMouseMove = (moveEvent) => doResize(moveEvent.clientX);
+      const onMouseUp = () => {
+        stopResize();
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+      };
+
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    });
+
+    // Suporte para Touch (Tablets / Touchscreens)
+    chatResizer.addEventListener('touchstart', (e) => {
+      if (e.touches && e.touches.length > 0) {
+        startResize(e.touches[0].clientX);
+
+        const onTouchMove = (moveEvent) => {
+          if (moveEvent.touches && moveEvent.touches.length > 0) {
+            doResize(moveEvent.touches[0].clientX);
+          }
+        };
+        const onTouchEnd = () => {
+          stopResize();
+          window.removeEventListener('touchmove', onTouchMove);
+          window.removeEventListener('touchend', onTouchEnd);
+        };
+
+        window.addEventListener('touchmove', onTouchMove, { passive: true });
+        window.addEventListener('touchend', onTouchEnd);
+      }
+    });
+  }
+
   // Acordeão de Categorias da Barra Lateral do Chat
   document.querySelectorAll('.qp-category-header').forEach(header => {
     header.addEventListener('click', (e) => {
@@ -1433,7 +1791,10 @@ function initChatEvents() {
     if (welcome) welcome.remove();
 
     state.chatHistory.forEach(msg => {
-      renderChatMessage(msg.role, msg.content);
+      renderChatMessage(msg.role, msg.content, {
+        duration_ms: msg.duration_ms,
+        model: msg.model
+      });
     });
   }
 }

@@ -49,6 +49,8 @@ type AgentChatResponse struct {
 	Reply        string           `json:"reply"`
 	ToolExecuted []string         `json:"tools_executed,omitempty"`
 	ActionCard   *AgentActionCard `json:"action_card,omitempty"`
+	DurationMs   int64            `json:"duration_ms,omitempty"`
+	Model        string           `json:"model,omitempty"`
 }
 
 // AgentEngine gerencia as chamadas LLM e a execução de ferramentas
@@ -166,16 +168,32 @@ PONTO DE PARADA PARA NOTAS:
 
 // Chat processa a mensagem do professor, executa as ferramentas do Canvas necessárias e retorna a resposta final
 func (e *AgentEngine) Chat(ctx context.Context, userMsg string, history []ChatMessage) (*AgentChatResponse, error) {
+	start := time.Now()
+
 	if e.APIKey == "" && e.Provider != "ollama" {
 		return &AgentChatResponse{
-			Reply: "⚠️ **Chave de API de IA não configurada!**\n\nPara conversar com o agente, adicione sua chave no arquivo `.env`:\n```env\nAI_PROVIDER=gemini\nAI_API_KEY=sua_chave_do_google_aqui\nAI_MODEL=gemini-2.0-flash\n```\n*(Se preferir OpenAI, configure `AI_PROVIDER=openai` e `AI_API_KEY=sk-...`)*",
+			Reply:      "⚠️ **Chave de API de IA não configurada!**\n\nPara conversar com o agente, adicione sua chave no arquivo `.env`:\n```env\nAI_PROVIDER=gemini\nAI_API_KEY=sua_chave_do_google_aqui\nAI_MODEL=gemini-2.0-flash\n```\n*(Se preferir OpenAI, configure `AI_PROVIDER=openai` e `AI_API_KEY=sk-...`)*",
+			DurationMs: time.Since(start).Milliseconds(),
+			Model:      e.Model,
 		}, nil
 	}
 
+	var res *AgentChatResponse
+	var err error
+
 	if e.Provider == "gemini" {
-		return e.chatGemini(ctx, userMsg, history)
+		res, err = e.chatGemini(ctx, userMsg, history)
+	} else {
+		res, err = e.chatOpenAI(ctx, userMsg, history)
 	}
-	return e.chatOpenAI(ctx, userMsg, history)
+
+	if res != nil {
+		res.DurationMs = time.Since(start).Milliseconds()
+		if res.Model == "" {
+			res.Model = e.Model
+		}
+	}
+	return res, err
 }
 
 // -----------------------------------------------------------------------
