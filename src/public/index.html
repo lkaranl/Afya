@@ -126,51 +126,108 @@
             <div class="ai-canvas-status" id="aiCanvasStatus">Canvas LMS Conectado</div>
           </div>
 
-          <!-- Ações Rápidas -->
+          <!-- Ações Rápidas por Categorias Temáticas -->
           <div class="quick-prompts-section">
-            <span class="sidebar-heading">Perguntas Rápidas</span>
-            <div class="quick-prompts-list">
-              <button class="quick-prompt-btn" data-prompt="Quais atividades estão aguardando correção nas minhas turmas hoje?">
-                <span class="qp-icon">📋</span>
-                <span class="qp-text">Minhas Pendências</span>
+            <div class="sidebar-heading-row">
+              <span class="sidebar-heading">Centro de Comando Docente</span>
+            </div>
+
+            <!-- Categoria 1: Avaliações & Modelo ENADE -->
+            <div class="qp-category-group open" id="catGroupEnade">
+              <button type="button" class="qp-category-header" data-toggle="catGroupEnade">
+                <span class="qp-cat-title">
+                  <span class="qp-cat-icon">🎓</span>
+                  <span class="qp-cat-label">Avaliações & ENADE</span>
+                </span>
+                <span class="qp-cat-chevron">▾</span>
               </button>
-              <button class="quick-prompt-btn" data-prompt="Execute a detecção de similaridade e plágio nos códigos entregues na última atividade da turma ativa de Estrutura de Dados.">
-                <span class="qp-icon">🛡️</span>
-                <span class="qp-text">Detectar Plágio em Códigos</span>
+              <div class="qp-category-content">
+                <button class="quick-prompt-btn" data-prompt="Crie e publique um simulado preparatório no padrão ENADE com 5 questões de múltipla escolha e autocorreção imediata para a turma ativa.">
+                  <span class="qp-icon">📝</span>
+                  <span class="qp-text">Gerar Simulado ENADE</span>
+                  <span class="qp-badge-new">Novo</span>
+                </button>
+                <button class="quick-prompt-btn" data-prompt="Crie um novo banco de itens institucional organizado por competência curricular ENADE para a disciplina ativa.">
+                  <span class="qp-icon">📚</span>
+                  <span class="qp-text">Banco de Itens por Competência</span>
+                  <span class="qp-badge-new">Novo</span>
+                </button>
+                <button class="quick-prompt-btn" data-prompt="Crie uma nova atividade prática em linguagem C com upload de arquivo .c, valendo 20 pontos e prazo para próxima semana.">
+                  <span class="qp-icon">💻</span>
+                  <span class="qp-text">Criar Atividade Prática C</span>
+                </button>
+                <button class="quick-prompt-btn" data-prompt="Audite os grupos de notas e os prazos regulamentares das turmas de Estrutura de Dados conforme a Resolução CONSEPE 005/2024.">
+                  <span class="qp-icon">📊</span>
+                  <span class="qp-text">Auditar Prazos & Notas (CONSEPE)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Categoria 2: Gestão de Turmas & Conteúdos -->
+            <div class="qp-category-group open" id="catGroupContent">
+              <button type="button" class="qp-category-header" data-toggle="catGroupContent">
+                <span class="qp-cat-title">
+                  <span class="qp-cat-icon">🔄</span>
+                  <span class="qp-cat-label">Turmas & Conteúdos</span>
+                </span>
+                <span class="qp-cat-chevron">▾</span>
               </button>
-              <button class="quick-prompt-btn" data-prompt="Execute o radar de identificação de alunos em risco e evasão na turma ativa e aponte quem está inativo há mais de 10 dias ou com notas baixas.">
-                <span class="qp-icon">🚨</span>
-                <span class="qp-text">Radar de Alunos em Risco</span>
+              <div class="qp-category-content">
+                <button class="quick-prompt-btn" data-prompt="Clone o módulo de Controle de Versão Colaborativo (Git & GitHub) da turma do 2º Período para a turma do 4º Período, incluindo páginas, tarefas e testes.">
+                  <span class="qp-icon">🚀</span>
+                  <span class="qp-text">Clonar Módulo (2º → 4º Período)</span>
+                  <span class="qp-badge-new">Novo</span>
+                </button>
+                <button class="quick-prompt-btn" data-prompt="Exporte a matriz didática e blueprint completo da disciplina ativa em JSON e Markdown para backup e replicação em semestres futuros.">
+                  <span class="qp-icon">📐</span>
+                  <span class="qp-text">Exportar Blueprint (2027.1)</span>
+                  <span class="qp-badge-new">Novo</span>
+                </button>
+                <button class="quick-prompt-btn" data-prompt="Consulte dinamicamente as obras da ementa oficial (básica e complementar) e gere links diretos de acesso aos e-books no catálogo da Minha Biblioteca da Afya.">
+                  <span class="qp-icon">📖</span>
+                  <span class="qp-text">Bibliografia & Minha Biblioteca</span>
+                  <span class="qp-badge-new">Novo</span>
+                </button>
+                <button class="quick-prompt-btn" data-prompt="Consulte o Calendário Acadêmico Oficial 2026.2 da Afya e mostre os marcos de N1, N2, 2ª chamada, exames finais e sábados letivos.">
+                  <span class="qp-icon">📅</span>
+                  <span class="qp-text">Calendário Acadêmico 2026.2</span>
+                  <span class="qp-badge-new">Novo</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Categoria 3: Acompanhamento Acadêmico -->
+            <div class="qp-category-group open" id="catGroupTracking">
+              <button type="button" class="qp-category-header" data-toggle="catGroupTracking">
+                <span class="qp-cat-title">
+                  <span class="qp-cat-icon">🛡️</span>
+                  <span class="qp-cat-label">Acompanhamento Acadêmico</span>
+                </span>
+                <span class="qp-cat-chevron">▾</span>
               </button>
-              <button class="quick-prompt-btn" data-prompt="Verifique as mensagens e dúvidas não lidas dos alunos no meu Inbox do Canvas e elabore as minutas de resposta técnica para aprovação.">
-                <span class="qp-icon">📬</span>
-                <span class="qp-text">Dúvidas no Inbox</span>
-              </button>
-              <button class="quick-prompt-btn" data-prompt="Apresente um resumo consolidado do status de correção e notas de todas as atividades da disciplina ativa.">
-                <span class="qp-icon">📈</span>
-                <span class="qp-text">Panorama de Correções</span>
-              </button>
-              <button class="quick-prompt-btn" data-prompt="Audite os grupos de notas das turmas de Estrutura de Dados do 2º e 4º períodos e veja se estão em conformidade com as regras da Afya.">
-                <span class="qp-icon">📊</span>
-                <span class="qp-text">Auditar Grupos de Notas</span>
-              </button>
-              <button class="quick-prompt-btn" data-prompt="Crie um questionário interativo no modelo ENADE sobre Árvores Binárias de Busca com 5 questões de múltipla escolha e distratores explicados.">
-                <span class="qp-icon">📝</span>
-                <span class="qp-text">Criar Quiz Modelo ENADE</span>
-              </button>
-              <button class="quick-prompt-btn" data-prompt="Crie uma nova atividade prática em linguagem C com upload de arquivo .c, valendo 20 pontos e prazo para próxima semana.">
-                <span class="qp-icon">💻</span>
-                <span class="qp-text">Criar Atividade Prática</span>
-              </button>
-              <button class="quick-prompt-btn" data-prompt="Quais são as regras institucionais, composição de notas N1/N2 e prazos de devolutiva da Afya segundo o CONSEPE?">
-                <span class="qp-icon">⚖️</span>
-                <span class="qp-text">Regulamento Afya</span>
-              </button>
-              <button class="quick-prompt-btn" data-prompt="Liste todos os módulos de aula e conteúdos cadastrados no curso de Estrutura de Dados.">
-                <span class="qp-icon">📦</span>
-                <span class="qp-text">Ver Módulos de Aula</span>
-              </button>
-              <button class="quick-prompt-btn" data-prompt="Limpe o cache em memória do Canvas e mostre as estatísticas de requisições e taxa de acerto.">
+              <div class="qp-category-content">
+                <button class="quick-prompt-btn" data-prompt="Quais atividades estão aguardando correção nas minhas turmas hoje?">
+                  <span class="qp-icon">📋</span>
+                  <span class="qp-text">Minhas Pendências de Correção</span>
+                </button>
+                <button class="quick-prompt-btn" data-prompt="Execute a detecção de similaridade e plágio nos códigos entregues na última atividade da turma ativa de Estrutura de Dados.">
+                  <span class="qp-icon">🛡️</span>
+                  <span class="qp-text">Detectar Plágio em Códigos C</span>
+                </button>
+                <button class="quick-prompt-btn" data-prompt="Execute o radar de identificação de alunos em risco e evasão na turma ativa e aponte quem está inativo há mais de 10 dias ou com notas baixas.">
+                  <span class="qp-icon">🚨</span>
+                  <span class="qp-text">Radar de Alunos em Risco</span>
+                </button>
+                <button class="quick-prompt-btn" data-prompt="Verifique as mensagens e dúvidas não lidas dos alunos no meu Inbox do Canvas e elabore as minutas de resposta técnica para aprovação.">
+                  <span class="qp-icon">📬</span>
+                  <span class="qp-text">Triagem de Dúvidas do Inbox</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Utilitário -->
+            <div class="qp-utility-group">
+              <button class="quick-prompt-btn btn-util" data-prompt="Limpe o cache em memória do Canvas e mostre as estatísticas de requisições e taxa de acerto.">
                 <span class="qp-icon">⚡</span>
                 <span class="qp-text">Sincronizar e Limpar Cache</span>
               </button>

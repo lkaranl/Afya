@@ -1405,6 +1405,18 @@ function initChatEvents() {
     });
   }
 
+  // Acordeão de Categorias da Barra Lateral do Chat
+  document.querySelectorAll('.qp-category-header').forEach(header => {
+    header.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetId = header.getAttribute('data-toggle');
+      const group = document.getElementById(targetId) || header.closest('.qp-category-group');
+      if (group) {
+        group.classList.toggle('open');
+      }
+    });
+  });
+
   // Botões de Quick Prompts
   document.querySelectorAll('.quick-prompt-btn').forEach(btn => {
     btn.addEventListener('click', () => {
