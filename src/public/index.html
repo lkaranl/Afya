@@ -480,6 +480,100 @@
     </section>
   </main>
 
+  <!-- Modal: Visualizador de Códigos dos Alunos -->
+  <div class="modal-backdrop" id="codeViewerModal" style="display: none;">
+    <div class="modal-container code-viewer-dialog">
+      <!-- Topo do Modal -->
+      <div class="cv-header">
+        <div class="cv-header-left">
+          <div class="cv-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          </div>
+          <div>
+            <h3 class="cv-title" id="cvAssignmentTitle">Visualizador de Código</h3>
+            <span class="cv-subtitle" id="cvCourseSubtitle">Atividade e Turma</span>
+          </div>
+        </div>
+        <div class="cv-header-right">
+          <!-- Seletor e Navegador de Estudantes -->
+          <div class="cv-student-selector-wrapper">
+            <button type="button" class="btn-cv-nav" id="cvBtnPrevStudent" title="Aluno anterior (Seta esquerda)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <select id="cvStudentSelect" class="select-input cv-select">
+              <option value="">Carregando alunos...</option>
+            </select>
+            <button type="button" class="btn-cv-nav" id="cvBtnNextStudent" title="Próximo aluno (Seta direita)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+          <button type="button" class="cv-close-btn" id="cvBtnClose" title="Fechar visualizador (Esc)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Metadados do Aluno & Controles de Ação -->
+      <div class="cv-meta-bar">
+        <div class="cv-student-info">
+          <div class="cv-student-avatar" id="cvStudentAvatar">AL</div>
+          <div class="cv-student-details">
+            <span class="cv-student-name" id="cvStudentName">Nome do Estudante</span>
+            <div class="cv-tags">
+              <span class="cv-status-tag" id="cvStatusTag">Entregue</span>
+              <span class="cv-date-tag" id="cvDateTag">📅 --/--/-- às --:--</span>
+              <span class="cv-score-tag" id="cvScoreTag">🏆 Nota: -</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="cv-actions-bar">
+          <span class="cv-lang-badge" id="cvLangBadge">C (C99)</span>
+          <button type="button" class="btn btn-secondary btn-sm" id="cvBtnCopyCode" title="Copiar código para área de transferência">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copiar</span>
+          </button>
+          <button type="button" class="btn btn-primary btn-sm" id="cvBtnTestCode" title="Compilar e testar sintaxe do código">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span>Testar Código</span>
+          </button>
+          <button type="button" class="btn-ai-action" id="cvBtnAskAICode" title="Pedir avaliação detalhada para a IA">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+            <span>Avaliar com IA</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Corpo Principal: Visualizador de Código com Numeração de Linhas -->
+      <div class="cv-body">
+        <div class="cv-code-container" id="cvCodeContainer">
+          <div class="cv-line-numbers" id="cvLineNumbers"></div>
+          <pre class="cv-code-pre"><code class="cv-code-content" id="cvCodeContent">// O código do aluno será exibido aqui...</code></pre>
+        </div>
+
+        <!-- Painel Inferior de Teste e Diagnóstico -->
+        <div class="cv-test-results-panel" id="cvTestResultsPanel" style="display: none;">
+          <div class="cv-trp-header">
+            <div class="cv-trp-title" id="cvTrpTitle">
+              <span class="cv-trp-status-icon">✓</span>
+              <span id="cvTrpStatusText">Resultado do Teste de Compilação</span>
+            </div>
+            <button type="button" class="cv-trp-close" id="cvBtnCloseResults">✕</button>
+          </div>
+          <div class="cv-trp-body" id="cvTrpBody">
+            <!-- Detalhes de compilação ou erros por linha -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Rodapé com Anexos e Contador de Alunos -->
+      <div class="cv-footer">
+        <div class="cv-attachments-area" id="cvAttachmentsArea"></div>
+        <div class="cv-counter" id="cvStudentCounter">Aluno 1 de 1</div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast de Notificações -->
   <div class="toast-container" id="toastContainer"></div>
 

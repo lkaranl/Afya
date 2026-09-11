@@ -622,12 +622,29 @@ function renderAssignmentsList() {
         <span class="grading-badge ${isPending ? 'pending' : 'done'}">
           ${isPending ? `⚠️ ${pending} para corrigir` : '✓ 100% Corrigidas'}
         </span>
+        <button class="btn btn-secondary btn-view-code" data-assign-id="${item.id}" data-course-id="${item.course_id}" data-name="${item.name}" data-points="${item.points_possible || ''}" style="padding: 0.4rem 0.75rem; font-size: 0.8125rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+          Ver Códigos
+        </button>
         ${btnAIEvaluate}
         <a href="${canvasUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.8125rem;">
           Ver no Canvas
         </a>
       </div>
     `;
+
+    // Evento do botão Ver Códigos
+    const viewCodeBtn = div.querySelector('.btn-view-code');
+    if (viewCodeBtn) {
+      viewCodeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const aName = viewCodeBtn.getAttribute('data-name');
+        const cId = viewCodeBtn.getAttribute('data-course-id');
+        const aId = viewCodeBtn.getAttribute('data-assign-id');
+        const pts = viewCodeBtn.getAttribute('data-points');
+        openCodeViewerModal(cId, aId, aName, pts);
+      });
+    }
 
     // Evento do botão Corrigir com IA
     const aiBtn = div.querySelector('.btn-ai-action');
@@ -1390,4 +1407,510 @@ function initChatEvents() {
 // Inicialização automática
 initApp();
 initChatEvents();
+
+// ==========================================================================
+// Módulo: Visualizador de Códigos dos Alunos & Testador Integrado
+// ==========================================================================
+
+const codeViewerState = {
+  courseId: null,
+  assignmentId: null,
+  assignmentName: '',
+  pointsPossible: null,
+  submissions: [],
+  currentIndex: 0,
+  currentCode: '',
+  errorLines: new Set()
+};
+
+// Elementos do Modal de Visualização de Código
+const cvElements = {
+  modal: document.getElementById('codeViewerModal'),
+  assignmentTitle: document.getElementById('cvAssignmentTitle'),
+  courseSubtitle: document.getElementById('cvCourseSubtitle'),
+  studentSelect: document.getElementById('cvStudentSelect'),
+  btnPrev: document.getElementById('cvBtnPrevStudent'),
+  btnNext: document.getElementById('cvBtnNextStudent'),
+  btnClose: document.getElementById('cvBtnClose'),
+  studentAvatar: document.getElementById('cvStudentAvatar'),
+  studentName: document.getElementById('cvStudentName'),
+  statusTag: document.getElementById('cvStatusTag'),
+  dateTag: document.getElementById('cvDateTag'),
+  scoreTag: document.getElementById('cvScoreTag'),
+  langBadge: document.getElementById('cvLangBadge'),
+  btnCopyCode: document.getElementById('cvBtnCopyCode'),
+  btnTestCode: document.getElementById('cvBtnTestCode'),
+  btnAskAICode: document.getElementById('cvBtnAskAICode'),
+  lineNumbers: document.getElementById('cvLineNumbers'),
+  codeContent: document.getElementById('cvCodeContent'),
+  codeContainer: document.getElementById('cvCodeContainer'),
+  testResultsPanel: document.getElementById('cvTestResultsPanel'),
+  trpTitle: document.getElementById('cvTrpTitle'),
+  trpStatusText: document.getElementById('cvTrpStatusText'),
+  trpBody: document.getElementById('cvTrpBody'),
+  btnCloseResults: document.getElementById('cvBtnCloseResults'),
+  attachmentsArea: document.getElementById('cvAttachmentsArea'),
+  studentCounter: document.getElementById('cvStudentCounter')
+};
+
+// Abre o Modal e carrega as submissões
+async function openCodeViewerModal(courseId, assignmentId, assignmentName, pointsPossible) {
+  codeViewerState.courseId = courseId;
+  codeViewerState.assignmentId = assignmentId;
+  codeViewerState.assignmentName = assignmentName;
+  codeViewerState.pointsPossible = pointsPossible;
+  codeViewerState.submissions = [];
+  codeViewerState.currentIndex = 0;
+  codeViewerState.currentCode = '';
+  codeViewerState.errorLines.clear();
+
+  cvElements.assignmentTitle.textContent = assignmentName || 'Visualizador de Código';
+  const course = state.courses.find(c => String(c.id) === String(courseId));
+  cvElements.courseSubtitle.textContent = course ? (course.clean_name || course.name) : `Disciplina ID ${courseId}`;
+
+  // Exibe o modal com estado inicial de carregamento
+  cvElements.modal.style.display = 'flex';
+  cvElements.studentSelect.innerHTML = '<option value="">Buscando entregas no Canvas...</option>';
+  cvElements.lineNumbers.innerHTML = '<span>1</span>';
+  cvElements.codeContent.innerHTML = '<span class="sh-comment">// Consultando submissões e códigos dos estudantes no Canvas LMS...</span>';
+  cvElements.testResultsPanel.style.display = 'none';
+  cvElements.attachmentsArea.innerHTML = '';
+  cvElements.studentCounter.textContent = 'Carregando...';
+
+  try {
+    const res = await fetch(`/api/courses/${courseId}/assignments/${assignmentId}/submissions`);
+    if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
+    const list = await res.json();
+
+    if (!Array.isArray(list) || list.length === 0) {
+      cvElements.studentSelect.innerHTML = '<option value="">Nenhuma entrega registrada</option>';
+      cvElements.codeContent.innerHTML = '<span class="sh-comment">// Nenhum aluno submeteu esta atividade ainda.</span>';
+      cvElements.studentCounter.textContent = '0 alunos';
+      return;
+    }
+
+    // Ordena: quem tem código primeiro, depois alfabético
+    list.sort((a, b) => {
+      const aHas = a.has_code || (a.clean_body && a.clean_body.trim().length > 0) ? 1 : 0;
+      const bHas = b.has_code || (b.clean_body && b.clean_body.trim().length > 0) ? 1 : 0;
+      if (bHas !== aHas) return bHas - aHas;
+      return (a.user_name || '').localeCompare(b.user_name || '');
+    });
+
+    codeViewerState.submissions = list;
+
+    // Popula o select de estudantes
+    cvElements.studentSelect.innerHTML = '';
+    list.forEach((sub, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx;
+      const hasCodeIcon = sub.has_code || (sub.clean_body && sub.clean_body.trim().length > 0) ? '💻 ' : '📄 ';
+      const statusIcon = sub.workflow_state === 'graded' ? '✓ ' : '⚠️ ';
+      const scoreTxt = sub.grade ? ` [${sub.grade} pts]` : '';
+      opt.textContent = `${statusIcon}${hasCodeIcon}${sub.user_name || `Aluno ID ${sub.user_id}`}${scoreTxt}`;
+      cvElements.studentSelect.appendChild(opt);
+    });
+
+    // Renderiza a primeira submissão
+    renderStudentSubmission(0);
+
+  } catch (err) {
+    console.error('Erro ao buscar submissões:', err);
+    cvElements.studentSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+    cvElements.codeContent.innerHTML = `<span class="sh-comment">// Falha ao conectar ao Canvas: ${err.message}</span>`;
+    showToast('Não foi possível carregar as submissões desta atividade.', 'error');
+  }
+}
+
+// Fecha o modal
+function closeCodeViewerModal() {
+  cvElements.modal.style.display = 'none';
+  cvElements.testResultsPanel.style.display = 'none';
+  codeViewerState.errorLines.clear();
+}
+
+// Renderiza o aluno selecionado no visualizador
+function renderStudentSubmission(index) {
+  if (!codeViewerState.submissions || codeViewerState.submissions.length === 0) return;
+  if (index < 0) index = 0;
+  if (index >= codeViewerState.submissions.length) index = codeViewerState.submissions.length - 1;
+
+  codeViewerState.currentIndex = index;
+  codeViewerState.errorLines.clear();
+  cvElements.studentSelect.value = index;
+
+  const sub = codeViewerState.submissions[index];
+  const uName = sub.user_name || `Estudante ID ${sub.user_id}`;
+
+  // Avatar e Nome
+  const initials = uName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+  cvElements.studentAvatar.textContent = initials || 'AL';
+  cvElements.studentName.textContent = uName;
+
+  // Status de Avaliação
+  const isGraded = sub.workflow_state === 'graded';
+  cvElements.statusTag.className = `cv-status-tag ${isGraded ? '' : 'pending'}`;
+  cvElements.statusTag.textContent = isGraded ? '✓ Corrigida' : '⚠️ Aguardando Nota';
+
+  // Data de Entrega (fuso de Brasília)
+  cvElements.dateTag.textContent = sub.submitted_at ? `📅 ${formatDate(sub.submitted_at)}` : '📅 Sem data';
+
+  // Nota
+  const maxPts = codeViewerState.pointsPossible !== null && codeViewerState.pointsPossible !== undefined ? ` / ${codeViewerState.pointsPossible}` : '';
+  cvElements.scoreTag.textContent = sub.grade ? `🏆 Nota: ${sub.grade}${maxPts}` : `🏆 Sem nota${maxPts}`;
+
+  // Contador
+  cvElements.studentCounter.textContent = `Aluno ${index + 1} de ${codeViewerState.submissions.length}`;
+
+  // Reseta painel de diagnóstico
+  cvElements.testResultsPanel.style.display = 'none';
+
+  // Extração do Código
+  let rawCode = '';
+  if (sub.clean_body && sub.clean_body.trim().length > 0) {
+    rawCode = sub.clean_body.trim();
+  } else if (sub.body && sub.body.trim().length > 0) {
+    rawCode = sub.body.trim();
+  } else if (sub.url && sub.url.trim().length > 0) {
+    rawCode = `// O estudante submeteu um link externo:\n// URL: ${sub.url}`;
+  } else if (sub.attachments && sub.attachments.length > 0) {
+    const attNames = sub.attachments.map(a => a.display_name || a.filename).join(', ');
+    rawCode = `// Arquivo(s) anexado(s) pelo estudante: ${attNames}\n// Baixe o anexo nos botões de download no rodapé deste painel para inspecionar.`;
+  } else {
+    rawCode = `// Nenhuma entrega textual ou código foi encontrado para este estudante nesta atividade.`;
+  }
+
+  codeViewerState.currentCode = rawCode;
+
+  // Renderiza Anexos se houver
+  cvElements.attachmentsArea.innerHTML = '';
+  if (sub.attachments && sub.attachments.length > 0) {
+    sub.attachments.forEach(att => {
+      const a = document.createElement('a');
+      a.className = 'cv-attach-chip';
+      a.href = att.url || '#';
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.innerHTML = `📎 ${att.display_name || att.filename || 'Anexo'}`;
+      cvElements.attachmentsArea.appendChild(a);
+    });
+  }
+
+  // Renderiza com Syntax Highlighting e Linhas
+  renderCodeViewerLines(rawCode, codeViewerState.errorLines);
+}
+
+// Tokenizador e Syntax Highlighting para C / C++
+function highlightCSyntax(line) {
+  let escaped = line
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // Comentários de linha única (// ...)
+  if (escaped.includes('//')) {
+    const parts = escaped.split('//');
+    const codePart = highlightCSyntaxTokens(parts[0]);
+    return `${codePart}<span class="sh-comment">//${parts.slice(1).join('//')}</span>`;
+  }
+
+  return highlightCSyntaxTokens(escaped);
+}
+
+function highlightCSyntaxTokens(text) {
+  // Strings ("..." ou '...')
+  text = text.replace(/("(\\.|[^"\\])*")/g, '<span class="sh-string">$1</span>');
+  text = text.replace(/('(\\.|[^'\\])*')/g, '<span class="sh-string">$1</span>');
+
+  // Diretivas pré-processador (#include, #define...)
+  text = text.replace(/^\s*(#(?:include|define|ifndef|ifdef|endif|pragma)[^\n<]*)(&lt;[^&]*&gt;)?/g, (match, p1, p2) => {
+    return `<span class="sh-preprocessor">${p1}</span>${p2 ? `<span class="sh-string">${p2}</span>` : ''}`;
+  });
+
+  // Palavras-chave de controle
+  const keywords = /\b(return|if|else|while|for|switch|case|default|break|continue|struct|typedef|sizeof|goto|do|const|static|extern|inline|volatile)\b/g;
+  text = text.replace(keywords, '<span class="sh-keyword">$1</span>');
+
+  // Tipos primitivos e estruturais de C
+  const types = /\b(int|void|char|float|double|bool|size_t|long|short|unsigned|signed|FILE|uint8_t|uint16_t|uint32_t|int32_t|int64_t|NULL)\b/g;
+  text = text.replace(types, '<span class="sh-type">$1</span>');
+
+  // Números literais
+  text = text.replace(/\b(0x[0-9a-fA-F]+|\d+(\.\d+)?)\b/g, '<span class="sh-number">$1</span>');
+
+  // Chamadas de funções
+  text = text.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*(?=\()/g, '<span class="sh-function">$1</span>');
+
+  return text;
+}
+
+// Renderiza as linhas numeradas e o código com destaque
+function renderCodeViewerLines(rawCode, errorLinesSet) {
+  const lines = rawCode.split('\n');
+  cvElements.lineNumbers.innerHTML = '';
+  cvElements.codeContent.innerHTML = '';
+
+  const numFragment = document.createDocumentFragment();
+  const codeFragment = document.createDocumentFragment();
+
+  lines.forEach((lineText, idx) => {
+    const lineNum = idx + 1;
+    const isError = errorLinesSet && errorLinesSet.has(lineNum);
+
+    // Gutter número de linha
+    const numSpan = document.createElement('span');
+    numSpan.textContent = lineNum;
+    if (isError) numSpan.classList.add('line-highlight-error');
+    numFragment.appendChild(numSpan);
+
+    // Linha de código
+    const lineDiv = document.createElement('div');
+    lineDiv.id = `cv-line-${lineNum}`;
+    lineDiv.innerHTML = highlightCSyntax(lineText) || '&nbsp;';
+    if (isError) lineDiv.classList.add('line-highlight-error');
+    codeFragment.appendChild(lineDiv);
+  });
+
+  cvElements.lineNumbers.appendChild(numFragment);
+  cvElements.codeContent.appendChild(codeFragment);
+}
+
+// Testar Compilação / Sintaxe do Aluno
+async function runCodeTestOnCurrentSubmission() {
+  if (!codeViewerState.currentCode || codeViewerState.currentCode.trim().length === 0) {
+    showToast('Não há código submetido para testar.', 'error');
+    return;
+  }
+
+  const origBtnText = cvElements.btnTestCode.innerHTML;
+  cvElements.btnTestCode.disabled = true;
+  cvElements.btnTestCode.innerHTML = `
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="thinking-spinner"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+    <span>Compilando...</span>
+  `;
+
+  cvElements.testResultsPanel.style.display = 'block';
+  cvElements.trpTitle.className = 'cv-trp-title';
+  cvElements.trpStatusText.textContent = 'Executando análise sintática e teste com compilador gcc/clang...';
+  cvElements.trpBody.innerHTML = '<div class="sh-comment">// Compilando código em ambiente sandbox isolado...</div>';
+
+  try {
+    const res = await fetch('/api/code/test', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: codeViewerState.currentCode,
+        language: 'c'
+      })
+    });
+
+    if (!res.ok) throw new Error(`Erro na compilação: HTTP ${res.status}`);
+    const result = await res.json();
+
+    codeViewerState.errorLines.clear();
+
+    const isSuccess = result.status === 'success' || result.syntax_valid === true;
+
+    if (isSuccess) {
+      cvElements.trpTitle.className = 'cv-trp-title success';
+      cvElements.trpStatusText.textContent = '✓ Código Compilado com Sucesso!';
+
+      let detailsHtml = `
+        <div class="cv-diag-item success">
+          <span class="cv-diag-line">Sintaxe C99:</span>
+          <span>Compilação concluída sem erros fatais.</span>
+        </div>
+      `;
+
+      if (result.warnings && result.warnings.length > 0) {
+        detailsHtml += `<div style="margin-top: 0.5rem; font-weight: 700; color: var(--color-warning);">⚠️ Avisos (Warnings) do Compilador:</div>`;
+        result.warnings.forEach(w => {
+          detailsHtml += `
+            <div class="cv-diag-item warning">
+              <span>${w.message || w}</span>
+            </div>
+          `;
+        });
+      }
+
+      if (result.test_results && Array.isArray(result.test_results)) {
+        detailsHtml += `<div style="margin-top: 0.5rem; font-weight: 700; color: var(--color-success);">🧪 Casos de Teste Executados:</div>`;
+        result.test_results.forEach(tr => {
+          detailsHtml += `
+            <div class="cv-diag-item ${tr.passed ? 'success' : 'error'}">
+              <span>${tr.passed ? '✓ Passou' : '✕ Falhou'}: ${tr.name || tr.description || 'Caso de teste'}</span>
+            </div>
+          `;
+        });
+      }
+
+      cvElements.trpBody.innerHTML = detailsHtml;
+      renderCodeViewerLines(codeViewerState.currentCode, codeViewerState.errorLines);
+
+    } else {
+      cvElements.trpTitle.className = 'cv-trp-title error';
+      cvElements.trpStatusText.textContent = '✕ Falha de Compilação / Sintaxe Detectada';
+
+      let errorsList = [];
+      if (Array.isArray(result.errors) && result.errors.length > 0) {
+        errorsList = result.errors;
+      } else if (result.error) {
+        errorsList.push({ message: result.error });
+      } else if (result.output) {
+        // Tenta extrair linhas e mensagens do output do gcc
+        const errorRegex = /(?:eval_[a-zA-Z0-9_]+\.c|scratch\/[^\s:]+):(\d+):(?:\d+:)?\s*(error|warning):\s*([^\n]+)/g;
+        let match;
+        while ((match = errorRegex.exec(result.output)) !== null) {
+          errorsList.push({
+            line: parseInt(match[1]),
+            type: match[2],
+            message: match[3]
+          });
+        }
+        if (errorsList.length === 0) {
+          errorsList.push({ message: result.output });
+        }
+      }
+
+      let errHtml = `<div style="margin-bottom: 0.5rem; font-weight: 700; color: var(--color-danger);">Erros apontados pelo compilador (clique para navegar até a linha):</div>`;
+
+      errorsList.forEach(err => {
+        const lineNum = err.line || (err.message && err.message.match(/linha\s+(\d+)/i) ? parseInt(err.message.match(/linha\s+(\d+)/i)[1]) : null);
+        if (lineNum) codeViewerState.errorLines.add(lineNum);
+
+        const lineTag = lineNum ? `<span class="cv-diag-line" data-goto-line="${lineNum}">[Linha ${lineNum}]</span>` : '';
+        errHtml += `
+          <div class="cv-diag-item error" data-goto-line="${lineNum || ''}">
+            ${lineTag}
+            <span>${err.message || 'Erro de sintaxe desconhecido'}</span>
+          </div>
+        `;
+      });
+
+      cvElements.trpBody.innerHTML = errHtml;
+
+      // Re-renderiza com as linhas vermelhas destacadas
+      renderCodeViewerLines(codeViewerState.currentCode, codeViewerState.errorLines);
+
+      // Adiciona listener de clique para ir até a linha
+      cvElements.trpBody.querySelectorAll('[data-goto-line]').forEach(el => {
+        el.addEventListener('click', () => {
+          const targetLine = parseInt(el.getAttribute('data-goto-line'));
+          if (targetLine) {
+            const lineEl = document.getElementById(`cv-line-${targetLine}`);
+            if (lineEl) {
+              lineEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+        });
+      });
+    }
+
+  } catch (err) {
+    cvElements.trpTitle.className = 'cv-trp-title error';
+    cvElements.trpStatusText.textContent = 'Erro ao se comunicar com o testador';
+    cvElements.trpBody.innerHTML = `<div class="cv-diag-item error"><span>${err.message}</span></div>`;
+  } finally {
+    cvElements.btnTestCode.disabled = false;
+    cvElements.btnTestCode.innerHTML = origBtnText;
+  }
+}
+
+// Copiar código da submissão
+function copyCurrentSubmissionCode() {
+  if (!codeViewerState.currentCode) return;
+  navigator.clipboard.writeText(codeViewerState.currentCode).then(() => {
+    const origHtml = cvElements.btnCopyCode.innerHTML;
+    cvElements.btnCopyCode.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <span>Copiado!</span>
+    `;
+    setTimeout(() => {
+      cvElements.btnCopyCode.innerHTML = origHtml;
+    }, 2000);
+    showToast('Código copiado para a área de transferência!');
+  }).catch(err => {
+    console.error('Falha ao copiar:', err);
+    showToast('Não foi possível copiar o código automaticamente.', 'error');
+  });
+}
+
+// Enviar código atual diretamente para avaliação com IA
+function askAICodeCurrentSubmission() {
+  if (!codeViewerState.currentCode) return;
+  const sub = codeViewerState.submissions[codeViewerState.currentIndex];
+  const uName = sub ? sub.user_name : 'Estudante';
+  const uId = sub ? sub.user_id : '-';
+
+  closeCodeViewerModal();
+
+  // Ativa a aba de chat
+  const chatTabBtn = document.getElementById('tabBtnChat');
+  if (chatTabBtn) chatTabBtn.click();
+
+  const prompt = `Por favor, faça uma avaliação técnica e pedagógica (com tom neutro e institucional, conforme o regulamento da Afya) do código em C submetido pelo estudante ${uName} (ID Canvas: ${uId}) para a atividade '${codeViewerState.assignmentName}'.\n\nIdentifique se o código compila corretamente, verifique casos de borda e aponte cirurgicamente a linha de qualquer falha se houver:\n\n\`\`\`c\n${codeViewerState.currentCode}\n\`\`\``;
+
+  sendChatMessage(prompt);
+}
+
+// Inicializa Eventos do Visualizador de Código
+function initCodeViewerEvents() {
+  // Fechar Modal
+  cvElements.btnClose?.addEventListener('click', closeCodeViewerModal);
+  cvElements.btnCloseResults?.addEventListener('click', () => {
+    cvElements.testResultsPanel.style.display = 'none';
+  });
+
+  // Fechar clicando no backdrop escuro fora da caixa
+  cvElements.modal?.addEventListener('click', (e) => {
+    if (e.target === cvElements.modal) {
+      closeCodeViewerModal();
+    }
+  });
+
+  // Mudança no select de estudantes
+  cvElements.studentSelect?.addEventListener('change', (e) => {
+    const idx = parseInt(e.target.value);
+    if (!isNaN(idx)) renderStudentSubmission(idx);
+  });
+
+  // Navegação Anterior / Próximo
+  cvElements.btnPrev?.addEventListener('click', () => {
+    if (codeViewerState.currentIndex > 0) {
+      renderStudentSubmission(codeViewerState.currentIndex - 1);
+    }
+  });
+
+  cvElements.btnNext?.addEventListener('click', () => {
+    if (codeViewerState.currentIndex < codeViewerState.submissions.length - 1) {
+      renderStudentSubmission(codeViewerState.currentIndex + 1);
+    }
+  });
+
+  // Botões de Ação
+  cvElements.btnCopyCode?.addEventListener('click', copyCurrentSubmissionCode);
+  cvElements.btnTestCode?.addEventListener('click', runCodeTestOnCurrentSubmission);
+  cvElements.btnAskAICode?.addEventListener('click', askAICodeCurrentSubmission);
+
+  // Atalhos de teclado (Esc para fechar, Setas para navegar)
+  window.addEventListener('keydown', (e) => {
+    if (cvElements.modal && cvElements.modal.style.display === 'flex') {
+      if (e.key === 'Escape') {
+        closeCodeViewerModal();
+      } else if (e.key === 'ArrowLeft') {
+        if (codeViewerState.currentIndex > 0) {
+          renderStudentSubmission(codeViewerState.currentIndex - 1);
+        }
+      } else if (e.key === 'ArrowRight') {
+        if (codeViewerState.currentIndex < codeViewerState.submissions.length - 1) {
+          renderStudentSubmission(codeViewerState.currentIndex + 1);
+        }
+      }
+    }
+  });
+}
+
+// Registra os eventos do visualizador
+initCodeViewerEvents();
+
 

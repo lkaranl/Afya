@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -97,6 +98,67 @@ func runWebServer(client *CanvasClient, port string) {
 		id := r.PathValue("id")
 		res, err := client.ListStudents(id)
 		sendWebJSON(w, res, err)
+	})
+
+	// Endpoints de Submissões e Visualização de Códigos dos Alunos
+	mux.HandleFunc("GET /api/courses/{id}/assignments/{assignment_id}/submissions", func(w http.ResponseWriter, r *http.Request) {
+		courseID := r.PathValue("id")
+		assignID := r.PathValue("assignment_id")
+		res, err := client.GetSubmissionsDetails(courseID, assignID, false)
+		sendWebJSON(w, res, err)
+	})
+
+	mux.HandleFunc("POST /api/code/test", func(w http.ResponseWriter, r *http.Request) {
+		var req struct {
+			Code             string `json:"code"`
+			Language         string `json:"language"`
+			ExpectedFunction string `json:"expected_function,omitempty"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "JSON inválido", http.StatusBadRequest)
+			return
+		}
+
+		if strings.TrimSpace(req.Code) == "" {
+			http.Error(w, "Código vazio", http.StatusBadRequest)
+			return
+		}
+
+		// Cria pasta scratch se não existir
+		_ = os.MkdirAll("scratch", 0755)
+		tmpFile, err := os.CreateTemp("scratch", "eval_*.c")
+		if err != nil {
+			sendWebJSON(w, nil, fmt.Errorf("erro ao criar arquivo temporário: %v", err))
+			return
+		}
+		tmpPath := tmpFile.Name()
+		defer os.Remove(tmpPath)
+
+		if _, err := tmpFile.WriteString(req.Code); err != nil {
+			tmpFile.Close()
+			sendWebJSON(w, nil, fmt.Errorf("erro ao salvar código: %v", err))
+			return
+		}
+		tmpFile.Close()
+
+		// Invoca scripts/test_c_submissions.py
+		cmdArgs := []string{"scripts/test_c_submissions.py", tmpPath}
+		if req.ExpectedFunction != "" {
+			cmdArgs = append(cmdArgs, req.ExpectedFunction)
+		}
+
+		cmd := exec.Command("python3", cmdArgs...)
+		out, _ := cmd.CombinedOutput()
+
+		var parsedResult any
+		if jsonErr := json.Unmarshal(out, &parsedResult); jsonErr == nil {
+			sendWebJSON(w, parsedResult, nil)
+		} else {
+			sendWebJSON(w, map[string]any{
+				"status": "raw_output",
+				"output": string(out),
+			}, nil)
+		}
 	})
 
 	// Arquivos estáticos da interface web
