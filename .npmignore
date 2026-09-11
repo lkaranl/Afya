@@ -1,0 +1,33 @@
+# Segredos e credenciais locais (CRÍTICO)
+.env*
+*.env
+tokens.json
+
+# Diretórios temporários de trabalho
+scratch/
+test/
+tmp/
+*.log
+*.jsonl
+
+# Código-fonte Go (binários já compilados em bin/)
+*.go
+go.mod
+go.sum
+
+# Scripts auxiliares internos de teste/desenvolvimento
+scripts/
+public/
+.agents/
+.git/
+.gitignore
+.github/
+
+# Arquivos de documentação interna
+AGENT.md
+MELHORIAS_FUTURAS.md
+implementation_plan.md
+walkthrough.md
+
+# Binários de desenvolvimento local
+afya-canvas

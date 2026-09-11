@@ -1,0 +1,9 @@
+.env
+.DS_Store
+doc
+afya-canvas
+bin/
+!bin/cli.js
+*.exe
+scratch/
+.agents/

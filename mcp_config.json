@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "afya-canvas": {
+      "command": "/Users/karan/Github/Afya/afya-canvas",
+      "args": [],
+      "env": {
+        "CANVAS_BASE_URL": "https://afya.instructure.com"
+      }
+    }
+  }
+}
