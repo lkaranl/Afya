@@ -345,67 +345,137 @@ func getCourseIDStr(course map[string]any) string {
 func (c *CanvasClient) ResolveCourseID(courseIDOrQuery string) (string, error) {
 	trimmed := strings.TrimSpace(courseIDOrQuery)
 
-	// Se for puramente numérico e não vazio, já é o ID direto
-	if _, err := strconv.ParseInt(trimmed, 10, 64); err == nil && trimmed != "" {
-		return trimmed, nil
-	}
-
 	// Busca lista de disciplinas do Canvas
 	courses, err := c.ListCourses()
 	if err != nil {
+		// Se não conseguir listar mas for puramente numérico, assume o ID direto
+		if _, numErr := strconv.ParseInt(trimmed, 10, 64); numErr == nil && trimmed != "" {
+			return trimmed, nil
+		}
 		return "", fmt.Errorf("não foi possível consultar as disciplinas no Canvas: %w", err)
+	}
+
+	// Filtra as turmas do semestre ativo
+	var currentCourses []map[string]any
+	for _, crs := range courses {
+		if isCur, ok := crs["is_current_term"].(bool); ok && isCur {
+			currentCourses = append(currentCourses, crs)
+		}
+	}
+
+	// 1. Tratamento numérico (IDs reais vs índices de opções "1", "2")
+	if num, err := strconv.ParseInt(trimmed, 10, 64); err == nil && trimmed != "" {
+		// Verifica se bate com o ID real de algum curso existente no Canvas
+		for _, crs := range courses {
+			if getCourseIDStr(crs) == trimmed {
+				return trimmed, nil
+			}
+		}
+
+		// Se não for um ID real existente, mas for um índice pequeno (1, 2, 3...)
+		// mapeia para a opção da lista de turmas ativas do semestre atual
+		if num >= 1 && int(num) <= len(currentCourses) {
+			return getCourseIDStr(currentCourses[num-1]), nil
+		}
+
+		// Se tem 4 ou mais dígitos e não está na lista, assume como ID legado direto
+		if len(trimmed) >= 4 {
+			return trimmed, nil
+		}
 	}
 
 	lowerQuery := strings.ToLower(trimmed)
 
+	// Remove prefixos como "opção 1", "opcao 1", "turma 1"
+	cleanQuery := lowerQuery
+	for _, p := range []string{"opção ", "opcao ", "disciplina ", "turma ", "matéria ", "materia ", "curso "} {
+		cleanQuery = strings.TrimPrefix(cleanQuery, p)
+	}
+	cleanQuery = strings.TrimSpace(cleanQuery)
+
+	// Se após limpar virou apenas "1" ou "2", resolve como índice
+	if optNum, err := strconv.Atoi(cleanQuery); err == nil && optNum >= 1 && optNum <= len(currentCourses) {
+		return getCourseIDStr(currentCourses[optNum-1]), nil
+	}
+
 	// Caso 1: Vazio ou palavras-chave de turma ativa
-	if trimmed == "" || lowerQuery == "ativa" || lowerQuery == "atual" || lowerQuery == "turma ativa" || lowerQuery == "semestre atual" || lowerQuery == "vigente" {
-		var currentCourses []map[string]any
-		for _, crs := range courses {
-			if isCur, ok := crs["is_current_term"].(bool); ok && isCur {
-				currentCourses = append(currentCourses, crs)
-			}
-		}
+	if trimmed == "" || cleanQuery == "ativa" || cleanQuery == "atual" || cleanQuery == "turma ativa" || cleanQuery == "semestre atual" || cleanQuery == "vigente" {
 		if len(currentCourses) == 1 {
 			return getCourseIDStr(currentCourses[0]), nil
 		}
 		if len(currentCourses) > 1 {
 			var lines []string
-			for _, crs := range currentCourses {
+			for idx, crs := range currentCourses {
 				period, _ := crs["period"].(string)
 				cleanName, _ := crs["clean_name"].(string)
 				if period != "" {
-					lines = append(lines, fmt.Sprintf("- **%s (%s)**", cleanName, period))
+					lines = append(lines, fmt.Sprintf("%d. **%s (%s)**", idx+1, cleanName, period))
 				} else {
-					lines = append(lines, fmt.Sprintf("- **%s**", cleanName))
+					lines = append(lines, fmt.Sprintf("%d. **%s**", idx+1, cleanName))
 				}
 			}
-			return "", fmt.Errorf("existem %d turmas ativas neste semestre:\n%s\nPor favor, informe em qual matéria ou período deseja executar (ex: '4º Período' ou '2º Período').", len(currentCourses), strings.Join(lines, "\n"))
+			return "", fmt.Errorf("identifiquei %d turmas ativas neste semestre:\n%s\nPor favor, informe em qual matéria ou período deseja atuar (ex: '4º Período' ou '1').", len(currentCourses), strings.Join(lines, "\n"))
 		}
 		return "", fmt.Errorf("nenhuma disciplina ativa encontrada no semestre atual")
 	}
 
-	// Caso 2: Busca por termo (nome, período, código) entre as turmas do semestre atual
-	var currentMatches []map[string]any
-	for _, crs := range courses {
-		if isCur, ok := crs["is_current_term"].(bool); ok && isCur {
-			name, _ := crs["name"].(string)
-			cleanName, _ := crs["clean_name"].(string)
-			courseCode, _ := crs["course_code"].(string)
-			period, _ := crs["period"].(string)
+	// Função auxiliar de correspondência didática flexível
+	matchCourse := func(crs map[string]any) bool {
+		name := strings.ToLower(fmt.Sprintf("%v", crs["name"]))
+		cleanName := strings.ToLower(fmt.Sprintf("%v", crs["clean_name"]))
+		code := strings.ToLower(fmt.Sprintf("%v", crs["course_code"]))
+		period := strings.ToLower(fmt.Sprintf("%v", crs["period"]))
 
-			// Normalizações para capturar termos como "4", "4o", "4º", "2", "2o", "2º"
-			periodNum := strings.TrimSuffix(strings.TrimSuffix(period, " Período"), "º")
-			matchPeriod := period != "" && (strings.Contains(strings.ToLower(period), lowerQuery) ||
-				lowerQuery == strings.ToLower(periodNum) ||
-				strings.HasPrefix(lowerQuery, strings.ToLower(periodNum)))
+		periodNum := strings.TrimSuffix(strings.TrimSuffix(period, " período"), "º")
+		periodNum = strings.TrimSpace(strings.TrimSuffix(periodNum, "o"))
 
-			if strings.Contains(strings.ToLower(name), lowerQuery) ||
-				strings.Contains(strings.ToLower(cleanName), lowerQuery) ||
-				strings.Contains(strings.ToLower(courseCode), lowerQuery) ||
-				matchPeriod {
-				currentMatches = append(currentMatches, crs)
+		combined := fmt.Sprintf("%s (%s)", cleanName, period)
+		combined2 := fmt.Sprintf("%s - %s", cleanName, period)
+		combined3 := fmt.Sprintf("%s %s", cleanName, period)
+		combinedRaw := fmt.Sprintf("%s (%s)", name, period)
+
+		// A. Igualdade exata ou combinada (ex: "ESTRUTURA DE DADOS (4º Período)")
+		if cleanQuery == cleanName || cleanQuery == name || cleanQuery == code {
+			return true
+		}
+		if cleanQuery == combined || cleanQuery == combined2 || cleanQuery == combined3 || cleanQuery == combinedRaw {
+			return true
+		}
+
+		// B. A query do usuário/IA contém o nome da matéria E a indicação do período
+		if cleanName != "" && strings.Contains(cleanQuery, cleanName) {
+			if period != "" && (strings.Contains(cleanQuery, period) || (periodNum != "" && strings.Contains(cleanQuery, periodNum))) {
+				return true
 			}
+		}
+
+		// C. Substring nos nomes principais
+		if strings.Contains(name, cleanQuery) || strings.Contains(cleanQuery, name) {
+			return true
+		}
+		if cleanName != "" && (strings.Contains(cleanName, cleanQuery) || strings.Contains(cleanQuery, cleanName)) {
+			// Se a query contiver período específico, valida se bate
+			if periodNum != "" && (strings.Contains(cleanQuery, "4") || strings.Contains(cleanQuery, "2")) {
+				return strings.Contains(cleanQuery, periodNum)
+			}
+			return true
+		}
+
+		// D. Busca isolada por período (ex: "4º Período", "4º", "4o", "4")
+		if period != "" {
+			if cleanQuery == period || cleanQuery == periodNum || cleanQuery == periodNum+"º" || cleanQuery == periodNum+"o" || cleanQuery == periodNum+" periodo" || cleanQuery == periodNum+"º periodo" {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	// Caso 2: Busca priorizando as turmas ativas do semestre atual
+	var currentMatches []map[string]any
+	for _, crs := range currentCourses {
+		if matchCourse(crs) {
+			currentMatches = append(currentMatches, crs)
 		}
 	}
 
@@ -413,18 +483,10 @@ func (c *CanvasClient) ResolveCourseID(courseIDOrQuery string) (string, error) {
 		return getCourseIDStr(currentMatches[0]), nil
 	}
 
-	// Caso 3: Se não encontrou único nas turmas ativas, busca em todas as matérias
+	// Caso 3: Se não encontrou único nas turmas ativas, busca em todas as disciplinas do professor
 	var allMatches []map[string]any
 	for _, crs := range courses {
-		name, _ := crs["name"].(string)
-		cleanName, _ := crs["clean_name"].(string)
-		courseCode, _ := crs["course_code"].(string)
-		period, _ := crs["period"].(string)
-
-		if strings.Contains(strings.ToLower(name), lowerQuery) ||
-			strings.Contains(strings.ToLower(cleanName), lowerQuery) ||
-			strings.Contains(strings.ToLower(courseCode), lowerQuery) ||
-			(period != "" && strings.Contains(strings.ToLower(period), lowerQuery)) {
+		if matchCourse(crs) {
 			allMatches = append(allMatches, crs)
 		}
 	}
@@ -435,25 +497,25 @@ func (c *CanvasClient) ResolveCourseID(courseIDOrQuery string) (string, error) {
 
 	if len(currentMatches) > 1 {
 		var lines []string
-		for _, crs := range currentMatches {
+		for idx, crs := range currentMatches {
 			period, _ := crs["period"].(string)
 			cleanName, _ := crs["clean_name"].(string)
-			lines = append(lines, fmt.Sprintf("- **%s (%s)**", cleanName, period))
+			lines = append(lines, fmt.Sprintf("%d. **%s (%s)**", idx+1, cleanName, period))
 		}
-		return "", fmt.Errorf("encontrei mais de uma turma ativa correspondente a '%s':\n%s\nPor favor, informe qual período deseja analisar (ex: '4º Período').", trimmed, strings.Join(lines, "\n"))
+		return "", fmt.Errorf("identifiquei mais de uma turma ativa para '%s':\n%s\nPor favor, informe o período desejado (ex: '4º Período' ou '1').", trimmed, strings.Join(lines, "\n"))
 	}
 
 	if len(allMatches) > 1 {
 		var lines []string
-		for _, crs := range allMatches {
+		for idx, crs := range allMatches {
 			period, _ := crs["period"].(string)
 			name, _ := crs["name"].(string)
-			lines = append(lines, fmt.Sprintf("- **%s (%s)**", name, period))
+			lines = append(lines, fmt.Sprintf("%d. **%s (%s)**", idx+1, name, period))
 		}
-		return "", fmt.Errorf("encontrei múltiplas disciplinas correspondentes a '%s':\n%s\nPor favor, refine o nome da matéria.", trimmed, strings.Join(lines, "\n"))
+		return "", fmt.Errorf("identifiquei múltiplas disciplinas correspondentes a '%s':\n%s\nPor favor, refine o nome ou período da disciplina.", trimmed, strings.Join(lines, "\n"))
 	}
 
-	return "", fmt.Errorf("nenhuma disciplina encontrada com o nome ou termo '%s'", trimmed)
+	return "", fmt.Errorf("não encontrei nenhuma disciplina correspondente a '%s'. Por favor, verifique o nome da matéria ou período (ex: 'Estrutura de Dados' ou '4º Período').", trimmed)
 }
 
 func (c *CanvasClient) ListAssignments(courseID string) (any, error) {
