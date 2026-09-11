@@ -7,11 +7,17 @@
   },
   "main": "./bin/cli.js",
   "files": [
-    "bin/",
+    "bin/afya-canvas-darwin-arm64",
+    "bin/afya-canvas-darwin-x64",
+    "bin/afya-canvas-linux-arm64",
+    "bin/afya-canvas-linux-x64",
+    "bin/afya-canvas-win32-x64.exe",
+    "bin/cli.js",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
+    "build": "./scripts/build_npm.sh",
     "test": "node ./bin/cli.js --help"
   },
   "keywords": [
