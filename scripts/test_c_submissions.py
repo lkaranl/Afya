@@ -17,6 +17,11 @@ import os
 import subprocess
 import re
 import json
+import platform
+try:
+    import resource
+except ImportError:
+    resource = None
 from typing import Dict, Any, Optional, List
 
 
@@ -121,6 +126,121 @@ def inspect_pointer_precedence(code: str) -> List[Dict[str, Any]]:
     return issues
 
 
+# ==============================================================================
+# SEGURANÇA E SANDBOXING: Defesa em Profundidade para Execução de Códigos C
+# ==============================================================================
+
+DANGEROUS_SECURITY_PATTERNS = [
+    (r'\b(system|popen|wpopen)\s*\(', "Execução de comandos do sistema operacional (RCE)"),
+    (r'\b(fork|vfork|clone)\s*\(', "Criação de novos processos (risco de fork bomb)"),
+    (r'\b(exec[lv][pe]?|fexecve)\s*\(', "Substituição de imagem de processo (exec)"),
+    (r'\b(kill|killpg|raise)\s*\(', "Envio de sinais para processos do sistema"),
+    (r'\b(ptrace|process_vm_readv|process_vm_writev)\s*\(', "Inspeção e manipulação de memória de processos"),
+    (r'\b(socket|connect|bind|listen|accept)\s*\(', "Abertura de conexões de rede / sockets"),
+    (r'\b(getaddrinfo|gethostbyname)\s*\(', "Resolução de DNS e comunicação de rede"),
+    (r'#(?:include)\s*<sys/socket\.h>', "Inclusão de biblioteca de rede socket.h"),
+    (r'#(?:include)\s*<netinet/in\.h>', "Inclusão de biblioteca de rede netinet/in.h"),
+    (r'#(?:include)\s*<arpa/inet\.h>', "Inclusão de biblioteca de rede arpa/inet.h"),
+    (r'#(?:include)\s*<netdb\.h>', "Inclusão de biblioteca de rede netdb.h"),
+    (r'\.env\b', "Tentativa de acesso direto ao arquivo de segredos .env"),
+    (r'\.\./', "Tentativa de navegação relativa fora da pasta permitida (path traversal)"),
+]
+
+
+def inspect_security_risks(code: str) -> List[Dict[str, Any]]:
+    """
+    Camada 1: Análise Estática Heurística Pré-Compilação.
+    Detecta chamadas de sistema inseguras, criação de processos ou exfiltração de rede.
+    """
+    violations = []
+    for pattern, desc in DANGEROUS_SECURITY_PATTERNS:
+        match = re.search(pattern, code, re.IGNORECASE)
+        if match:
+            line_no = code[:match.start()].count('\n') + 1
+            violations.append({
+                "type": "security_violation",
+                "severity": "CRITICAL",
+                "matched_pattern": match.group(0),
+                "description": desc,
+                "line": line_no,
+                "message": f"Bloqueio de Segurança na linha {line_no}: uso não autorizado de `{match.group(0)}` ({desc})."
+            })
+    return violations
+
+
+def generate_macos_sandbox_profile(allowed_temp_dir: str) -> str:
+    """
+    Camada 2: Perfil restritivo para o sandbox-exec nativo do macOS (Apple Seatbelt).
+    Bloqueia rede, leitura de segredos (.env, SSH) e gravações fora da pasta temporária.
+    """
+    abs_temp = os.path.abspath(allowed_temp_dir)
+    return rf"""(version 1)
+(allow default)
+
+;; Bloqueio estrito e absoluto de qualquer operação de rede (inbound / outbound)
+(deny network*)
+
+;; Bloqueio estrito de leitura a arquivos sensíveis e segredos
+(deny file-read*
+    (regex #"\.env")
+    (regex #"\.git")
+    (regex #"\.ssh")
+    (regex #"\.bash_history")
+    (regex #"\.zsh_history")
+)
+
+;; Bloqueio de gravação no sistema de arquivos, exceto na pasta temporária isolada
+(deny file-write*)
+(allow file-write*
+    (subpath "{abs_temp}")
+    (subpath "/dev/null")
+    (subpath "/dev/zero")
+    (subpath "/dev/dtracehelper")
+)
+"""
+
+
+def set_process_resource_limits(max_cpu_sec: int = 2, max_mem_mb: int = 128):
+    """
+    Camada 3: Limitação rígida de recursos do processo no nível do kernel Unix / macOS.
+    Garante que loops infinitos ou consumos massivos de memória sejam encerrados pelo kernel.
+    """
+    def preexec():
+        if not resource:
+            return
+
+        # Limite de tempo de CPU em segundos (envia SIGXCPU se estourar o limite)
+        try:
+            resource.setrlimit(resource.RLIMIT_CPU, (max_cpu_sec, max_cpu_sec + 1))
+        except (ValueError, OSError):
+            pass
+
+        # Limite de memória virtual em bytes (128 MB)
+        try:
+            max_bytes = max_mem_mb * 1024 * 1024
+            if hasattr(resource, 'RLIMIT_AS'):
+                resource.setrlimit(resource.RLIMIT_AS, (max_bytes, max_bytes))
+            elif hasattr(resource, 'RLIMIT_DATA'):
+                resource.setrlimit(resource.RLIMIT_DATA, (max_bytes, max_bytes))
+        except (ValueError, OSError):
+            pass
+
+        # Limite máximo de tamanho de arquivos gerados (máximo 2 MB)
+        try:
+            resource.setrlimit(resource.RLIMIT_FSIZE, (2 * 1024 * 1024, 2 * 1024 * 1024))
+        except (ValueError, OSError):
+            pass
+
+        # Limite de processos filhos (antídoto contra fork bombs)
+        try:
+            if hasattr(resource, 'RLIMIT_NPROC'):
+                resource.setrlimit(resource.RLIMIT_NPROC, (0, 0))
+        except (ValueError, OSError):
+            pass
+
+    return preexec
+
+
 def evaluate_c_code(
     code_or_file: str,
     expected_function: Optional[str] = None,
@@ -129,7 +249,7 @@ def evaluate_c_code(
     temp_dir: str = "scratch/c_eval_temp"
 ) -> Dict[str, Any]:
     """
-    Avalia completamente um código C (passado como caminho de arquivo ou string de código).
+    Avalia completamente um código C sob sandbox e proteção em profundidade.
     """
     compiler = check_compiler()
     os.makedirs(temp_dir, exist_ok=True)
@@ -141,6 +261,29 @@ def evaluate_c_code(
     else:
         raw_text = code_or_file
         base_name = "snippet"
+
+    # 1. CAMADA 1 DE SEGURANÇA: Análise Estática Heurística
+    sec_violations = inspect_security_risks(raw_text)
+    if sec_violations:
+        first_violation = sec_violations[0]
+        return {
+            "identifier": base_name,
+            "compiles": False,
+            "has_main": False,
+            "detected_function": "",
+            "expected_function": expected_function,
+            "function_name_matches": False,
+            "pointer_issues": [],
+            "security_violations": sec_violations,
+            "compile_error": {
+                "line": first_violation["line"],
+                "message": f"Bloqueio de Segurança: {first_violation['description']}",
+                "raw_stderr": "\n".join(v["message"] for v in sec_violations)
+            },
+            "test_output": None,
+            "test_status": "security_blocked",
+            "clean_code": raw_text
+        }
 
     clean_code = sanitize_c_code(raw_text)
     ptr_issues = inspect_pointer_precedence(clean_code)
@@ -209,6 +352,7 @@ def evaluate_c_code(
         "expected_function": expected_function,
         "function_name_matches": (fn_name == expected_function) if expected_function else True,
         "pointer_issues": ptr_issues,
+        "security_violations": [],
         "compile_error": None,
         "test_output": None,
         "test_status": "not_run",
@@ -218,7 +362,6 @@ def evaluate_c_code(
     if not compiles:
         err_lines = p_comp.stderr.strip().splitlines()
         first_err = err_lines[0] if err_lines else "Erro de compilação desconhecido"
-        # Extrair linha
         line_m = re.search(r":(\d+):(?:\d+:)?\s+error:\s+(.+)", p_comp.stderr)
         line_no = int(line_m.group(1)) if line_m else None
         msg = line_m.group(2) if line_m else first_err
@@ -229,21 +372,52 @@ def evaluate_c_code(
         }
         return result
 
-    # Se compilou e temos binário executável para rodar testes
+    # 2. CAMADAS 2 E 3 DE SEGURANÇA: Execução Isolada (sandbox-exec + setrlimit)
     if bin_path and os.path.exists(bin_path):
+        run_cmd = [bin_path]
+        sb_file = None
+
+        # Aplica sandbox-exec nativo no macOS se disponível
+        if platform.system() == "Darwin" and os.path.exists("/usr/bin/sandbox-exec"):
+            sb_content = generate_macos_sandbox_profile(temp_dir)
+            sb_file = os.path.join(temp_dir, f"{base_name}_profile.sb")
+            try:
+                with open(sb_file, "w", encoding="utf-8") as sf:
+                    sf.write(sb_content)
+                run_cmd = ["/usr/bin/sandbox-exec", "-f", sb_file, bin_path]
+            except OSError:
+                run_cmd = [bin_path]
+
         try:
-            p_run = subprocess.run([bin_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=timeout_sec)
+            p_run = subprocess.run(
+                run_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=timeout_sec,
+                preexec_fn=set_process_resource_limits(max_cpu_sec=2, max_mem_mb=128)
+            )
             result["test_status"] = "success" if p_run.returncode == 0 else "runtime_error"
             result["test_output"] = p_run.stdout.strip()
             result["runtime_stderr"] = p_run.stderr.strip()
             result["exit_code"] = p_run.returncode
+
+            # Detecção de violação capturada pelo sandbox do kernel
+            if p_run.returncode != 0 and ("Operation not permitted" in p_run.stderr or "Killed" in p_run.stderr):
+                result["test_status"] = "sandbox_violation"
+                result["test_output"] = "A execução foi abortada pelo Sandbox de Segurança do sistema operacional (tentativa de violação de rede, disco ou memória)."
         except subprocess.TimeoutExpired:
             result["test_status"] = "timeout"
-            result["test_output"] = f"Execução excedeu o limite de {timeout_sec}s (loop infinito)."
+            result["test_output"] = f"Execução excedeu o limite de tempo de {timeout_sec}s (loop infinito ou processamento excessivo)."
         finally:
-            if os.path.exists(bin_path):
+            if bin_path and os.path.exists(bin_path):
                 try:
                     os.unlink(bin_path)
+                except OSError:
+                    pass
+            if sb_file and os.path.exists(sb_file):
+                try:
+                    os.unlink(sb_file)
                 except OSError:
                     pass
 
