@@ -1,5 +1,3 @@
-//go:build web
-
 package main
 
 import (
@@ -44,6 +42,45 @@ func runWebServer(client *CanvasClient, port string) {
 		}
 		res, err := engine.Chat(r.Context(), req.Message, req.History)
 		sendWebJSON(w, res, err)
+	})
+
+	mux.HandleFunc("POST /api/chat/stream", func(w http.ResponseWriter, r *http.Request) {
+		flusher, ok := w.(http.Flusher)
+		if !ok {
+			http.Error(w, "Streaming não suportado pelo servidor", http.StatusInternalServerError)
+			return
+		}
+
+		var req struct {
+			Message string        `json:"message"`
+			History []ChatMessage `json:"history"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "JSON inválido", http.StatusBadRequest)
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("X-Accel-Buffering", "no")
+
+		sendSSE := func(event string, data any) {
+			b, err := json.Marshal(data)
+			if err != nil {
+				return
+			}
+			fmt.Fprintf(w, "event: %s\ndata: %s\n\n", event, string(b))
+			flusher.Flush()
+		}
+
+		err := engine.ChatStream(r.Context(), req.Message, req.History, func(evt StreamEvent) {
+			sendSSE(evt.Type, evt)
+		})
+
+		if err != nil {
+			sendSSE("error", StreamEvent{Type: "error", Text: err.Error()})
+		}
 	})
 
 	mux.HandleFunc("POST /api/chat/confirm", func(w http.ResponseWriter, r *http.Request) {
@@ -125,6 +162,23 @@ func runWebServer(client *CanvasClient, port string) {
 		}
 		res, err := client.DetectAtRiskStudents(id, inactDays, gradeCut, consecThresh)
 		sendWebJSON(w, res, err)
+	})
+
+	// Endpoint de Métricas e Gráficos Visuais (Learning Analytics)
+	mux.HandleFunc("GET /api/analytics/summary", func(w http.ResponseWriter, r *http.Request) {
+		courseID := r.URL.Query().Get("course_id")
+		if courseID == "" {
+			courses, _ := client.ListCourses()
+			if len(courses) > 0 {
+				courseID = fmt.Sprintf("%v", courses[0]["id"])
+			}
+		}
+		if courseID == "" {
+			http.Error(w, "Nenhuma disciplina ativa encontrada", http.StatusNotFound)
+			return
+		}
+		summary, err := BuildCourseAnalytics(client, courseID)
+		sendWebJSON(w, summary, err)
 	})
 
 	// Endpoints de Submissões e Visualização de Códigos dos Alunos
@@ -294,6 +348,10 @@ func runWebServer(client *CanvasClient, port string) {
 			http.NotFound(w, r)
 			return
 		}
+		// Desativa cache local para garantir recarregamento imediato de CSS e JS
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
 		fileServer.ServeHTTP(w, r)
 	})
 

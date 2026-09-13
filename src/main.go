@@ -36,6 +36,7 @@ func main() {
 	loadEnvFile()
 
 	webMode := flag.Bool("web", false, "Executa o painel visual web no navegador em vez do servidor MCP")
+	telegramMode := flag.Bool("telegram", false, "Executa o bot comercial do Telegram via Long Polling")
 	portFlag := flag.String("port", "", "Porta HTTP para o painel web (sobrescreve variável PORT do .env)")
 	flag.Parse()
 
@@ -54,6 +55,42 @@ func main() {
 	}
 
 	client := NewCanvasClient(baseURL, token)
+
+	// Se o modo Telegram foi acionado
+	if *telegramMode {
+		tgToken := os.Getenv("TELEGRAM_BOT_TOKEN")
+		if tgToken == "" {
+			tgToken = os.Getenv("TELEGRAM_NOTIFIER_BOT_TOKEN")
+		}
+		if tgToken == "" {
+			log.Fatalf("❌ [TELEGRAM] 'TELEGRAM_BOT_TOKEN' ou 'TELEGRAM_NOTIFIER_BOT_TOKEN' não configurado no arquivo .env.")
+		}
+
+		db, err := NewDatabase("")
+		if err != nil {
+			log.Fatalf("❌ [DATABASE] Falha ao inicializar banco de dados SQLite: %v", err)
+		}
+		defer db.Close()
+
+		engine := NewAgentEngine(client)
+		bot := NewTelegramBot(tgToken, db, engine)
+
+		if err := bot.Start(); err != nil {
+			log.Fatalf("❌ [TELEGRAM] Erro ao iniciar bot do Telegram: %v", err)
+		}
+		defer bot.Stop()
+
+		// Se também solicitou a web (--telegram --web), roda a web concorrentemente
+		if *webMode {
+			log.Printf("🚀 [SISTEMA] Executando Web Dashboard (porta %s) e Bot do Telegram simultaneamente.", port)
+			runWebServer(client, port)
+			return
+		}
+
+		// Caso contrário, aguarda sinal de encerramento do sistema operacional
+		log.Println("🤖 [SISTEMA] Afya Canvas Assistant rodando exclusivamente via Telegram Bot. Pressione Ctrl+C para encerrar.")
+		select {}
+	}
 
 	if *webMode {
 		runWebServer(client, port)

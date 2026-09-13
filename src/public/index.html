@@ -7,8 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3.1">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <!-- Cabeçalho Principal -->
@@ -103,6 +104,10 @@
       <button class="tab-btn" data-tab="students-tab" id="tabBtnStudents">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         Lista de Alunos & Exportação
+      </button>
+      <button class="tab-btn" data-tab="analytics-tab" id="tabBtnAnalytics">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        Gráficos & Métricas
       </button>
     </nav>
 
@@ -560,6 +565,138 @@
         </div>
       </div>
     </section>
+
+    <!-- Conteúdo da Aba 4: Gráficos & Métricas de Desempenho (Learning Analytics) -->
+    <section class="tab-content" id="analytics-tab">
+      <div class="analytics-container">
+        <!-- Toolbar Superior: Filtro de Turma e Ações -->
+        <div class="analytics-toolbar">
+          <div class="analytics-filter-group">
+            <label for="analyticsCourseSelect" class="form-label">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              <span>Disciplina / Turma:</span>
+            </label>
+            <select id="analyticsCourseSelect" class="select-input select-analytics">
+              <option value="">Carregando turmas ativas...</option>
+            </select>
+            <span class="analytics-loading-badge" id="analyticsLoadingBadge" style="display: none;">
+              <span class="spinner-sm"></span> Atualizando...
+            </span>
+          </div>
+          <div class="analytics-actions">
+            <span class="analytics-updated-at" id="analyticsUpdatedAt">Sincronizado</span>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnRefreshAnalytics" title="Recarregar métricas em tempo real">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              <span>Atualizar Dados</span>
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" id="btnExportAnalytics" title="Exportar relatório visual">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Exportar Gráficos</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Banner de Estágio Pedagógico e Ambiente em Volta -->
+        <div class="analytics-stage-banner" id="analyticsStageBanner" style="display: none;">
+          <span class="stage-icon">📌</span>
+          <span class="stage-text" id="analyticsStageText">Início de Semestre • Atividades Parciais em Andamento</span>
+        </div>
+
+        <!-- Banner de Síntese Rápida (KPIs) -->
+        <div class="analytics-kpi-grid" id="analyticsKpiGrid">
+          <div class="kpi-card">
+            <span class="kpi-label" id="kpiAvgScoreLabel">Média das Avaliações</span>
+            <span class="kpi-val" id="kpiAvgScore">-</span>
+            <span class="kpi-sub" id="kpiAvgScoreSub">Referência CONSEPE: 70.0 pts</span>
+          </div>
+          <div class="kpi-card highlight-success">
+            <span class="kpi-label" id="kpiApprovalLabel">Em Dia / Ritmo Adequado</span>
+            <span class="kpi-val" id="kpiApprovalRate">-%</span>
+            <span class="kpi-sub" id="kpiApprovalCount">- alunos regulares</span>
+          </div>
+          <div class="kpi-card highlight-warning">
+            <span class="kpi-label" id="kpiFinalExamLabel">Acompanhamento Parcial</span>
+            <span class="kpi-val" id="kpiFinalExamRate">-%</span>
+            <span class="kpi-sub" id="kpiFinalExamCount">- alunos</span>
+          </div>
+          <div class="kpi-card highlight-danger">
+            <span class="kpi-label" id="kpiAtRiskLabel">Atenção Prioritária (Risco Real)</span>
+            <span class="kpi-val" id="kpiAtRiskRate">-%</span>
+            <span class="kpi-sub" id="kpiAtRiskCount">- alunos com alerta efetivo</span>
+          </div>
+        </div>
+
+        <!-- Grid de Gráficos -->
+        <div class="charts-grid" id="analyticsChartsGrid">
+          <!-- Gráfico 1: Termômetro CONSEPE (Donut) -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-title-group">
+                <span class="chart-icon">🎯</span>
+                <h3 class="chart-title">Termômetro de Rendimento & Engajamento</h3>
+              </div>
+              <span class="chart-badge">Contextual • CONSEPE</span>
+            </div>
+            <div class="chart-card-body">
+              <div class="chart-canvas-container chart-donut-container">
+                <canvas id="chartApprovalDonut"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráfico 2: Fila do SpeedGrader (Barras Empilhadas) -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-title-group">
+                <span class="chart-icon">⏳</span>
+                <h3 class="chart-title">Fila do SpeedGrader por Atividade</h3>
+              </div>
+              <span class="chart-badge">Correções</span>
+            </div>
+            <div class="chart-card-body">
+              <div class="chart-canvas-container">
+                <canvas id="chartSpeedGraderBars"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráfico 3: Histograma de Distribuição de Notas (Gauss) -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-title-group">
+                <span class="chart-icon">📉</span>
+                <h3 class="chart-title">Distribuição Geral de Notas</h3>
+              </div>
+              <span class="chart-badge">Dispersão</span>
+            </div>
+            <div class="chart-card-body">
+              <div class="chart-canvas-container">
+                <canvas id="chartGradesHistogram"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráfico 4: Radar de Inatividade & Evasão (Scatter Plot) -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-title-group">
+                <span class="chart-icon">🚨</span>
+                <h3 class="chart-title">Radar de Evasão: Inatividade vs. Média</h3>
+              </div>
+              <span class="chart-badge">NAPED 2026</span>
+            </div>
+            <div class="chart-card-body">
+              <div class="chart-canvas-container">
+                <canvas id="chartRiskScatter"></canvas>
+              </div>
+            </div>
+            <div class="chart-footer-note">
+              <span>⚠️ Ponto no quadrante inferior direito = alta inatividade e nota baixa.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- Modal: Visualizador de Códigos dos Alunos -->
@@ -659,6 +796,6 @@
   <!-- Toast de Notificações -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3.1"></script>
 </body>
 </html>

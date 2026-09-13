@@ -1163,7 +1163,12 @@ func handleMCPRequest(w *bufio.Writer, logger *log.Logger, client *CanvasClient,
 }
 
 func executeMCPTool(client *CanvasClient, name string, rawArgs json.RawMessage) (any, error) {
-	switch name {
+	canonicalName := name
+	if !strings.HasPrefix(canonicalName, "canvas_") {
+		canonicalName = "canvas_" + canonicalName
+	}
+
+	switch canonicalName {
 	case "canvas_list_pending_assignments":
 		var args struct {
 			CurrentTermOnly *bool `json:"current_term_only"`

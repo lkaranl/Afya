@@ -12,6 +12,19 @@ const state = {
   agentInfo: null
 };
 
+// Cache e estado da aba de Gráficos & Métricas (Analytics)
+const analyticsCache = {};
+const analyticsState = {
+  selectedCourseId: null,
+  summary: null,
+  charts: {
+    donut: null,
+    speedgrader: null,
+    histogram: null,
+    scatter: null
+  }
+};
+
 // Configura tema inicial
 document.documentElement.setAttribute('data-theme', state.theme);
 
@@ -25,6 +38,8 @@ const elements = {
   totalAssignmentsCount: document.getElementById('totalAssignmentsCount'),
   totalPendingCount: document.getElementById('totalPendingCount'),
 
+  globalCourseSelect: document.getElementById('globalCourseSelect'),
+  chatCourseSelect: document.getElementById('chatCourseSelect'),
   courseSelect: document.getElementById('courseSelect'),
   refreshDataBtn: document.getElementById('refreshDataBtn'),
   coursesCardsGrid: document.getElementById('coursesCardsGrid'),
@@ -120,6 +135,19 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     if (targetId === 'students-tab' && elements.studentsCourseSelect.value) {
       loadStudentsForCourse(elements.studentsCourseSelect.value);
     }
+
+    // Carregamento da aba de Gráficos e Analytics
+    if (targetId === 'analytics-tab') {
+      loadAnalyticsTab();
+      setTimeout(() => {
+        Object.values(analyticsState.charts).forEach(c => {
+          if (c) {
+            c.resize();
+            c.update('none');
+          }
+        });
+      }, 280);
+    }
   });
 });
 
@@ -144,30 +172,31 @@ async function initApp() {
     if (!coursesResp.ok) throw new Error('Falha ao obter lista de cursos');
     state.courses = await coursesResp.json();
 
-    // Pré-seleciona por padrão a primeira turma ativa do semestre vigente
+    // Pré-seleciona a turma salva no localStorage, ou a primeira do semestre vigente, ou a primeira da lista
+    const savedCourseId = localStorage.getItem('canvas_hub_active_course');
     const currentCourses = state.courses.filter(c => c.is_current_term);
-    if (currentCourses.length > 0) {
+
+    if (savedCourseId && (savedCourseId === 'all' || state.courses.some(c => String(c.id) === savedCourseId))) {
+      state.selectedCourseId = savedCourseId;
+    } else if (currentCourses.length > 0) {
       state.selectedCourseId = String(currentCourses[0].id);
     } else if (state.courses.length > 0) {
       state.selectedCourseId = String(state.courses[0].id);
     }
 
-    // Atualiza status de conexão
+    // Atualiza status de conexão imediatamente
     elements.connectionStatus.innerHTML = `
       <span class="status-dot"></span>
       <span class="status-text">Conectado ao Canvas</span>
     `;
 
-    renderCourses();
+    // Renderiza cursos e popula todos os seletores sincronizados
     populateSelects();
+    renderCourses();
+    selectCourse(state.selectedCourseId);
 
-    // Sincroniza o select com a turma pré-selecionada
-    if (elements.courseSelect && state.selectedCourseId) {
-      elements.courseSelect.value = state.selectedCourseId;
-    }
-
-    // Carrega tarefas em paralelo para calcular métricas
-    await loadAllAssignments();
+    // Carrega detalhes de tarefas em segundo plano para não travar a interface
+    loadAllAssignments();
 
   } catch (err) {
     console.error('Erro na inicialização:', err);
@@ -194,57 +223,83 @@ function renderUserProfile(user) {
 }
 
 function populateSelects() {
-  // Limpa selects
-  elements.courseSelect.innerHTML = '<option value="all">Todas as Disciplinas</option>';
-  elements.announcementCoursesList.innerHTML = '';
-  elements.announcementHistoryCourseSelect.innerHTML = '';
-  elements.studentsCourseSelect.innerHTML = '';
-
   const currentCourses = state.courses.filter(c => c.is_current_term);
   const pastCourses = state.courses.filter(c => !c.is_current_term);
 
-  // Helper para preencher um select agrupado
+  // Helper para preencher um select com optgroups
   const appendOptGroup = (selectEl, label, list) => {
-    if (list.length === 0) return;
+    if (!selectEl || list.length === 0) return;
     const group = document.createElement('optgroup');
     group.label = label;
     list.forEach(course => {
       const opt = document.createElement('option');
-      opt.value = course.id;
-      opt.textContent = `${course.clean_name || course.name} (${course.period || course.id})`;
+      opt.value = String(course.id);
+      const period = course.period ? ` (${course.period})` : '';
+      opt.textContent = `${course.clean_name || course.name}${period}`;
       group.appendChild(opt);
     });
     selectEl.appendChild(group);
   };
 
-  // Select de Cursos na aba 1
-  appendOptGroup(elements.courseSelect, '🟢 Semestre Vigente (Atual)', currentCourses);
-  appendOptGroup(elements.courseSelect, '⚪ Semestres Anteriores (Concluídos)', pastCourses);
+  // 1. Seletor Global no Header
+  if (elements.globalCourseSelect) {
+    elements.globalCourseSelect.innerHTML = '<option value="all">Todas as Disciplinas (Visão Geral)</option>';
+    appendOptGroup(elements.globalCourseSelect, '🟢 Semestre Vigente (Atual)', currentCourses);
+    appendOptGroup(elements.globalCourseSelect, '⚪ Semestres Anteriores', pastCourses);
+  }
 
-  // Select de histórico de avisos
-  appendOptGroup(elements.announcementHistoryCourseSelect, '🟢 Semestre Vigente', currentCourses);
-  appendOptGroup(elements.announcementHistoryCourseSelect, '⚪ Semestres Anteriores', pastCourses);
+  // 2. Seletor no Topo do Chat
+  if (elements.chatCourseSelect) {
+    elements.chatCourseSelect.innerHTML = '<option value="all">Todas as Disciplinas</option>';
+    appendOptGroup(elements.chatCourseSelect, '🟢 Semestre Vigente (Atual)', currentCourses);
+    appendOptGroup(elements.chatCourseSelect, '⚪ Semestres Anteriores', pastCourses);
+  }
 
-  // Select de Alunos na aba 3
-  appendOptGroup(elements.studentsCourseSelect, '🟢 Semestre Vigente', currentCourses);
-  appendOptGroup(elements.studentsCourseSelect, '⚪ Semestres Anteriores', pastCourses);
+  // 3. Seletor de Cursos na aba 1
+  if (elements.courseSelect) {
+    elements.courseSelect.innerHTML = '<option value="all">Todas as Disciplinas</option>';
+    appendOptGroup(elements.courseSelect, '🟢 Semestre Vigente (Atual)', currentCourses);
+    appendOptGroup(elements.courseSelect, '⚪ Semestres Anteriores (Concluídos)', pastCourses);
+  }
 
-  // Checkboxes de envio de avisos (apenas ativas marcadas por padrão)
-  state.courses.forEach(course => {
-    const isCur = course.is_current_term;
-    const checkItem = document.createElement('label');
-    checkItem.className = 'checkbox-item';
-    const periodText = course.period || (isCur ? 'Semestre Vigente' : 'Semestre Concluído');
-    const studentsText = course.total_students ? ` • ${course.total_students} alunos` : '';
-    checkItem.innerHTML = `
-      <input type="checkbox" name="announcement_course" value="${course.id}" ${isCur ? 'checked' : ''}>
-      <span>
-        <strong>${isCur ? '🟢 ' : '⚪ '}${course.clean_name || course.name}</strong>
-        <small style="color: var(--text-muted); font-size: 0.74rem;">${periodText}${studentsText}</small>
-      </span>
-    `;
-    elements.announcementCoursesList.appendChild(checkItem);
-  });
+  // 4. Seletor de histórico de avisos na aba 2
+  if (elements.announcementHistoryCourseSelect) {
+    elements.announcementHistoryCourseSelect.innerHTML = '';
+    appendOptGroup(elements.announcementHistoryCourseSelect, '🟢 Semestre Vigente', currentCourses);
+    appendOptGroup(elements.announcementHistoryCourseSelect, '⚪ Semestres Anteriores', pastCourses);
+  }
+
+  // 5. Seletor de Alunos na aba 3
+  if (elements.studentsCourseSelect) {
+    elements.studentsCourseSelect.innerHTML = '';
+    appendOptGroup(elements.studentsCourseSelect, '🟢 Semestre Vigente', currentCourses);
+    appendOptGroup(elements.studentsCourseSelect, '⚪ Semestres Anteriores', pastCourses);
+  }
+
+  // 6. Seletor de Gráficos na aba 4 (com formatação rica e optgroups)
+  if (typeof populateAnalyticsCourseSelect === 'function') {
+    populateAnalyticsCourseSelect(true);
+  }
+
+  // Checkboxes de envio de avisos
+  if (elements.announcementCoursesList) {
+    elements.announcementCoursesList.innerHTML = '';
+    state.courses.forEach(course => {
+      const isCur = course.is_current_term;
+      const checkItem = document.createElement('label');
+      checkItem.className = 'checkbox-item';
+      const periodText = course.period || (isCur ? 'Semestre Vigente' : 'Semestre Concluído');
+      const studentsText = course.total_students ? ` • ${course.total_students} alunos` : '';
+      checkItem.innerHTML = `
+        <input type="checkbox" name="announcement_course" value="${course.id}" ${isCur ? 'checked' : ''}>
+        <span>
+          <strong>${isCur ? '🟢 ' : '⚪ '}${course.clean_name || course.name}</strong>
+          <small style="color: var(--text-muted); font-size: 0.74rem;">${periodText}${studentsText}</small>
+        </span>
+      `;
+      elements.announcementCoursesList.appendChild(checkItem);
+    });
+  }
 
   if (currentCourses.length > 0) {
     loadAnnouncementsForCourse(currentCourses[0].id);
@@ -470,9 +525,30 @@ function updateCourseBanner() {
 }
 
 function selectCourse(courseId) {
+  if (!courseId) return;
   state.selectedCourseId = String(courseId);
-  elements.courseSelect.value = state.selectedCourseId;
+  localStorage.setItem('canvas_hub_active_course', state.selectedCourseId);
 
+  // Sincroniza o valor em todos os seletores da aplicação
+  const syncSelects = [
+    elements.globalCourseSelect,
+    elements.chatCourseSelect,
+    elements.courseSelect,
+    elements.studentsCourseSelect,
+    elements.announcementHistoryCourseSelect,
+    document.getElementById('analyticsCourseSelect')
+  ];
+
+  syncSelects.forEach(sel => {
+    if (sel && sel.value !== state.selectedCourseId) {
+      const hasOption = Array.from(sel.querySelectorAll('option')).some(o => o.value === state.selectedCourseId);
+      if (hasOption) {
+        sel.value = state.selectedCourseId;
+      }
+    }
+  });
+
+  // Atualiza cartões de turmas
   document.querySelectorAll('.course-card').forEach(card => {
     if (card.getAttribute('data-id') === state.selectedCourseId) {
       card.classList.add('selected');
@@ -483,6 +559,21 @@ function selectCourse(courseId) {
 
   updateCourseBanner();
   renderAssignmentsList();
+
+  // Carrega dados contextuais sob demanda para a aba que estiver aberta
+  if (state.selectedCourseId !== 'all') {
+    const activeTab = document.querySelector('.tab-content.active');
+    if (activeTab) {
+      if (activeTab.id === 'students-tab') {
+        loadStudentsForCourse(state.selectedCourseId);
+      } else if (activeTab.id === 'analytics-tab' && typeof fetchAndRenderAnalytics === 'function') {
+        analyticsState.selectedCourseId = state.selectedCourseId;
+        fetchAndRenderAnalytics(state.selectedCourseId);
+      } else if (activeTab.id === 'announcements-tab') {
+        loadAnnouncementsForCourse(state.selectedCourseId);
+      }
+    }
+  }
 }
 
 // Envia um prompt para o Assistente IA e troca automaticamente para a aba do chat
@@ -694,7 +785,17 @@ document.querySelectorAll('.filter-chip').forEach(chip => {
   });
 });
 
-elements.courseSelect.addEventListener('change', (e) => {
+elements.globalCourseSelect?.addEventListener('change', (e) => {
+  selectCourse(e.target.value);
+  showToast('Turma ativa alterada em todo o portal!', 'info');
+});
+
+elements.chatCourseSelect?.addEventListener('change', (e) => {
+  selectCourse(e.target.value);
+  showToast('Contexto do chat direcionado para a turma selecionada.', 'info');
+});
+
+elements.courseSelect?.addEventListener('change', (e) => {
   selectCourse(e.target.value);
 });
 
@@ -884,6 +985,7 @@ elements.announcementForm.addEventListener('submit', async (e) => {
 });
 
 elements.announcementHistoryCourseSelect.addEventListener('change', (e) => {
+  selectCourse(e.target.value);
   loadAnnouncementsForCourse(e.target.value);
 });
 
@@ -941,7 +1043,7 @@ async function loadAnnouncementsForCourse(courseId) {
 // Aba 3: Alunos & Exportação CSV
 // ==========================================
 elements.studentsCourseSelect.addEventListener('change', (e) => {
-  loadStudentsForCourse(e.target.value);
+  selectCourse(e.target.value);
 });
 
 async function loadStudentsForCourse(courseId) {
@@ -1145,7 +1247,7 @@ async function loadAgentInfo() {
         openrouter: 'OpenRouter',
         ollama: 'Ollama Local'
       };
-      elements.aiProviderBadge.textContent = providerNames[info.provider] || info.provider.toUpperCase();
+      elements.aiProviderBadge.textContent = providerNames[info.provider] || (info.provider ? info.provider.toUpperCase() : 'IA');
     }
     if (elements.aiModelName) {
       elements.aiModelName.textContent = info.model || 'Modelo Padrão';
@@ -1549,68 +1651,242 @@ async function sendChatMessage(userText) {
   elements.chatInput.value = '';
   elements.chatInput.style.height = 'auto';
 
-  // Exibe o thinking
-  elements.thinkingStatusText.textContent = 'O assistente está pensando e consultando o Canvas...';
+  // Exibe a barra de thinking inferior
+  elements.thinkingStatusText.textContent = 'Iniciando processamento no Canvas LMS...';
   elements.chatThinking.style.display = 'flex';
   elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
 
+  // Remove welcome state se presente
+  const welcome = elements.chatMessages.querySelector('.chat-welcome-state');
+  if (welcome) welcome.remove();
+
+  // Cria bolha do assistente no DOM imediatamente para receber as etapas em streaming
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'chat-msg assistant';
+
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = '🤖';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+
+  // Container de progresso dos passos em tempo real
+  const progressContainer = document.createElement('div');
+  progressContainer.className = 'chat-stream-progress';
+  progressContainer.innerHTML = `
+    <div class="chat-stream-steps">
+      <div class="stream-step in-progress">
+        <span class="stream-step-spinner"></span>
+        <span class="step-text">Analisando solicitação e consultando o Canvas LMS...</span>
+      </div>
+    </div>
+  `;
+  bubble.appendChild(progressContainer);
+
+  const replyBody = document.createElement('div');
+  replyBody.className = 'stream-reply-body';
+  bubble.appendChild(replyBody);
+
+  msgDiv.appendChild(avatar);
+  msgDiv.appendChild(bubble);
+  elements.chatMessages.appendChild(msgDiv);
+  elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+
+  const stepsList = progressContainer.querySelector('.chat-stream-steps');
+  const recordedSteps = [];
+  let isCompleted = false;
+
+  const addOrUpdateStep = (stepText) => {
+    if (!stepText) return;
+    recordedSteps.push(stepText);
+
+    // Marca todos os passos anteriores como concluídos
+    const currentSteps = stepsList.querySelectorAll('.stream-step');
+    currentSteps.forEach(s => {
+      s.className = 'stream-step done';
+      const sp = s.querySelector('.stream-step-spinner');
+      if (sp) {
+        const check = document.createElement('span');
+        check.className = 'stream-step-check';
+        check.textContent = '✓';
+        sp.replaceWith(check);
+      }
+    });
+
+    // Adiciona o novo passo em andamento
+    const newStep = document.createElement('div');
+    newStep.className = 'stream-step in-progress';
+    newStep.innerHTML = `
+      <span class="stream-step-spinner"></span>
+      <span class="step-text">${stepText}</span>
+    `;
+    stepsList.appendChild(newStep);
+
+    // Atualiza também a barra inferior
+    elements.thinkingStatusText.textContent = stepText;
+    elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+  };
+
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('/api/chat/stream', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         message: text,
-        history: state.chatHistory.slice(0, -1) // histórico anterior
+        history: state.chatHistory.slice(0, -1)
       })
     });
 
-    elements.chatThinking.style.display = 'none';
-
     if (!res.ok) {
       const errText = await res.text();
-      renderChatMessage('assistant', `⚠️ **Erro na comunicação:** ${errText}`);
-      return;
+      throw new Error(errText || `HTTP ${res.status}`);
     }
 
-    const data = await res.json();
-    const reply = data.reply || 'Não obtive resposta do modelo de IA.';
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
 
-    // Atualiza indicador superior de tempo e modelo
-    if (data.duration_ms && elements.chatResponseTime) {
-      elements.chatResponseTime.textContent = (data.duration_ms / 1000).toFixed(1) + 's';
-      if (elements.chatActiveModel) {
-        elements.chatActiveModel.textContent = data.model || 'gemini-2.0-flash';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const parts = buffer.split('\n\n');
+      buffer = parts.pop(); // Mantém o pedaço incompleto
+
+      for (const part of parts) {
+        if (!part.trim()) continue;
+
+        let eventType = 'message';
+        let dataStr = '';
+        const lines = part.split('\n');
+        for (const line of lines) {
+          if (line.startsWith('event: ')) {
+            eventType = line.slice(7).trim();
+          } else if (line.startsWith('data: ')) {
+            dataStr = line.slice(6).trim();
+          }
+        }
+
+        if (dataStr) {
+          try {
+            const data = JSON.parse(dataStr);
+
+            if (eventType === 'status' || eventType === 'tool') {
+              if (data.text) {
+                addOrUpdateStep(data.text);
+              }
+            } else if (eventType === 'card') {
+              if (data.action_card) {
+                renderActionCard(data.action_card);
+              }
+            } else if (eventType === 'done') {
+              isCompleted = true;
+              elements.chatThinking.style.display = 'none';
+
+              // Transforma os passos em um bloco colapsável elegante
+              if (recordedSteps.length > 0) {
+                const details = document.createElement('details');
+                details.className = 'stream-steps-details';
+                details.innerHTML = `
+                  <summary>⚡ Ações executadas (${recordedSteps.length})</summary>
+                  <div class="chat-stream-steps">
+                    ${recordedSteps.map(s => `
+                      <div class="stream-step done">
+                        <span class="stream-step-check">✓</span>
+                        <span class="step-text">${s}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                `;
+                progressContainer.replaceWith(details);
+              } else {
+                progressContainer.remove();
+              }
+
+              // Renderiza corpo da resposta final
+              const replyText = data.text && data.text.trim() ? data.text : 'Ação concluída com sucesso no Canvas LMS.';
+              replyBody.innerHTML = parseMarkdown(replyText);
+              enhanceMessageContent(bubble);
+
+              // Metadados de tempo e modelo
+              if (data.duration_ms || data.model) {
+                const metaRow = document.createElement('div');
+                metaRow.className = 'msg-bubble-meta';
+                const timeStr = data.duration_ms ? (data.duration_ms / 1000).toFixed(1) + 's' : '';
+                const modelStr = data.model || '';
+                metaRow.innerHTML = `
+                  ${timeStr ? `<span class="meta-item">⏱️ ${timeStr}</span>` : ''}
+                  ${timeStr && modelStr ? '<span class="meta-dot">•</span>' : ''}
+                  ${modelStr ? `<span class="meta-item">${modelStr}</span>` : ''}
+                `;
+                bubble.appendChild(metaRow);
+
+                if (elements.chatResponseTime) elements.chatResponseTime.textContent = timeStr;
+                if (elements.chatActiveModel) elements.chatActiveModel.textContent = modelStr;
+                if (elements.chatMetaInfo) elements.chatMetaInfo.style.display = 'inline-flex';
+              }
+
+              state.chatHistory.push({
+                role: 'assistant',
+                content: replyText,
+                duration_ms: data.duration_ms,
+                model: data.model
+              });
+              localStorage.setItem('afya_chat_history', JSON.stringify(state.chatHistory));
+              elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+
+            } else if (eventType === 'error') {
+              isCompleted = true;
+              elements.chatThinking.style.display = 'none';
+              progressContainer.remove();
+              replyBody.innerHTML = `⚠️ **Erro na operação:** ${data.text}\n\n<button type="button" class="btn-chat-retry" onclick="retryLastChatMessage()">🔄 Tentar novamente</button>`;
+              enhanceMessageContent(bubble);
+            }
+          } catch (jsonErr) {
+            console.error('Erro no parse do evento SSE:', jsonErr, dataStr);
+          }
+        }
       }
-      if (elements.chatMetaInfo) {
-        elements.chatMetaInfo.style.display = 'inline-flex';
+    }
+
+    if (!isCompleted) {
+      // Se fechou a conexão sem enviar 'done' explícito
+      elements.chatThinking.style.display = 'none';
+      if (progressContainer.parentNode) {
+        progressContainer.remove();
+      }
+      if (!replyBody.innerHTML.trim()) {
+        replyBody.innerHTML = `Concluí as ações solicitadas no Canvas LMS.`;
+        enhanceMessageContent(bubble);
       }
     }
 
-    renderChatMessage('assistant', reply, {
-      duration_ms: data.duration_ms,
-      model: data.model
-    });
-    state.chatHistory.push({
-      role: 'assistant',
-      content: reply,
-      duration_ms: data.duration_ms,
-      model: data.model
-    });
-    localStorage.setItem('afya_chat_history', JSON.stringify(state.chatHistory));
-
-    // Se houver card de ação sensível
-    if (data.action_card) {
-      renderActionCard(data.action_card);
-    }
   } catch (err) {
     elements.chatThinking.style.display = 'none';
-    renderChatMessage('assistant', `⚠️ **Erro de rede:** ${err.message}`);
+    if (progressContainer.parentNode) progressContainer.remove();
+    replyBody.innerHTML = `⚠️ **Erro de conexão:** ${err.message}\n\n<button type="button" class="btn-chat-retry" onclick="retryLastChatMessage()">🔄 Tentar novamente</button>`;
+    enhanceMessageContent(bubble);
   } finally {
     state.isGenerating = false;
     elements.btnSendChat.disabled = false;
     elements.chatInput.focus();
   }
 }
+
+// Reenvia a última mensagem do usuário no chat em caso de oscilação
+window.retryLastChatMessage = function() {
+  if (state.chatHistory && state.chatHistory.length > 0) {
+    for (let i = state.chatHistory.length - 1; i >= 0; i--) {
+      if (state.chatHistory[i].role === 'user') {
+        const lastMsg = state.chatHistory[i].content;
+        sendMessage(lastMsg);
+        return;
+      }
+    }
+  }
+};
 
 // Inicializa eventos do chat
 function initChatEvents() {
@@ -2307,5 +2583,554 @@ function initCodeViewerEvents() {
 
 // Registra os eventos do visualizador
 initCodeViewerEvents();
+
+// ==========================================================================
+// MÓDULO DE GRÁFICOS & LEARNING ANALYTICS (CHART.JS)
+// ==========================================================================
+
+// Destrói gráfico anterior com segurança para evitar leaks de memória e sobreposição
+function destroyAnalyticsChart(key) {
+  if (analyticsState.charts[key]) {
+    try {
+      analyticsState.charts[key].destroy();
+    } catch (e) {
+      console.warn('Erro ao destruir gráfico:', e);
+    }
+    analyticsState.charts[key] = null;
+  }
+}
+
+// Formata o rótulo de cada opção do seletor para ser 100% descritivo
+function formatAnalyticsCourseLabel(c) {
+  const clean = c.clean_name || c.name || 'Disciplina';
+  const period = c.period ? ` • ${c.period}` : '';
+  let codeSnippet = '';
+  const match = (c.name || '').match(/(?:-\s*)?(\d{5,6})\b/);
+  if (match) {
+    codeSnippet = ` - Turma ${match[1]}`;
+  }
+  const students = c.total_students ? ` (${c.total_students} alunos)` : '';
+  return `${clean}${period}${codeSnippet}${students}`;
+}
+
+// Preenche o seletor com optgroups claros (Vigente e Anteriores)
+function populateAnalyticsCourseSelect(forceRebuild = false) {
+  const sel = document.getElementById('analyticsCourseSelect');
+  if (!sel || !state.courses || state.courses.length === 0) return;
+
+  // Se já tiver opções e não for rebuild forçado, apenas garante seleção correta
+  if (!forceRebuild && sel.options.length > 1 && !sel.querySelector('option[value=""]')) {
+    if (analyticsState.selectedCourseId && sel.value !== analyticsState.selectedCourseId) {
+      sel.value = analyticsState.selectedCourseId;
+    }
+    return;
+  }
+
+  const currentVal = analyticsState.selectedCourseId || sel.value;
+  sel.innerHTML = '';
+
+  const currentCourses = state.courses.filter(c => c.is_current_term);
+  const pastCourses = state.courses.filter(c => !c.is_current_term);
+
+  const addOptGroup = (label, list) => {
+    if (list.length === 0) return;
+    const group = document.createElement('optgroup');
+    group.label = label;
+    list.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = String(c.id);
+      opt.textContent = formatAnalyticsCourseLabel(c);
+      group.appendChild(opt);
+    });
+    sel.appendChild(group);
+  };
+
+  addOptGroup('🟢 Semestre Vigente (Atual)', currentCourses);
+  addOptGroup('⚪ Semestres Anteriores (Histórico)', pastCourses);
+
+  // Seleciona a turma adequada
+  if (currentVal && state.courses.some(c => String(c.id) === currentVal)) {
+    sel.value = currentVal;
+  } else if (state.selectedCourseId && state.selectedCourseId !== 'all' && state.courses.some(c => String(c.id) === state.selectedCourseId)) {
+    sel.value = state.selectedCourseId;
+  } else if (currentCourses.length > 0) {
+    sel.value = String(currentCourses[0].id);
+  } else if (state.courses.length > 0) {
+    sel.value = String(state.courses[0].id);
+  }
+
+  analyticsState.selectedCourseId = sel.value;
+}
+
+// Ponto de entrada chamado ao abrir a aba de gráficos
+async function loadAnalyticsTab() {
+  populateAnalyticsCourseSelect(false);
+  if (analyticsState.selectedCourseId) {
+    await fetchAndRenderAnalytics(analyticsState.selectedCourseId);
+  }
+}
+
+// Busca dados da API (ou usa cache) e renderiza KPIs e gráficos
+async function fetchAndRenderAnalytics(courseId, forceRefresh = false) {
+  if (!courseId) return;
+
+  const container = document.querySelector('.analytics-container');
+  const badge = document.getElementById('analyticsLoadingBadge');
+  const updatedAt = document.getElementById('analyticsUpdatedAt');
+
+  // Resposta instantânea via cache local
+  if (!forceRefresh && analyticsCache[courseId]) {
+    const cached = analyticsCache[courseId];
+    analyticsState.summary = cached;
+    renderAnalyticsKPIs(cached);
+    renderApprovalDonut(cached);
+    renderSpeedGraderBars(cached);
+    renderGradesHistogram(cached);
+    renderRiskScatter(cached);
+    if (updatedAt) {
+      updatedAt.textContent = 'Carregado (Cache rápido)';
+    }
+    return;
+  }
+
+  // Ativa feedback visual de carregamento
+  if (container) container.classList.add('is-loading');
+  if (badge) badge.style.display = 'inline-flex';
+  if (updatedAt) updatedAt.textContent = 'Sincronizando com Canvas...';
+
+  try {
+    const resp = await fetch(`/api/analytics/summary?course_id=${encodeURIComponent(courseId)}`);
+    if (!resp.ok) throw new Error(`Falha HTTP ${resp.status} ao obter dados`);
+
+    const summary = await resp.json();
+    analyticsCache[courseId] = summary;
+    analyticsState.summary = summary;
+
+    renderAnalyticsKPIs(summary);
+    renderApprovalDonut(summary);
+    renderSpeedGraderBars(summary);
+    renderGradesHistogram(summary);
+    renderRiskScatter(summary);
+
+    if (updatedAt) {
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      updatedAt.textContent = `Atualizado às ${timeStr}`;
+    }
+
+  } catch (err) {
+    console.error('Erro ao renderizar analytics:', err);
+    showToast('Não foi possível carregar as métricas da disciplina.', 'error');
+    if (updatedAt) updatedAt.textContent = 'Falha na conexão';
+  } finally {
+    if (container) container.classList.remove('is-loading');
+    if (badge) badge.style.display = 'none';
+  }
+}
+
+// Renderiza os banners superiores de KPIs
+function renderAnalyticsKPIs(summary) {
+  const total = summary.total_students || 1;
+  const appPct = Math.round((summary.approved_direct_count / total) * 100);
+  const finPct = Math.round((summary.final_exam_count / total) * 100);
+  const riskPct = Math.round((summary.at_risk_count / total) * 100);
+
+  // Banner de estágio pedagógico
+  const stageBanner = document.getElementById('analyticsStageBanner');
+  const stageText = document.getElementById('analyticsStageText');
+  if (stageBanner && stageText) {
+    if (summary.stage_description) {
+      stageText.textContent = summary.stage_description;
+      stageBanner.style.display = 'flex';
+    } else {
+      stageBanner.style.display = 'none';
+    }
+  }
+
+  const kAvg = document.getElementById('kpiAvgScore');
+  const kAvgSub = document.getElementById('kpiAvgScoreSub');
+  const kAppR = document.getElementById('kpiApprovalRate');
+  const kAppC = document.getElementById('kpiApprovalCount');
+  const kFinR = document.getElementById('kpiFinalExamRate');
+  const kFinC = document.getElementById('kpiFinalExamCount');
+  const kRiskR = document.getElementById('kpiAtRiskRate');
+  const kRiskC = document.getElementById('kpiAtRiskCount');
+
+  // Média adaptativa às notas parciais
+  if (kAvg) {
+    if (summary.graded_students_count > 0) {
+      if (summary.evaluated_points_possible > 0 && summary.evaluated_points_possible < 100) {
+        kAvg.textContent = `${(summary.average_class_score || 0).toFixed(1)} / ${(summary.evaluated_points_possible || 0).toFixed(0)} pts`;
+      } else {
+        kAvg.textContent = `${(summary.average_class_score || 0).toFixed(1)} pts`;
+      }
+    } else {
+      kAvg.textContent = 'Em Andamento';
+    }
+  }
+
+  if (kAvgSub) {
+    if (summary.graded_students_count > 0) {
+      kAvgSub.textContent = `${summary.graded_students_count} de ${summary.total_students} avaliados (${summary.evaluated_tasks_count} tarefa(s))`;
+    } else {
+      kAvgSub.textContent = 'Atividades parciais em execução';
+    }
+  }
+
+  if (kAppR) kAppR.textContent = `${appPct}%`;
+  if (kAppC) kAppC.textContent = `${summary.approved_direct_count || 0} de ${summary.total_students || 0} em dia`;
+
+  if (kFinR) kFinR.textContent = `${finPct}%`;
+  if (kFinC) kFinC.textContent = `${summary.final_exam_count || 0} em acompanhamento`;
+
+  if (kRiskR) kRiskR.textContent = `${riskPct}%`;
+  if (kRiskC) kRiskC.textContent = `${summary.at_risk_count || 0} com alerta efetivo`;
+}
+
+// Gráfico 1: Donut Contextual & CONSEPE
+function renderApprovalDonut(summary) {
+  const canvas = document.getElementById('chartApprovalDonut');
+  if (!canvas || typeof Chart === 'undefined') return;
+  destroyAnalyticsChart('donut');
+
+  const ctx = canvas.getContext('2d');
+  const isDark = state.theme === 'dark';
+
+  const total = summary.total_students || 1;
+  const hasData = (summary.approved_direct_count + summary.final_exam_count + summary.at_risk_count) > 0;
+
+  const dataValues = hasData
+    ? [summary.approved_direct_count || 0, summary.final_exam_count || 0, summary.at_risk_count || 0]
+    : [0, 0, 1];
+
+  analyticsState.charts.donut = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Em Dia / Ritmo Adequado', 'Acompanhamento Parcial', 'Atenção Prioritária (Risco)'],
+      datasets: [{
+        data: dataValues,
+        backgroundColor: hasData ? ['#10b981', '#f59e0b', '#ef4444'] : ['#475569', '#475569', '#475569'],
+        borderColor: isDark ? '#1e293b' : '#ffffff',
+        borderWidth: 3,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: isDark ? '#cbd5e1' : '#334155',
+            font: { family: 'Plus Jakarta Sans', size: 12, weight: '600' },
+            padding: 16
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const val = context.raw || 0;
+              const pct = Math.round((val / total) * 100);
+              return ` ${context.label}: ${val} alunos (${pct}%)`;
+            }
+          }
+        }
+      },
+      cutout: '65%'
+    }
+  });
+}
+
+// Gráfico 2: SpeedGrader Barras Empilhadas
+function renderSpeedGraderBars(summary) {
+  const canvas = document.getElementById('chartSpeedGraderBars');
+  if (!canvas || typeof Chart === 'undefined') return;
+  destroyAnalyticsChart('speedgrader');
+
+  const tasks = summary.assignments_status || [];
+  const ctx = canvas.getContext('2d');
+  const isDark = state.theme === 'dark';
+
+  let labels = [];
+  let graded = [];
+  let pending = [];
+  let unsubmitted = [];
+
+  if (tasks.length > 0) {
+    labels = tasks.map(t => t.title.length > 28 ? t.title.substring(0, 28) + '...' : t.title);
+    graded = tasks.map(t => t.graded_count);
+    pending = tasks.map(t => t.pending_count);
+    unsubmitted = tasks.map(t => t.unsubmitted_count);
+  } else {
+    labels = ['Sem atividades com pendências'];
+    graded = [0];
+    pending = [0];
+    unsubmitted = [0];
+  }
+
+  analyticsState.charts.speedgrader = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Corrigidas e Lançadas',
+          data: graded,
+          backgroundColor: '#10b981',
+          borderRadius: 4,
+          maxBarThickness: 26
+        },
+        {
+          label: 'Aguardando Professor',
+          data: pending,
+          backgroundColor: '#f97316',
+          borderRadius: 4,
+          maxBarThickness: 26
+        },
+        {
+          label: 'Dentro do Prazo / Abertas',
+          data: unsubmitted,
+          backgroundColor: isDark ? '#475569' : '#94a3b8',
+          borderRadius: 4,
+          maxBarThickness: 26
+        }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          stacked: true,
+          grid: { color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)' },
+          ticks: { color: isDark ? '#94a3b8' : '#64748b' }
+        },
+        y: {
+          stacked: true,
+          grid: { display: false },
+          ticks: { color: isDark ? '#cbd5e1' : '#334155', font: { weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { color: isDark ? '#cbd5e1' : '#334155', font: { family: 'Plus Jakarta Sans', size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+// Gráfico 3: Histograma de Notas (Gauss)
+function renderGradesHistogram(summary) {
+  const canvas = document.getElementById('chartGradesHistogram');
+  if (!canvas || typeof Chart === 'undefined') return;
+  destroyAnalyticsChart('histogram');
+
+  const bands = summary.grade_distribution || [];
+  const labels = bands.map(b => b.label);
+  const counts = bands.map(b => b.count);
+
+  const ctx = canvas.getContext('2d');
+  const isDark = state.theme === 'dark';
+
+  analyticsState.charts.histogram = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Quantidade de Alunos',
+        data: counts,
+        backgroundColor: [
+          'rgba(239, 68, 68, 0.85)',
+          'rgba(245, 158, 11, 0.85)',
+          'rgba(59, 130, 246, 0.85)',
+          'rgba(14, 165, 233, 0.85)',
+          'rgba(16, 185, 129, 0.85)'
+        ],
+        borderRadius: 6,
+        maxBarThickness: 44
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)' },
+          ticks: { stepSize: 1, color: isDark ? '#94a3b8' : '#64748b' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { color: isDark ? '#cbd5e1' : '#334155', font: { weight: '600' } }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+}
+
+// Gráfico 4: Scatter Plot de Evasão (Inatividade vs Média)
+function renderRiskScatter(summary) {
+  const canvas = document.getElementById('chartRiskScatter');
+  if (!canvas || typeof Chart === 'undefined') return;
+  destroyAnalyticsChart('scatter');
+
+  const students = summary.students_risk_plot || [];
+  
+  // Agrupa pontos idênticos para adicionar leve jitter visual para facilitar identificação
+  const coordCount = {};
+  const scatterData = students.map((s, idx) => {
+    const isNever = s.days_inactive >= 900;
+    const baseClampedX = isNever ? 35 : Math.min(s.days_inactive, 35);
+    const key = `${baseClampedX}_${s.average_score}`;
+    coordCount[key] = (coordCount[key] || 0) + 1;
+    const offset = (coordCount[key] - 1) * 0.25;
+
+    return {
+      x: baseClampedX + (offset > 0 ? (offset % 2 === 0 ? offset : -offset) : 0),
+      realDays: s.days_inactive,
+      isNever: isNever,
+      y: s.average_score,
+      name: s.name,
+      cat: s.risk_category
+    };
+  });
+
+  const ctx = canvas.getContext('2d');
+  const isDark = state.theme === 'dark';
+
+  analyticsState.charts.scatter = new Chart(ctx, {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: 'Estudantes',
+        data: scatterData,
+        backgroundColor: function(context) {
+          const raw = context.raw;
+          if (!raw) return '#10b981';
+          if (raw.cat === 'critico') return '#ef4444';
+          if (raw.cat === 'moderado') return '#f59e0b';
+          return '#10b981';
+        },
+        pointRadius: 6,
+        pointHoverRadius: 9
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Dias Sem Acesso ao Canvas LMS (até 35+ dias)',
+            color: isDark ? '#94a3b8' : '#64748b',
+            font: { weight: '600' }
+          },
+          min: 0,
+          max: 36,
+          grid: { color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)' },
+          ticks: {
+            color: isDark ? '#cbd5e1' : '#334155',
+            callback: function(val) {
+              return val >= 35 ? '35+ d' : val + 'd';
+            }
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Nota Média Acumulada (0 a 100)',
+            color: isDark ? '#94a3b8' : '#64748b',
+            font: { weight: '600' }
+          },
+          min: 0,
+          max: 100,
+          grid: { color: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)' },
+          ticks: { color: isDark ? '#cbd5e1' : '#334155' }
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const raw = context.raw;
+              const inatLabel = raw.isNever ? 'Sem registros de acesso' : `${raw.realDays}d inativo`;
+              const scoreLabel = raw.y > 0 ? `Nota: ${raw.y} pts` : 'Sem avaliações lançadas';
+              let statusLabel = '🟢 Em dia';
+              if (raw.cat === 'critico') statusLabel = '🔴 Risco de evasão';
+              else if (raw.cat === 'moderado') statusLabel = '🟡 Acompanhamento';
+              return ` ${raw.name} • ${statusLabel} (${scoreLabel} | ${inatLabel})`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// Eventos da toolbar de Analytics
+document.getElementById('analyticsCourseSelect')?.addEventListener('change', async (e) => {
+  const chosenCourseId = e.target.value;
+  if (!chosenCourseId) return;
+
+  analyticsState.selectedCourseId = chosenCourseId;
+  state.selectedCourseId = chosenCourseId;
+  localStorage.setItem('canvas_hub_active_course', chosenCourseId);
+
+  // Sincroniza outros seletores se compatíveis
+  if (elements.courseSelect) {
+    const has = Array.from(elements.courseSelect.querySelectorAll('option')).some(o => o.value === chosenCourseId);
+    if (has) elements.courseSelect.value = chosenCourseId;
+  }
+  if (elements.studentsCourseSelect) {
+    const has = Array.from(elements.studentsCourseSelect.querySelectorAll('option')).some(o => o.value === chosenCourseId);
+    if (has) elements.studentsCourseSelect.value = chosenCourseId;
+  }
+
+  // Atualiza cartões de curso silenciosamente
+  document.querySelectorAll('.course-card').forEach(card => {
+    if (card.getAttribute('data-id') === chosenCourseId) {
+      card.classList.add('selected');
+    } else {
+      card.classList.remove('selected');
+    }
+  });
+
+  await fetchAndRenderAnalytics(chosenCourseId);
+});
+
+document.getElementById('btnRefreshAnalytics')?.addEventListener('click', async () => {
+  if (analyticsState.selectedCourseId) {
+    showToast('Atualizando métricas da disciplina em tempo real...', 'info');
+    await fetchAndRenderAnalytics(analyticsState.selectedCourseId, true);
+  }
+});
+
+document.getElementById('btnExportAnalytics')?.addEventListener('click', () => {
+  window.print();
+});
+
+// Redimensionamento responsivo seguro em resize de janela
+let analyticsResizeDebounce = null;
+window.addEventListener('resize', () => {
+  clearTimeout(analyticsResizeDebounce);
+  analyticsResizeDebounce = setTimeout(() => {
+    const activeTab = document.querySelector('.tab-content.active');
+    if (activeTab && activeTab.id === 'analytics-tab') {
+      Object.values(analyticsState.charts).forEach(c => {
+        if (c) c.resize();
+      });
+    }
+  }, 150);
+});
+
 
 

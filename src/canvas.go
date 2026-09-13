@@ -1292,9 +1292,82 @@ type AddModuleItemParams struct {
 	NewTab      bool   `json:"new_tab,omitempty"`
 }
 
+// ResolveModuleID localiza o ID numérico do módulo pelo ID direto ou pelo nome/título
+func (c *CanvasClient) ResolveModuleID(courseID, moduleIDOrName string) (string, error) {
+	trimmed := strings.TrimSpace(moduleIDOrName)
+	if trimmed == "" {
+		return "", fmt.Errorf("identificador do módulo não fornecido")
+	}
+
+	modsData, err := c.ListModules(courseID)
+	if err != nil {
+		if _, numErr := strconv.ParseInt(trimmed, 10, 64); numErr == nil {
+			return trimmed, nil
+		}
+		return "", err
+	}
+
+	modsList, ok := modsData.([]any)
+	if !ok {
+		if _, numErr := strconv.ParseInt(trimmed, 10, 64); numErr == nil {
+			return trimmed, nil
+		}
+		return "", fmt.Errorf("formato inesperado na listagem de módulos")
+	}
+
+	lowerQuery := strings.ToLower(trimmed)
+
+	// 1. Se for numérico, verifica se bate com algum ID existente
+	for _, mItem := range modsList {
+		if mMap, ok := mItem.(map[string]any); ok {
+			idStr := fmt.Sprintf("%v", mMap["id"])
+			if idStr == trimmed {
+				return idStr, nil
+			}
+		}
+	}
+
+	// 2. Busca exata por nome
+	for _, mItem := range modsList {
+		if mMap, ok := mItem.(map[string]any); ok {
+			name := strings.ToLower(fmt.Sprintf("%v", mMap["name"]))
+			if name == lowerQuery {
+				return fmt.Sprintf("%v", mMap["id"]), nil
+			}
+		}
+	}
+
+	// 3. Busca parcial por nome (ex: "Git" mapeia para "Semana 1 - Introdução ao Git")
+	for _, mItem := range modsList {
+		if mMap, ok := mItem.(map[string]any); ok {
+			name := strings.ToLower(fmt.Sprintf("%v", mMap["name"]))
+			if strings.Contains(name, lowerQuery) || strings.Contains(lowerQuery, name) {
+				return fmt.Sprintf("%v", mMap["id"]), nil
+			}
+		}
+	}
+
+	// Fallback numérico
+	if _, numErr := strconv.ParseInt(trimmed, 10, 64); numErr == nil {
+		return trimmed, nil
+	}
+
+	return "", fmt.Errorf("módulo '%s' não encontrado na disciplina", moduleIDOrName)
+}
+
 func (c *CanvasClient) AddModuleItem(p AddModuleItemParams) (any, error) {
 	if p.CourseID == "" || p.ModuleID == "" || p.Type == "" {
 		return nil, fmt.Errorf("course_id, module_id e type são obrigatórios para adicionar item ao módulo")
+	}
+
+	// Resolve course_id flexível se necessário
+	if resolvedCID, err := c.ResolveCourseID(p.CourseID); err == nil {
+		p.CourseID = resolvedCID
+	}
+
+	// Resolve module_id flexível (ID numérico ou nome do módulo)
+	if resolvedMID, err := c.ResolveModuleID(p.CourseID, p.ModuleID); err == nil {
+		p.ModuleID = resolvedMID
 	}
 
 	endpoint := fmt.Sprintf("/api/v1/courses/%s/modules/%s/items", url.PathEscape(p.CourseID), url.PathEscape(p.ModuleID))

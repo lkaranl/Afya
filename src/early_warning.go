@@ -62,13 +62,72 @@ type CourseAtRiskReport struct {
 
 // DetectAtRiskStudents cruza inatividade, notas abaixo da média de corte da Afya e tarefas zeradas/faltantes
 func (c *CanvasClient) DetectAtRiskStudents(courseID string, inactivityDays int, gradeCutoff float64, consecutiveThreshold int) (*CourseAtRiskReport, error) {
+	trimmed := strings.TrimSpace(courseID)
+	lower := strings.ToLower(trimmed)
+
+	// Se for genérico ("ativa", "todas", "turmas ativas", etc.) ou vazio
+	if trimmed == "" || lower == "ativa" || lower == "todas" || lower == "turmas ativas" || lower == "turma ativa" || lower == "ambas" {
+		courses, err := c.ListCourses()
+		if err == nil {
+			var currentCourses []map[string]any
+			for _, crs := range courses {
+				if isCur, ok := crs["is_current_term"].(bool); ok && isCur {
+					currentCourses = append(currentCourses, crs)
+				}
+			}
+			if len(currentCourses) > 1 {
+				return c.detectAtRiskStudentsMulti(currentCourses, inactivityDays, gradeCutoff, consecutiveThreshold)
+			} else if len(currentCourses) == 1 {
+				return c.detectAtRiskStudentsSingle(getCourseIDStr(currentCourses[0]), inactivityDays, gradeCutoff, consecutiveThreshold)
+			}
+		}
+	}
+
 	resolvedID, err := c.ResolveCourseID(courseID)
 	if err != nil {
 		return nil, err
 	}
-	courseID = resolvedID
+	return c.detectAtRiskStudentsSingle(resolvedID, inactivityDays, gradeCutoff, consecutiveThreshold)
+}
 
+func (c *CanvasClient) detectAtRiskStudentsMulti(courses []map[string]any, inactivityDays int, gradeCutoff float64, consecutiveThreshold int) (*CourseAtRiskReport, error) {
+	var md strings.Builder
+	md.WriteString("## 📊 Painel Geral de Identificação Precoce e Risco de Evasão (Semestre Atual)\n\n")
 
+	var allStudents []AtRiskStudent
+	var aggSummary CourseAtRiskSummary
+	aggSummary.InactivityCutoff = inactivityDays
+	aggSummary.GradeCutoff = gradeCutoff
+
+	for _, crs := range courses {
+		cID := getCourseIDStr(crs)
+		rep, err := c.detectAtRiskStudentsSingle(cID, inactivityDays, gradeCutoff, consecutiveThreshold)
+		if err != nil {
+			continue
+		}
+
+		aggSummary.TotalStudents += rep.Summary.TotalStudents
+		aggSummary.CriticalCount += rep.Summary.CriticalCount
+		aggSummary.ModerateCount += rep.Summary.ModerateCount
+		aggSummary.WarningCount += rep.Summary.WarningCount
+		aggSummary.RegularCount += rep.Summary.RegularCount
+
+		allStudents = append(allStudents, rep.Students...)
+		md.WriteString(rep.MarkdownTable)
+		md.WriteString("\n\n---\n\n")
+	}
+
+	return &CourseAtRiskReport{
+		CourseID:      "multi",
+		CourseName:    "Todas as Turmas Ativas",
+		GeneratedAtBR: formatBRT(time.Now().Format(time.RFC3339)),
+		Summary:       aggSummary,
+		Students:      allStudents,
+		MarkdownTable: md.String(),
+	}, nil
+}
+
+func (c *CanvasClient) detectAtRiskStudentsSingle(courseID string, inactivityDays int, gradeCutoff float64, consecutiveThreshold int) (*CourseAtRiskReport, error) {
 	if inactivityDays <= 0 {
 		inactivityDays = 10
 	}
@@ -115,7 +174,48 @@ func (c *CanvasClient) DetectAtRiskStudents(courseID string, inactivityDays int,
 		subsByUser[uID] = userSubs
 	}
 
+	// 2b. Busca tarefas da disciplina para identificar prazos (Ambiente em Volta)
+	assignmentsRaw, _ := c.ListAssignments(courseID)
+	pastDueAssignmentIDs := make(map[string]bool)
+	var pastDuePointsPossible float64
+	pastDueAssignmentsCount := 0
+
 	now := time.Now()
+	if al, ok := assignmentsRaw.([]any); ok {
+		for _, item := range al {
+			if aMap, ok := item.(map[string]any); ok {
+				var aIDStr string
+				if idVal, ok := aMap["id"].(float64); ok {
+					aIDStr = fmt.Sprintf("%.0f", idVal)
+				} else if idVal, ok := aMap["id"].(int64); ok {
+					aIDStr = fmt.Sprintf("%d", idVal)
+				} else {
+					aIDStr = fmt.Sprintf("%v", aMap["id"])
+				}
+
+				pts := 0.0
+				if pVal, ok := aMap["points_possible"].(float64); ok {
+					pts = pVal
+				}
+
+				isPastDue := false
+				if dueStr, ok := aMap["due_at"].(string); ok && dueStr != "" {
+					if dueTime, err := time.Parse(time.RFC3339, dueStr); err == nil {
+						if now.After(dueTime) {
+							isPastDue = true
+						}
+					}
+				}
+
+				if isPastDue {
+					pastDueAssignmentIDs[aIDStr] = true
+					pastDuePointsPossible += pts
+					pastDueAssignmentsCount++
+				}
+			}
+		}
+	}
+
 	var atRiskList []AtRiskStudent
 	summary := CourseAtRiskSummary{
 		TotalStudents:    len(rawUsers),
@@ -181,13 +281,16 @@ func (c *CanvasClient) DetectAtRiskStudents(courseID string, inactivityDays int,
 			}
 		}
 
-		// Analisar submissões
+		// Analisar submissões levando em conta o ambiente em volta (prazos das atividades)
 		userSubs := subsByUser[uID]
 		totalMissing := 0
 		maxConsecutive := 0
 		currentConsecutive := 0
 
 		for _, s := range userSubs {
+			aID := fmt.Sprintf("%v", s["assignment_id"])
+			isPastDue := pastDueAssignmentIDs[aID]
+
 			isMissing := false
 			if mVal, ok := s["missing"].(bool); ok && mVal {
 				isMissing = true
@@ -200,15 +303,21 @@ func (c *CanvasClient) DetectAtRiskStudents(courseID string, inactivityDays int,
 			}
 			wfState := fmt.Sprintf("%v", s["workflow_state"])
 
-			// É considerada zerada/faltante se missing, ou unsubmitted, ou score == 0 explicitamente avaliado
-			if isMissing || wfState == "unsubmitted" || (hasSubScore && scoreVal == 0) {
+			// Uma atividade só é considerada pendência/falta se JÁ VENCEU ou se o Canvas marcou explicitamente missing.
+			// Tarefas abertas com prazo futuro onde wfState == 'unsubmitted' NÃO são falta!
+			isRealMissing := (isPastDue && wfState == "unsubmitted") || isMissing
+			isZeroGrade := hasSubScore && scoreVal == 0
+
+			if isRealMissing || isZeroGrade {
 				totalMissing++
 				currentConsecutive++
 				if currentConsecutive > maxConsecutive {
 					maxConsecutive = currentConsecutive
 				}
 			} else {
-				currentConsecutive = 0
+				if wfState == "submitted" || wfState == "graded" || (hasSubScore && scoreVal > 0) {
+					currentConsecutive = 0
+				}
 			}
 		}
 
@@ -220,8 +329,8 @@ func (c *CanvasClient) DetectAtRiskStudents(courseID string, inactivityDays int,
 			scoredStudentsCount++
 		}
 
-		// Avaliar Fatores de Alerta
-		// Fator 1: Inatividade prolongada
+		// Avaliar Fatores de Alerta Contextuais (Ambiente em Volta)
+		// Fator 1: Inatividade prolongada no Canvas LMS
 		if student.DaysInactive >= inactivityDays {
 			if student.DaysInactive >= 999 {
 				student.AlertFactors = append(student.AlertFactors, "Sem registro de acesso ao Canvas")
@@ -230,17 +339,27 @@ func (c *CanvasClient) DetectAtRiskStudents(courseID string, inactivityDays int,
 			}
 		}
 
-		// Fator 2: Entregas consecutivas zeradas/faltantes
+		// Fator 2: Entregas consecutivas faltantes em tarefas que JÁ VENCERAM
 		if student.ConsecutiveMissing >= consecutiveThreshold {
-			student.AlertFactors = append(student.AlertFactors, fmt.Sprintf("%d atividades consecutivas zeradas/faltantes", student.ConsecutiveMissing))
+			student.AlertFactors = append(student.AlertFactors, fmt.Sprintf("%d atividades consecutivas vencidas sem entrega", student.ConsecutiveMissing))
 		}
 
-		// Fator 3: Média abaixo do corte da Afya (70 pts)
-		if !hasScore || student.CurrentScore < gradeCutoff {
+		// Fator 3: Média / Desempenho Parcial Contextual
+		// Se nenhuma tarefa venceu ainda ou não há notas lançadas na turma, não penaliza os alunos por estarem no início do semestre
+		if pastDueAssignmentsCount > 0 {
 			if !hasScore {
-				student.AlertFactors = append(student.AlertFactors, "Sem nota lançada até o momento")
+				if student.TotalMissingOrZero > 0 {
+					student.AlertFactors = append(student.AlertFactors, fmt.Sprintf("%d atividade(s) vencida(s) sem entrega", student.TotalMissingOrZero))
+				}
 			} else {
-				student.AlertFactors = append(student.AlertFactors, fmt.Sprintf("Média atual %.1f pts (abaixo do corte de %.0f pts)", student.CurrentScore, gradeCutoff))
+				// Avalia aproveitamento parcial proporcional às tarefas avaliadas
+				effectivePct := student.CurrentScore
+				if pastDuePointsPossible > 0 && pastDuePointsPossible < 100.0 && student.CurrentScore <= pastDuePointsPossible {
+					effectivePct = (student.CurrentScore / pastDuePointsPossible) * 100.0
+				}
+				if effectivePct < gradeCutoff {
+					student.AlertFactors = append(student.AlertFactors, fmt.Sprintf("Aproveitamento parcial de %.1f%% (abaixo do corte de %.0f%%)", effectivePct, gradeCutoff))
+				}
 			}
 		}
 
