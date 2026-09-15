@@ -61,6 +61,10 @@ O agente deve pautar toda criação de atividades, questionários, cálculo de n
 - Questões teóricas e simulados devem seguir o **Modelo ENADE**, apresentando texto-base contextualizado, situação-problema e distratores com justificativa pedagógica explícita.
 - Devolutiva obrigatória: As atividades e provas devem ser devolvidas e discutidas com os alunos em até **10 dias** após a aplicação, apresentando gabarito e justificativa das questões (Art. 5º e Art. 16 § 2º).
 - Revisão de Prova: O aluno pode solicitar revisão fundamentada em até **2 dias letivos** após a devolutiva em sala. O professor tem até **7 dias** após a notificação para realizar a revisão.
+- **Quizzes e Atividades Práticas Formativas (Sem Impacto na Média):** Sempre que uma atividade ou questionário for identificado com o termo "Prático" ou caráter de treino (ex.: *Quiz Prático*, *Exercício de Treino*), ele deve ser configurado como **formativo**:
+  - `omit_from_final_grade: true` (não computar na nota final);
+  - Alocado no grupo de tarefas formativas (peso 0%);
+  - O estudante pode realizar as tentativas para praticar e ver o gabarito sem distorcer a somatória das notas oficiais de N1/N2.
 
 ---
 
