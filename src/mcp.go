@@ -694,6 +694,23 @@ var mcpTools = []MCPTool{
 		},
 	},
 	{
+		Name:        "canvas_get_docente_guide",
+		Description: "Consulta o Guia Oficial do Docente no Canvas LMS da Afya (doc/institucional/GUIA_DO_DOCENTE_NO_CANVAS.md), cobrindo autonomia pedagógica (presencial vs online/híbrida), regras de publicação individual de módulos e itens, diretrizes de avaliações, boas práticas de SpeedGrader, retenção de notas no boletim via Política de Postagem Manual, canais oficiais de comunicação (Avisos vs Caixa de Entrada), checklist pré-liberação e troubleshooting de problemas frequentes.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"topic": map[string]any{
+					"type":        "string",
+					"description": "Filtro por tópico: 'tipologia' (autonomia por modalidade), 'acesso' (SSO e notificações), 'modulos' (regras de visibilidade e arquivos), 'avaliacoes' (SpeedGrader e boletim), 'comunicacao' (avisos e inbox), 'checklist' (validação pré-liberação), 'troubleshooting' (problemas frequentes) ou 'all' (guia completo).",
+				},
+				"search": map[string]any{
+					"type":        "string",
+					"description": "Termo de busca textual livre para localizar orientações específicas no guia do docente.",
+				},
+			},
+		},
+	},
+	{
 		Name:        "canvas_setup_afya_grading_scheme",
 		Description: "Aplica e configura automaticamente a matriz de avaliação oficial da Afya no Canvas LMS, ativando grupos ponderados e estruturando N1 e N2 em conformidade com o regimento.",
 		InputSchema: map[string]any{
@@ -1498,6 +1515,16 @@ func executeMCPTool(client *CanvasClient, name string, rawArgs json.RawMessage) 
 			return nil, err
 		}
 		return client.GetInstitutionalRules(args.Modality)
+
+	case "canvas_get_docente_guide":
+		var args struct {
+			Topic  string `json:"topic"`
+			Search string `json:"search"`
+		}
+		if err := json.Unmarshal(rawArgs, &args); err != nil {
+			return nil, err
+		}
+		return GetTeacherGuide(args.Topic, args.Search)
 
 	case "canvas_setup_afya_grading_scheme":
 		var args struct {

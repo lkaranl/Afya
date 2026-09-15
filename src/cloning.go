@@ -335,10 +335,23 @@ func (c *CanvasClient) CloneModule(sourceCourseIDOrQuery, destCourseIDOrQuery, m
 										aWeight = w
 									}
 								}
+								aBlankID, _ := aMap["blank_id"].(string)
+								aMatchLeft, _ := aMap["answer_match_left"].(string)
+								if aMatchLeft == "" {
+									aMatchLeft, _ = aMap["left"].(string)
+								}
+								aMatchRight, _ := aMap["answer_match_right"].(string)
+								if aMatchRight == "" {
+									aMatchRight, _ = aMap["right"].(string)
+								}
+
 								ansList = append(ansList, QuizAnswer{
-									Text:    aText,
-									Weight:  aWeight,
-									Comment: aComment,
+									Text:             aText,
+									Weight:           aWeight,
+									Comment:          aComment,
+									BlankID:          aBlankID,
+									AnswerMatchLeft:  aMatchLeft,
+									AnswerMatchRight: aMatchRight,
 								})
 							}
 						}
