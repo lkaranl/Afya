@@ -212,43 +212,32 @@ O painel ficará disponível em `http://localhost:3000` e o log em `afya-web.log
 pkill -f "afya-canvas --web"
 ```
 
-#### Opção B: com `systemd` (recomendado para servidores — reinicia sozinho após queda ou reboot)
+#### Opção B: com `systemd` (recomendado para servidores — inicia no boot e reinicia sozinho)
 
-Crie o arquivo de serviço:
+> 💡 O projeto já traz o arquivo pronto em [`systemd/afya-canvas.service`](systemd/afya-canvas.service).
+
+**1. Ajuste os caminhos no arquivo** `systemd/afya-canvas.service` (campos `User`, `Group`, `WorkingDirectory` e `ExecStart`) para o seu usuário e diretório reais no servidor.
+
+**2. Instale e ative o serviço:**
 ```bash
-sudo nano /etc/systemd/system/afya-canvas.service
-```
-
-Conteúdo (ajuste `User`, `WorkingDirectory` e o caminho do binário conforme seu ambiente):
-```ini
-[Unit]
-Description=Afya Canvas MCP & Painel Web
-After=network.target
-
-[Service]
-Type=simple
-User=karan
-WorkingDirectory=/home/karan/Github/Afya
-ExecStart=/home/karan/Github/Afya/afya-canvas --web
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Ative e inicie o serviço:
-```bash
+sudo cp systemd/afya-canvas.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable --now afya-canvas
 ```
 
-Comandos úteis de gerenciamento:
+Com isso o painel web **inicia automaticamente junto com o boot do servidor** e volta sozinho se o processo cair.
+
+**3. Comandos úteis de gerenciamento:**
 ```bash
 sudo systemctl status afya-canvas    # verificar se está rodando
 sudo systemctl restart afya-canvas   # reiniciar após atualizar o binário
+sudo systemctl stop afya-canvas      # parar o serviço
 journalctl -u afya-canvas -f         # acompanhar os logs em tempo real
 ```
+
+> 📌 **Observação:** arquivos `.desktop` servem para inicialização automática em sessões **gráficas** (`~/.config/autostart`) e não funcionam em servidores sem interface. Em servidores Debian sem ambiente gráfico, o mecanismo correto é este serviço do `systemd` (nível `multi-user.target`).
+>
+> Para modo MCP (uso pelo Agente de IA via `stdio`), não use o serviço systemd — execute o binário diretamente, pois o MCP se comunica pelo terminal.
 
 > 🔒 **Segurança:** o arquivo `.env` (com o token do Canvas) deve ficar dentro do `WorkingDirectory` definido no serviço, com permissão restrita:
 > ```bash
