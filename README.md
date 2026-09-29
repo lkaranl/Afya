@@ -33,6 +33,7 @@ Permite que o **Agente de IA** atue como seu assistente pedagógico de ponta a p
 | `canvas_submit_grades_batch` | Publica notas e feedbacks para toda a turma de uma vez só no Canvas. |
 | `canvas_submit_grade` | Lança nota e feedback para um aluno específico. |
 | `canvas_create_assignment` | **Criação de Atividades**: Cadastra uma nova atividade no Canvas com enunciado HTML institucional, pontuação, prazos, tipos de entrega e grupos via IA. |
+| `canvas_update_assignment` | **Atualização de Atividades**: Edita campos de uma atividade existente (prazo de entrega, nome, enunciado, pontuação, datas de liberação e bloqueio) sem recriá-la. |
 | `canvas_create_quiz` | **Criação de Questionários**: Cadastra um Quiz completo com questões de múltipla escolha ou abertas, alternativas, pontuação e comentários pedagógicos. |
 | `canvas_create_module` | **Criação de Módulos**: Cria um novo módulo semanal/temático no Canvas para estruturação do plano de ensino da disciplina. |
 | `canvas_add_module_item` | **Vinculação em Módulos**: Adiciona tarefas, questionários, links externos ou páginas a um módulo existente. |
@@ -124,6 +125,67 @@ npx -y afya-canvas --web
 
 ## 🚀 Execução Local (Código-fonte Go)
 
+### 0. Compilando o projeto em Linux
+
+#### a) Instale o compilador Go (versão 1.21 ou superior)
+
+**Debian / Ubuntu / Mint:**
+```bash
+sudo apt update
+sudo apt install -y golang-go
+```
+
+**Fedora / RHEL / derivados:**
+```bash
+sudo dnf install -y golang
+```
+
+**Arch Linux e derivados:**
+```bash
+sudo pacman -S go
+```
+
+Alternativa universal (qualquer distribuição), instalando direto do site oficial:
+```bash
+wget https://go.dev/dl/go1.22.5.linux-amd64.tar.gz
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.22.5.linux-amd64.tar.gz
+export PATH=$PATH:/usr/local/go/bin
+```
+
+Verifique a instalação:
+```bash
+go version
+```
+
+#### b) Obtenha o código-fonte e compile
+
+```bash
+git clone <url-do-repositorio> Afya
+cd Afya
+```
+
+O código-fonte principal está no pacote `src/`. Para compilar o binário executável na raiz do projeto:
+```bash
+go build -o afya-canvas ./src
+```
+
+> 💡 **Dica para compilação otimizada:** para gerar um binário menor e sem informações de depuração, use:
+> ```bash
+> go build -ldflags="-s -w" -o afya-canvas ./src
+> ```
+
+Antes de compilar, confira a integridade do código (opcional, recomendado):
+```bash
+go vet ./...
+```
+
+Ao final, o arquivo executável `afya-canvas` será criado na raiz do projeto.
+
+#### c) Configure as variáveis de ambiente
+
+Crie o arquivo `.env` na raiz do projeto conforme a seção [Variáveis de Ambiente](#️-variáveis-de-ambiente-env) antes de executar.
+
 ### 1. Modo Padrão: Servidor MCP (para o Agente de IA)
 Ao executar sem argumentos, o binário opera como servidor MCP JSON-RPC sobre `stdio`:
 ```bash
@@ -133,11 +195,65 @@ Ao executar sem argumentos, o binário opera como servidor MCP JSON-RPC sobre `s
 ### 2. Modo Painel Web (Bônus Visual)
 Para abrir o painel visual no navegador:
 ```bash
-go run . --web
+go run ./src --web
 # ou:
 ./afya-canvas --web
 ```
 Acesse no navegador: `http://localhost:3000`
+
+### 3. Deixando o Painel Web rodando em segundo plano (servidor Linux)
+
+#### Opção A: com `nohup` (rápido e simples)
+```bash
+nohup ./afya-canvas --web > afya-web.log 2>&1 &
+```
+O painel ficará disponível em `http://localhost:3000` e o log em `afya-web.log`. Para encerrar:
+```bash
+pkill -f "afya-canvas --web"
+```
+
+#### Opção B: com `systemd` (recomendado para servidores — reinicia sozinho após queda ou reboot)
+
+Crie o arquivo de serviço:
+```bash
+sudo nano /etc/systemd/system/afya-canvas.service
+```
+
+Conteúdo (ajuste `User`, `WorkingDirectory` e o caminho do binário conforme seu ambiente):
+```ini
+[Unit]
+Description=Afya Canvas MCP & Painel Web
+After=network.target
+
+[Service]
+Type=simple
+User=karan
+WorkingDirectory=/home/karan/Github/Afya
+ExecStart=/home/karan/Github/Afya/afya-canvas --web
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Ative e inicie o serviço:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now afya-canvas
+```
+
+Comandos úteis de gerenciamento:
+```bash
+sudo systemctl status afya-canvas    # verificar se está rodando
+sudo systemctl restart afya-canvas   # reiniciar após atualizar o binário
+journalctl -u afya-canvas -f         # acompanhar os logs em tempo real
+```
+
+> 🔒 **Segurança:** o arquivo `.env` (com o token do Canvas) deve ficar dentro do `WorkingDirectory` definido no serviço, com permissão restrita:
+> ```bash
+> chmod 600 .env
+> ```
 
 ---
 
