@@ -1,0 +1,25 @@
+[Unit]
+Description=Afya Canvas Assistant (Telegram + Painel Web)
+Documentation=file:///home/debian/Afya/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=debian
+Group=debian
+WorkingDirectory=/home/debian/Afya
+ExecStart=/home/debian/Afya/afya-canvas --telegram --web
+
+# Reinicia automaticamente se o processo cair
+Restart=on-failure
+RestartSec=5
+
+# Segurança básica do serviço
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/home/debian/Afya/scratch /home/debian/Afya/data
+
+[Install]
+WantedBy=multi-user.target
