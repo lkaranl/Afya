@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 350" style="width:100%; height:auto; display:block; shape-rendering:geometricPrecision; text-rendering:geometricPrecision;">
+  <defs>
+    <marker id="arrowDownClean" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
+      <path d="M 1 2 L 6 5 L 1 8 z" fill="#1e293b"/>
+    </marker>
+    <marker id="arrowUpClean" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse">
+      <path d="M 1 2 L 6 5 L 1 8 z" fill="#1e293b"/>
+    </marker>
+  </defs>
+
+  <rect width="360" height="350" fill="#ffffff" rx="5" stroke="#cbd5e1" stroke-width="1"/>
+
+  <!-- BLOCO 1: CAMADA DOCENTE -->
+  <g transform="translate(10, 10)">
+    <rect width="340" height="68" rx="5" fill="#f8fafc" stroke="#334155" stroke-width="1.2"/>
+    <path d="M 0 5 Q 0 0 5 0 L 335 0 Q 340 0 340 5 L 340 22 L 0 22 Z" fill="#1e293b"/>
+    <text x="170" y="15" fill="#ffffff" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" text-anchor="middle">1. CAMADA DOCENTE (Telegram Bot)</text>
+    <text x="10" y="38" fill="#0f172a" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold">Interação em Linguagem Natural Pura (Voz ou Texto)</text>
+    <text x="10" y="51" fill="#334155" font-family="'Times New Roman', serif" font-size="9.5">• Envio de demandas pedagógicas e consultas de turmas</text>
+    <text x="10" y="63" fill="#334155" font-family="'Times New Roman', serif" font-size="9.5">• Aprovação soberana de notas via botões interativos</text>
+  </g>
+
+  <!-- SETAS FLUXO 1 <-> 2 -->
+  <g transform="translate(180, 78)">
+    <line x1="-25" y1="2" x2="-25" y2="18" stroke="#1e293b" stroke-width="1.5" marker-end="url(#arrowDownClean)"/>
+    <line x1="25" y1="18" x2="25" y2="2" stroke="#1e293b" stroke-width="1.5" marker-end="url(#arrowUpClean)"/>
+    <text x="-33" y="12" fill="#475569" font-family="'Times New Roman', serif" font-size="8" font-style="italic" text-anchor="end">Solicitação</text>
+    <text x="33" y="12" fill="#475569" font-family="'Times New Roman', serif" font-size="8" font-style="italic" text-anchor="start">Parecer</text>
+  </g>
+
+  <!-- BLOCO 2: MEDIAÇÃO INTELIGENTE (MCP) -->
+  <g transform="translate(10, 98)">
+    <rect width="340" height="98" rx="5" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.2"/>
+    <path d="M 0 5 Q 0 0 5 0 L 335 0 Q 340 0 340 5 L 340 22 L 0 22 Z" fill="#16a34a"/>
+    <text x="170" y="15" fill="#ffffff" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" text-anchor="middle">2. MEDIAÇÃO INTELIGENTE (Servidor MCP + IA)</text>
+    <text x="10" y="37" fill="#14532d" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold">Orquestração e Execução de Ferramentas Acadêmicas</text>
+    
+    <g transform="translate(8, 44)">
+      <rect width="102" height="34" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="0.8"/>
+      <text x="51" y="14" fill="#14532d" font-family="'Times New Roman', serif" font-size="9" font-weight="bold" text-anchor="middle">Recursos</text>
+      <text x="51" y="26" fill="#166534" font-family="'Times New Roman', serif" font-size="7.5" text-anchor="middle">Rubricas e Matrizes</text>
+
+      <rect x="110" width="102" height="34" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="0.8"/>
+      <text x="161" y="14" fill="#14532d" font-family="'Times New Roman', serif" font-size="9" font-weight="bold" text-anchor="middle">Prompts</text>
+      <text x="161" y="26" fill="#166534" font-family="'Times New Roman', serif" font-size="7.5" text-anchor="middle">Regras Pedagógicas</text>
+
+      <rect x="220" width="104" height="34" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="0.8"/>
+      <text x="272" y="14" fill="#14532d" font-family="'Times New Roman', serif" font-size="9" font-weight="bold" text-anchor="middle">Ferramentas</text>
+      <text x="272" y="26" fill="#166534" font-family="'Times New Roman', serif" font-size="7.5" text-anchor="middle">Auditoria e Consultas</text>
+    </g>
+    <text x="10" y="90" fill="#15803d" font-family="'Times New Roman', serif" font-size="8.5">• Credenciais isoladas no servidor institucional sob menor privilégio</text>
+  </g>
+
+  <!-- SETAS FLUXO 2 <-> 3 -->
+  <g transform="translate(180, 196)">
+    <line x1="-25" y1="2" x2="-25" y2="18" stroke="#1e293b" stroke-width="1.5" marker-end="url(#arrowDownClean)"/>
+    <line x1="25" y1="18" x2="25" y2="2" stroke="#1e293b" stroke-width="1.5" marker-end="url(#arrowUpClean)"/>
+    <text x="-33" y="12" fill="#475569" font-family="'Times New Roman', serif" font-size="8" font-style="italic" text-anchor="end">Ações REST</text>
+    <text x="33" y="12" fill="#475569" font-family="'Times New Roman', serif" font-size="8" font-style="italic" text-anchor="start">Dados e Envios</text>
+  </g>
+
+  <!-- BLOCO 3: CAMADA INSTITUCIONAL -->
+  <g transform="translate(10, 216)">
+    <rect width="340" height="72" rx="5" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.2"/>
+    <path d="M 0 5 Q 0 0 5 0 L 335 0 Q 340 0 340 5 L 340 22 L 0 22 Z" fill="#7c3aed"/>
+    <text x="170" y="15" fill="#ffffff" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" text-anchor="middle">3. CAMADA INSTITUCIONAL (Canvas LMS Afya)</text>
+    <text x="10" y="38" fill="#5b21b6" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold">Gestão Oficial de Aprendizagem e Registro Acadêmico</text>
+    <text x="10" y="51" fill="#4c1d95" font-family="'Times New Roman', serif" font-size="9.5">• Repositório de turmas, tarefas, prazos e submissões</text>
+    <text x="10" y="64" fill="#4c1d95" font-family="'Times New Roman', serif" font-size="9.5">• Sincronização auditável de notas e pareceres no boletim</text>
+  </g>
+
+  <!-- BLOCO 4: SOBERANIA DOCENTE -->
+  <g transform="translate(10, 298)">
+    <rect width="340" height="42" rx="5" fill="#fffbeb" stroke="#d97706" stroke-width="1.2"/>
+    <text x="170" y="17" fill="#92400e" font-family="'Times New Roman', serif" font-size="9.5" font-weight="bold" text-anchor="middle">GOVERNANÇA: SOBERANIA DOCENTE (HUMAN-IN-THE-LOOP)</text>
+    <text x="170" y="32" fill="#b45309" font-family="'Times New Roman', serif" font-size="8.5" text-anchor="middle">A IA minutas pareceres; a decisão e lançamento oficial são do professor.</text>
+  </g>
+</svg>

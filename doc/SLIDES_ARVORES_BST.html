@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slides: Árvores Binárias de Busca (BST) • Prof. Karan</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --primary: #10b981;
+      --accent: #38bdf8;
+      --warning: #fbbf24;
+      --danger: #f43f5e;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-code: ui-monospace, 'SF Mono', Menlo, Monaco, Consolas, monospace;
+      --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* TOP BAR SLIDE DECK */
+    header {
+      background: rgba(17, 24, 39, 0.85);
+      border-bottom: 1px solid var(--card-border);
+      padding: 10px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      z-index: 10;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slide-progress-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #10b981, #38bdf8);
+      width: 10%;
+      transition: width 0.3s ease;
+    }
+
+    /* SLIDE STAGE */
+    .stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(16px, 3vh, 36px);
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1380px;
+      height: 94%;
+      max-height: 840px;
+      background: radial-gradient(circle at 50% 0%, #172554 0%, #0b1120 75%);
+      border: 1px solid #1e293b;
+      border-radius: 24px;
+      padding: clamp(28px, 4.5vh, 56px) clamp(32px, 4.5vw, 68px);
+      box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+      animation: fadeIn 0.25s ease;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.99); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* TYPOGRAPHY AMPLIADA PARA PROJEÇÃO */
+    .badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.18);
+      border: 1px solid rgba(56, 189, 248, 0.45);
+      color: #7dd3fc;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: clamp(13px, 1.3vw, 17px);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: clamp(10px, 1.8vh, 18px);
+      width: fit-content;
+    }
+
+    h1.slide-title {
+      font-size: clamp(34px, 3.8vw, 54px);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: clamp(10px, 1.5vh, 18px);
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    h2.slide-subtitle {
+      font-size: clamp(18px, 1.8vw, 25px);
+      color: #94a3b8;
+      font-weight: 400;
+      margin-bottom: clamp(20px, 2.8vh, 34px);
+      line-height: 1.4;
+    }
+
+    /* GRID LAYOUTS */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(16px, 2.5vw, 32px);
+      margin-top: 10px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(14px, 2vw, 24px);
+      margin-top: 10px;
+    }
+
+    .card {
+      background: rgba(17, 24, 39, 0.75);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: clamp(18px, 2.5vh, 28px) clamp(20px, 2vw, 30px);
+    }
+
+    .card h3 {
+      font-size: clamp(19px, 1.9vw, 26px);
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card p, .card ul, .card li {
+      font-size: clamp(16px, 1.45vw, 21px);
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    /* CODE BLOCKS AMPLIADOS */
+    .code-box {
+      background: #060911;
+      border: 1px solid #1e293b;
+      border-radius: 14px;
+      padding: clamp(16px, 2.2vh, 24px) clamp(20px, 2.5vw, 30px);
+      font-family: var(--font-code);
+      font-size: clamp(15px, 1.35vw, 20px);
+      line-height: 1.6;
+      color: #f8fafc;
+      overflow-x: auto;
+      white-space: pre;
+      tab-size: 4;
+}
+
+    /* BOTTOM CONTROLS */
+    footer {
+      background: rgba(17, 24, 39, 0.9);
+      border-top: 1px solid var(--card-border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .shortcuts-hint {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .shortcuts-hint kbd {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #cbd5e1;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-code);
+      font-size: 11px;
+    }
+
+    .nav-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-nav {
+      background: #1f2937;
+      border: 1px solid #374151;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-nav:hover {
+      background: #374151;
+    }
+
+    .btn-nav.primary {
+      background: #0284c7;
+      border-color: #0284c7;
+    }
+
+    .btn-nav.primary:hover {
+      background: #0369a1;
+    }
+
+    .slide-counter {
+      font-family: var(--font-code);
+      font-size: 13px;
+      color: #94a3b8;
+      margin: 0 8px;
+    }
+  
+    
+
+  </style>
+</head>
+<body>
+
+  <div class="slide-progress-bar" id="progress-bar"></div>
+
+  <header>
+    <div class="brand-title">
+      <span>🌳</span> Estrutura de Dados • 4º Período CC
+    </div>
+    <div>Prof. Me. Karan Luciano • Afya Ji-Paraná</div>
+  </header>
+
+  <div class="stage">
+
+    <!-- SLIDE 1: CAPA -->
+    <div class="slide active">
+      <span class="badge">🚀 Início da Etapa N2</span>
+      <h1 class="slide-title" style="font-size: clamp(40px, 4.8vw, 68px); margin-bottom: 16px;">
+        Árvores Binárias de Busca <span style="color: var(--primary);">(BST)</span>
+      </h1>
+      <h2 class="slide-subtitle" style="font-size: clamp(20px, 2.2vw, 30px);">
+        Estruturas de Dados Hierárquicas, Eficiência O(log n) e Aplicações no Mundo Real
+      </h2>
+      <div style="display: flex; gap: 24px; font-size: clamp(15px, 1.35vw, 19px); color: #94a3b8; border-top: 1px solid #1e293b; padding-top: 18px; margin-top: 20px;">
+        <div>📍 <strong>Sala 59B (Laboratório)</strong></div>
+        <div>👨‍🏫 <strong>Prof. Karan Luciano</strong></div>
+        <div>🗓️ <strong>Semestre 2026.2</strong></div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: O DILEMA DA N1 -->
+    <div class="slide">
+      <span class="badge" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.4); color: #fde68a;">
+        ⚖️ O Ponto de Partida
+      </span>
+      <h1 class="slide-title">Por que Precisamos de Árvores?</h1>
+      <h2 class="slide-subtitle">O dilema clássico entre Vetores Ordenados e Listas Encadeadas que vimos na N1</h2>
+      
+      <div class="grid-2">
+        <div class="card" style="border-top: 4px solid var(--warning);">
+          <h3>🔍 Vetor com Busca Binária</h3>
+          <p>• <strong>Busca:</strong> ⚡ Excelente em <code>O(log n)</code>.</p>
+          <p>• <strong>Inserção / Remoção:</strong> 🐢 Terrível em <code>O(n)</code> (exige deslocar centenas de milhares de vizinhos na memória).</p>
+        </div>
+
+        <div class="card" style="border-top: 4px solid var(--accent);">
+          <h3>🔗 Lista Encadeada Dinâmica</h3>
+          <p>• <strong>Inserção:</strong> ⚡ Flexível e rápida na Heap.</p>
+          <p>• <strong>Busca:</strong> 🐢 Lenta em <code>O(n)</code> (impossível pular para o meio; precisa andar nó por nó).</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 16px; border-left: 4px solid var(--primary); background: rgba(16, 185, 129, 0.08);">
+        <p style="font-size: clamp(17px, 1.6vw, 22px); color: #a7f3d0; font-weight: 700;">
+          💡 A Solução BST: Nós dinâmicos na Heap com ponteiros que garantem busca E inserção rápidas em O(log n)!
+        </p>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: DIFERENÇA EM 1 MINUTO -->
+    <div class="slide">
+      <span class="badge">💡 Conceito Chave</span>
+      <h1 class="slide-title">Busca Binária vs. Árvore Binária</h1>
+      <h2 class="slide-subtitle">A diferença fundamental que todo desenvolvedor precisa saber</h2>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="color: var(--warning);">🔍 Busca Binária</h3>
+          <p style="margin-bottom: 10px;"><strong>É um ALGORITMO:</strong> uma estratégia matemática de divisão e conquista.</p>
+          <div class="code-box">[10]  [20]  [30]  [40]  [50]
+               ↑
+      meio = v[(0+4)/2]</div>
+          <p style="margin-top: 10px; font-size: clamp(14px, 1.35vw, 18px); color: #fda4af;">
+            ⚠️ Inserir novo elemento exige empurrar blocos vizinhos de lugar!
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--primary);">🌳 Árvore Binária de Busca</h3>
+          <p style="margin-bottom: 10px;"><strong>É uma ESTRUTURA DE DADOS:</strong> a forma física como os nós moram na RAM.</p>
+          <div class="code-box" style="color: #a7f3d0;">        (30)
+        /  \
+     (20)  (50)
+        \
+        (25)* ← só aloca e aponta!</div>
+          <p style="margin-top: 10px; font-size: clamp(14px, 1.35vw, 18px); color: #a7f3d0;">
+            ⚡ Insere em O(log n) sem empurrar nenhum dado existente!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: MUNDO REAL -->
+    <div class="slide">
+      <span class="badge">🌍 Aplicação Prática</span>
+      <h1 class="slide-title">Onde as Árvores Rodam no Mundo Real?</h1>
+      <h2 class="slide-subtitle">Sua infraestrutura de trabalho sustentada por árvores a cada segundo</h2>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>🗄️ Bancos de Dados (PostgreSQL, MySQL)</h3>
+          <p>Índices <strong>B-Tree</strong> acham 1 CPF entre 100 milhões de clientes em <strong>~1 milissegundo</strong> (apenas 27 saltos de disco).</p>
+        </div>
+        <div class="card">
+          <h3>🌐 DOM da Web & React Virtual DOM</h3>
+          <p>O HTML é literalmente uma árvore em memória. O React faz percursos em árvores para atualizar só o que mudou na tela.</p>
+        </div>
+        <div class="card">
+          <h3>📦 Compactação de Arquivos (ZIP, MP3)</h3>
+          <p>A <strong>Árvore de Huffman</strong> atribui caminhos curtos (2-3 bits) para letras frequentes e encolhe 10 MB para 3 MB.</p>
+        </div>
+        <div class="card">
+          <h3>🎮 Motores de Jogos 3D (Unreal, Unity)</h3>
+          <p>Árvores <strong>BSP</strong> e <strong>Octrees</strong> descartam tudo o que está fora da visão da câmera para manter 120 FPS.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: ANATOMIA DA ÁRVORE -->
+    <div class="slide">
+      <span class="badge">📐 Vocabulário Técnico</span>
+      <h1 class="slide-title">Anatomia de uma Árvore</h1>
+      <h2 class="slide-subtitle">Na computação, as árvores crescem de cima para baixo</h2>
+
+      <div class="grid-2">
+        <div class="code-box" style="line-height: 1.5;">           [ 50 ]  ← 👑 Raiz (Root)
+          /      \
+       [ 30 ]  [ 70 ]  ← 🔹 Nós Internos
+       /   \    /   \
+     [20] [40] [60] [80]  ← 🍃 Folhas (Leaves)
+
+  ════════════════════════════════════
+   ◀ Menores à Esq  |  Maiores à Dir ▶</div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="card" style="padding: clamp(14px, 1.8vh, 22px) clamp(16px, 1.8vw, 24px);">
+            <strong style="color: #38bdf8;">👑 Raiz (Root):</strong> O nó do topo sem pai. Início obrigatório de toda rota.
+          </div>
+          <div class="card" style="padding: clamp(14px, 1.8vh, 22px) clamp(16px, 1.8vw, 24px);">
+            <strong style="color: #4ade80;">🍃 Folha (Leaf):</strong> Nós terminais com <code>esq == NULL && dir == NULL</code>.
+          </div>
+          <div class="card" style="padding: clamp(14px, 1.8vh, 22px) clamp(16px, 1.8vw, 24px);">
+            <strong style="color: #fbbf24;">📏 Altura (Height):</strong> O caminho mais longo até a folha mais distante.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: ESTRUTURA EM C -->
+    <div class="slide">
+      <span class="badge">💻 Engenharia em C</span>
+      <h1 class="slide-title">A Estrutura do Nó na Memória</h1>
+      <h2 class="slide-subtitle">Como modelamos o nó da BST em C com ponteiros auto-referenciados</h2>
+
+      <div class="code-box"><span style="color: #f43f5e;">typedef struct</span> <span style="color: #38bdf8;">No</span> {
+    <span style="color: #f43f5e;">int</span> valor;
+    <span style="color: #f43f5e;">struct</span> <span style="color: #38bdf8;">No</span>* esq;  <span style="color: #94a3b8;">// menores (&lt;)</span>
+    <span style="color: #f43f5e;">struct</span> <span style="color: #38bdf8;">No</span>* dir;  <span style="color: #94a3b8;">// maiores (&gt;)</span>
+} <span style="color: #38bdf8;">No</span>;
+
+<span style="color: #38bdf8;">No</span>* <span style="color: #4ade80;">criarNo</span>(<span style="color: #f43f5e;">int</span> valor) {
+    <span style="color: #38bdf8;">No</span>* novo = (<span style="color: #38bdf8;">No</span>*) <span style="color: #fbbf24;">malloc</span>(<span style="color: #f43f5e;">sizeof</span>(<span style="color: #38bdf8;">No</span>));
+    novo-&gt;valor = valor;
+    novo-&gt;esq   = <span style="color: #f472b6;">NULL</span>;
+    novo-&gt;dir   = <span style="color: #f472b6;">NULL</span>;
+    <span style="color: #f43f5e;">return</span> novo;
+}</div>
+
+      <p style="margin-top: 14px; font-size: clamp(15px, 1.35vw, 19px); color: #94a3b8;">
+        📌 <strong>Regra de Ouro:</strong> Todo nó recém-criado nasce como folha: seus ponteiros <code>esq</code> e <code>dir</code> começam sempre como <code>NULL</code>.
+      </p>
+    </div>
+
+    <!-- SLIDE 7: INSERÇÃO RECURSIVA -->
+    <div class="slide">
+      <span class="badge">🔄 Algoritmo Central</span>
+      <h1 class="slide-title">A Inserção Recursiva</h1>
+      <h2 class="slide-subtitle">Sempre começa da Raiz e desce até encontrar um ponteiro vazio</h2>
+
+      <div class="code-box"><span style="color: #38bdf8;">No</span>* <span style="color: #4ade80;">inserir</span>(<span style="color: #38bdf8;">No</span>* raiz, <span style="color: #f43f5e;">int</span> valor) {
+    <span style="color: #94a3b8;">// 1. Caso Base: achou o espaço vazio!</span>
+    <span style="color: #f43f5e;">if</span> (raiz == <span style="color: #f472b6;">NULL</span>) {
+        <span style="color: #f43f5e;">return</span> <span style="color: #4ade80;">criarNo</span>(valor);
+    }
+
+    <span style="color: #94a3b8;">// 2. Se menor, desce pela ESQUERDA</span>
+    <span style="color: #f43f5e;">if</span> (valor &lt; raiz-&gt;valor) {
+        raiz-&gt;esq = <span style="color: #4ade80;">inserir</span>(raiz-&gt;esq, valor);
+    }
+    <span style="color: #94a3b8;">// 3. Se maior, desce pela DIREITA</span>
+    <span style="color: #f43f5e;">else if</span> (valor &gt; raiz-&gt;valor) {
+        raiz-&gt;dir = <span style="color: #4ade80;">inserir</span>(raiz-&gt;dir, valor);
+    }
+
+    <span style="color: #f43f5e;">return</span> raiz;
+}</div>
+    </div>
+
+    <!-- SLIDE 8: OS 3 PERCURSOS -->
+    <div class="slide">
+      <span class="badge">🌟 O Efeito Mágico</span>
+      <h1 class="slide-title">Os 3 Percursos em Árvores</h1>
+      <h2 class="slide-subtitle">Como visitar todos os nós de uma estrutura não-linear</h2>
+
+      <div class="grid-3">
+        <div class="card" style="border-top: 4px solid var(--primary);">
+          <h3 style="color: var(--primary);">1. Em-Ordem</h3>
+          <p style="font-size: clamp(14px, 1.35vw, 18px); color: #a7f3d0; margin-bottom: 6px;">Esq ➔ Raiz ➔ Dir</p>
+          <p><strong>A Mágica:</strong> Visita os nós exatamente em <strong>ordem crescente</strong> natural!</p>
+        </div>
+
+        <div class="card" style="border-top: 4px solid var(--accent);">
+          <h3 style="color: var(--accent);">2. Pré-Ordem</h3>
+          <p style="font-size: clamp(14px, 1.3vw, 17px); color: #bae6fd; margin-bottom: 8px;">Raiz ➔ Esq ➔ Dir</p>
+          <p>Ideal para <strong>clonar ou salvar</strong> a árvore em disco no mesmo formato exato.</p>
+        </div>
+
+        <div class="card" style="border-top: 4px solid var(--danger);">
+          <h3 style="color: var(--danger);">3. Pós-Ordem</h3>
+          <p style="font-size: clamp(14px, 1.3vw, 17px); color: #fecdd3; margin-bottom: 8px;">Esq ➔ Dir ➔ Raiz</p>
+          <p><strong>Mandatório para o `free`:</strong> desaloca os filhos antes de apagar o pai!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: MICRO-DESAFIO AO VIVO -->
+    <div class="slide">
+      <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #a7f3d0;">🧪 Desafio ao Vivo</span>
+      <h1 class="slide-title">Mão na Massa: Menor Valor da Árvore</h1>
+      <h2 class="slide-subtitle">Como achar o menor número de uma BST em apenas 4 linhas de código?</h2>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>💡 O Raciocínio</h3>
+          <p style="margin-bottom: 12px;">Numa BST, os menores números moram sempre à esquerda. Você precisa olhar para a direita alguma vez?</p>
+          <strong style="color: #4ade80;">Nunca! Basta andar para a esquerda enquanto existir filho!</strong>
+        </div>
+
+        <div class="code-box"><span style="color: #f43f5e;">int</span> <span style="color: #4ade80;">buscarMenor</span>(<span style="color: #38bdf8;">No</span>* raiz) {
+    <span style="color: #f43f5e;">if</span> (raiz == <span style="color: #f472b6;">NULL</span>) <span style="color: #f43f5e;">return</span> -<span style="color: #f472b6;">1</span>;
+
+    <span style="color: #38bdf8;">No</span>* atual = raiz;
+    <span style="color: #f43f5e;">while</span> (atual-&gt;esq != <span style="color: #f472b6;">NULL</span>) {
+        atual = atual-&gt;esq;  <span style="color: #94a3b8;">// segue à esquerda</span>
+    }
+    <span style="color: #f43f5e;">return</span> atual-&gt;valor;
+}</div>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: CONCLUSÃO E PRÓXIMOS PASSOS -->
+    <div class="slide">
+      <span class="badge">🎯 Fechamento da Aula</span>
+      <h1 class="slide-title">O que Dominamos Hoje</h1>
+      <h2 class="slide-subtitle">A base sólida construída para os próximos temas da N2</h2>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="color: var(--primary);">✅ Conquistas de Hoje:</h3>
+          <ul style="padding-left: 20px; line-height: 1.8;">
+            <li>Entendemos a diferença de <em>Busca Binária</em> para <em>Árvore BST</em>.</li>
+            <li>Implementamos a <code>struct No</code> e alocação dinâmica.</li>
+            <li>Dominamos a rota de inserção partindo da raiz.</li>
+            <li>Vimos como o percurso Em-Ordem gera dados ordenados.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3 style="color: var(--accent);">🚀 Próximas Aulas:</h3>
+          <ul style="padding-left: 20px; line-height: 1.8;">
+            <li>Remoção de nós com 0, 1 e 2 filhos.</li>
+            <li>Árvores Balanceadas (Árvore AVL e rotações).</li>
+            <li>Tabelas Hash (Espalhamento e Colisões).</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="shortcuts-hint">
+      Navegue com <kbd>←</kbd> <kbd>→</kbd> ou <kbd>Espaço</kbd> • Tela cheia: <kbd>F</kbd>
+    </div>
+    <div class="nav-controls">
+      <button class="btn-nav" onclick="prevSlide()">◀ Anterior</button>
+      <span class="slide-counter" id="counter">1 / 10</span>
+      <button class="btn-nav primary" onclick="nextSlide()">Próximo ▶</button>
+      <button class="btn-nav" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    </div>
+  </footer>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('counter');
+    const progressBar = document.getElementById('progress-bar');
+    let current = 0;
+
+    function updateSlide() {
+      slides.forEach((s, idx) => s.classList.toggle('active', idx === current));
+      counter.innerText = `${current + 1} / ${slides.length}`;
+      progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
+    }
+
+    function nextSlide() {
+      if (current < slides.length - 1) {
+        current++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (current > 0) {
+        current--;
+        updateSlide();
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
+      }
+    });
+
+    updateSlide();
+  
+    
+
+  </script>
+
+  
+
+</body>
+</html>

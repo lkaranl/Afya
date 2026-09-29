@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 20mm 15mm 24mm 15mm;
+  }
+  @page :first {
+    margin: 0 0 24mm 0;
+  }
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: serif;
+  }
+  .banner-full-bleed {
+    width: 100%;
+    display: block;
+    margin: 0;
+  }
+  .first-page-rest {
+    padding: 5mm 15mm 0 15mm;
+  }
+</style>
+</head>
+<body>
+  <img class="banner-full-bleed" src="media/image2.jpg">
+  <div class="first-page-rest">
+    <h1>Título na primeira página com margens laterais</h1>
+    <p>Texto da primeira página...</p>
+    <div style="page-break-before: always;">
+      <h2>Segunda página</h2>
+      <p>Texto da segunda página deve respeitar as margens normais de 20mm no topo!</p>
+    </div>
+  </div>
+</body>
+</html>

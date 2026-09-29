@@ -1,0 +1,248 @@
+================================================================================
+ROTEIRO DA AULA: ÁRVORES BINÁRIAS DE BUSCA (BST)
+Disciplina: Estrutura de Dados (4º Período - Ciência da Computação)
+Professor: Me. Karan Luciano
+Duração estimada: 50 a 60 minutos
+Slide de apoio: SLIDES_ARVORES_BST.html
+================================================================================
+
+VISÃO GERAL DO FLUXO DA AULA:
+1. Conexão: Lembrar os limites e gargalos da N1 (Vetor vs Lista).
+2. Conceito: Explicar a diferença de Busca Binária (algoritmo) para Árvore (estrutura).
+3. Mercado: Mostrar onde roda no mundo real (Bancos B-Tree, DOM, Huffman, Games).
+4. Código C: struct No, criarNo(), inserir() recursivo e os 3 percursos.
+5. Dinâmica: Desafio ao vivo do menor valor (3 min).
+
+
+--------------------------------------------------------------------------------
+SLIDE 1: CAPA — ÁRVORES BINÁRIAS DE BUSCA (BST)
+Tempo sugerido: 2 minutos
+--------------------------------------------------------------------------------
+OBJETIVO:
+Situar a turma no início da N2 e anunciar a transição de estruturas lineares 
+para hierárquicas.
+
+O QUE FALAR:
+"Boa noite, pessoal! Hoje começamos oficialmente a nossa etapa N2. 
+Na N1, nós dominamos as estruturas lineares: vetores, pilhas, filas e listas 
+encadeadas. A partir de hoje, damos um salto de nível como engenheiros de software: 
+entramos no universo das estruturas hierárquicas e não-lineares. 
+
+O nosso foco hoje é responder três perguntas:
+1. Por que as árvores existem e qual problema da N1 elas vieram resolver?
+2. Onde elas rodam nos sistemas modernos do dia a dia?
+3. Como implementamos e percorremos essa estrutura em linguagem C?"
+
+
+--------------------------------------------------------------------------------
+SLIDE 2: O DILEMA DA N1 — POR QUE PRECISAMOS DE ÁRVORES?
+Tempo sugerido: 5 minutos
+--------------------------------------------------------------------------------
+OBJETIVO:
+Conectar com a dor da N1: ou a busca é lenta, ou a inserção é custosa.
+
+O QUE FALAR:
+"Lembram do grande dilema que discutimos na N1?
+Se guardamos dados num vetor ordenado, a busca binária é fantástica: acha qualquer 
+coisa em O(log n). Mas e se precisarmos inserir alguém no meio de um vetor com 
+500 mil registros? Temos que empurrar meio milhão de elementos uma casa para a 
+direita na memória. A inserção é O(n), lenta e ineficiente.
+
+Aí vocês disseram: 'Professor, então usamos Lista Encadeada!'. 
+A lista é dinâmica, rápida de alocar na Heap... mas para buscar alguém nela, 
+somos obrigados a caminhar nó por nó desde a cabeça (O(n)). Não tem como pular 
+para o meio de uma lista.
+
+É exatamente aqui que a Árvore Binária de Busca surge: ela une os nós dinâmicos 
+na memória Heap com a lógica de divisão e conquista. O resultado? 
+Busca rápida em O(log n) E inserção rápida em O(log n) sem empurrar ninguém!"
+
+
+--------------------------------------------------------------------------------
+SLIDE 3: BUSCA BINÁRIA VS ÁRVORE BINÁRIA (EM 1 MINUTO)
+Tempo sugerido: 4 minutos
+--------------------------------------------------------------------------------
+OBJETIVO:
+Eliminar a confusão clássica de termos que sempre aparece em entrevistas.
+
+O QUE FALAR:
+"Prestem muita atenção aqui, porque essa é pergunta clássica de entrevista de emprego:
+Qual é a diferença entre Busca Binária e Árvore Binária de Busca?
+
+- A Busca Binária é um ALGORITMO. É uma receita matemática de dividir ao meio que 
+  exige um vetor previamente ordenado e contíguo na memória.
+- A Árvore Binária de Busca (BST) é uma ESTRUTURA DE DADOS. É a forma física 
+  como os nós moram na memória RAM, interligados por ponteiros.
+
+A diferença prática: para colocar um item novo no vetor, temos que empurrar vizinhos. 
+Na árvore, basta dar um malloc no novo nó e ligar o ponteiro. Nada do que já 
+existia na memória precisa se mover."
+
+
+--------------------------------------------------------------------------------
+SLIDE 4: ONDE AS ÁRVORES RODAM NO MUNDO REAL?
+Tempo sugerido: 6 minutos
+--------------------------------------------------------------------------------
+OBJETIVO:
+Tirar a matéria do abstrato e provar a importância prática no mercado.
+
+O QUE FALAR:
+"Muitas vezes o aluno olha diagramas de árvores e pensa: 'Isso é só teoria de faculdade'. 
+Olhem onde isso roda a cada segundo:
+
+1. Bancos de Dados (PostgreSQL, MySQL, Oracle):
+   Quando você faz uma busca por CPF numa tabela com 100 milhões de clientes, 
+   o resultado volta em 1 milissegundo. Por quê? Porque os índices dos bancos 
+   usam B-Trees (árvores balanceadas). Em vez de 100 milhões de leituras de disco, 
+   o banco faz apenas ~27 acessos e acha o registro.
+
+2. DOM da Web e React:
+   O HTML da página é literalmente uma árvore de elementos. O React cria o 
+   Virtual DOM e faz percursos em árvore para identificar exatamente qual botão 
+   mudou de cor e atualizar só ele na tela.
+
+3. Compactadores de Arquivo (ZIP, MP3, JPEG):
+   A Árvore de Huffman analisa a frequência das letras e dá códigos de apenas 
+   2 ou 3 bits para as letras mais comuns, encolhendo arquivos de 10 MB para 3 MB.
+
+4. Motores de Jogos 3D (Unreal, Unity):
+   Em jogos de mundo aberto, as árvores espaciais (Octrees e BSP) calculam em 
+   microssegundos o que está atrás de uma parede ou fora do campo de visão da 
+   câmera, descartando esses objetos antes de gastar GPU."
+
+
+--------------------------------------------------------------------------------
+SLIDE 5: ANATOMIA DE UMA ÁRVORE
+Tempo sugerido: 5 minutos
+--------------------------------------------------------------------------------
+OBJETIVO:
+Fixar o vocabulário técnico e a Regra Sagrada da BST.
+
+O QUE FALAR:
+"Primeira curiosidade: na computação, as árvores crescem de cabeça para baixo! 
+A raiz fica no topo e as folhas na base.
+
+Vamos aos termos técnicos fundamentais:
+- Raiz (Root): o nó do topo, sem pai. Toda busca e inserção começa obrigatoriamente por ela.
+- Nós Internos: nós do meio do caminho, que têm pai e pelo menos um filho.
+- Folhas (Leaves): os nós terminais, que não têm nenhum filho (esq == NULL e dir == NULL).
+- Altura (Height): a distância da raiz até a folha mais distante.
+
+E agora a REGRA DE OURO da Árvore Binária de Busca:
+- Todo valor MENOR que o nó vai para a ESQUERDA.
+- Todo valor MAIOR que o nó vai para a DIREITA."
+
+
+--------------------------------------------------------------------------------
+SLIDE 6: A ESTRUTURA DO NÓ NA MEMÓRIA EM C
+Tempo sugerido: 6 minutos
+--------------------------------------------------------------------------------
+OBJETIVO:
+Apresentar a struct No e reforçar a inicialização obrigatória com NULL.
+
+O QUE FALAR:
+"Vejam como a implementação em C é direta. Lembram da lista duplamente encadeada 
+que tinha ponteiro anterior e proximo? 
+
+Na árvore é muito parecido, só que os ponteiros representam direção semântica:
+ponteiro 'esq' para quem for menor, e ponteiro 'dir' para quem for maior.
+
+Observem com atenção a função criarNo():
+Quando alocamos um novo nó com malloc, ele sempre nasce no mundo como uma folha. 
+Por isso é obrigatório fazer:
+  novo->esq = NULL;
+  novo->dir = NULL;
+Se esquecerem de zerar esses ponteiros para NULL, o programa vai apontar para 
+lixo de memória e teremos o famoso Segmentation Fault."
+
+
+--------------------------------------------------------------------------------
+SLIDE 7: A INSERÇÃO RECURSIVA (PASSO A PASSO)
+Tempo sugerido: 8 minutos
+--------------------------------------------------------------------------------
+OBJETIVO:
+Explicar a lógica da recursão descendo da raiz até a vaga livre.
+
+O QUE FALAR:
+"Aqui está a beleza da recursão em árvores:
+1. Caso Base: Se cheguei num ponteiro que vale NULL, significa que achei o lugar 
+   vazio na memória! Chamo criarNo(valor) e retorno o nó novo.
+2. Se o valor que quero inserir for menor que o nó atual, eu mando descer pela esquerda:
+   raiz->esq = inserir(raiz->esq, valor);
+3. Se for maior que o nó atual, mando descer pela direita:
+   raiz->dir = inserir(raiz->dir, valor);
+
+Regra fundamental para nunca esquecer:
+Todo número que chega para ser inserido sempre começa sua comparação lá do topo, 
+na raiz, e vai descendo até encontrar a folha certa."
+
+
+--------------------------------------------------------------------------------
+SLIDE 8: OS 3 PERCURSOS EM ÁRVORES
+Tempo sugerido: 6 minutos
+--------------------------------------------------------------------------------
+OBJETIVO:
+Explicar Em-Ordem, Pré-Ordem e Pós-Ordem, destacando a mágica do Em-Ordem.
+
+O QUE FALAR:
+"Num vetor a gente percorre do índice 0 até o final. Mas numa árvore, como 
+visitamos todos os elementos?
+Temos três percursos clássicos, definidos pela hora em que visitamos a Raiz:
+
+1. Em-Ordem (Esquerda -> Raiz -> Direita):
+   Esse é o efeito mágico das árvores binárias. Ao visitar primeiro a subárvore 
+   esquerda, depois imprimir a raiz e depois visitar a direita, os números saem 
+   rigorosamente em ORDEM CRESCENTE, sem precisar rodar nenhum algoritmo de ordenação!
+
+2. Pré-Ordem (Raiz -> Esquerda -> Direita):
+   Visita a raiz primeiro. É a melhor forma de salvar a árvore em um arquivo de texto 
+   para poder recriá-la exatamente igual no futuro.
+
+3. Pós-Ordem (Esquerda -> Direita -> Raiz):
+   Visita os filhos antes de visitar o pai. Onde usamos isso obrigatoriamente? 
+   No free() da memória! Você nunca pode apagar o pai antes dos filhos, senão 
+   perde o endereço dos filhos na memória."
+
+
+--------------------------------------------------------------------------------
+SLIDE 9: MICRO-DESAFIO AO VIVO (MÃO NA MASSA)
+Tempo sugerido: 5 minutos
+--------------------------------------------------------------------------------
+OBJETIVO:
+Fazer uma pergunta provocativa para a turma antes de mostrar o código.
+
+O QUE FALAR:
+"Pergunta rápida para a sala:
+Se eu pedir para vocês escreverem uma função em C que acha o MENOR VALOR de 
+uma árvore com 10 milhões de nós, vocês precisam olhar para o lado direito alguma vez?
+
+(Pausa para os alunos responderem 'Não!')
+
+Exatamente! Numa BST, os menores sempre moram à esquerda. 
+A lógica é tão simples quanto um laço while:
+Enquanto existir filho à esquerda (atual->esq != NULL), eu apenas ando para 
+a esquerda: atual = atual->esq. 
+Quando o laço parar, o nó atual é com 100% de certeza o menor valor de toda a árvore.
+Tempo de execução: proporcional à altura da árvore, ou seja, O(log n)."
+
+
+--------------------------------------------------------------------------------
+SLIDE 10: CONCLUSÃO E PRÓXIMOS PASSOS
+Tempo sugerido: 3 minutos
+--------------------------------------------------------------------------------
+OBJETIVO:
+Encerrar a apresentação e orientar a prática no laboratório.
+
+O QUE FALAR:
+"Fechamos nossa introdução com a base sólida:
+- Entendemos o porquê da árvore e onde ela brilha no mercado.
+- Implementamos o nó e a inserção recursiva em C.
+- Vimos como os percursos funcionam na prática.
+
+Nas próximas aulas, vamos enfrentar a remoção de nós (que exige tratar 0, 1 e 2 filhos) 
+e como balancear árvores com AVL.
+
+Agora vamos abrir os computadores: preparei uma lista de exercícios práticos com 
+código completo no arquivo EXERCICIOS_SIMPLES_ARVORES_BST.md no nosso repositório. 
+Mãos ao código!"
+================================================================================

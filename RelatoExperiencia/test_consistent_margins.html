@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    font-family: serif;
+  }
+  .banner-page1 {
+    width: 210mm;
+    height: auto;
+    display: block;
+    margin: 0;
+  }
+  .page1-content {
+    padding: 6mm 15mm 24mm 15mm;
+    box-sizing: border-box;
+  }
+  .subsequent-page {
+    page-break-before: always;
+    padding: 20mm 15mm 24mm 15mm;
+    box-sizing: border-box;
+  }
+</style>
+</head>
+<body>
+  <img class="banner-page1" src="media/image2.jpg">
+  <div class="page1-content">
+    <h1>Página 1</h1>
+    <p>Texto da página 1...</p>
+  </div>
+  <div class="subsequent-page">
+    <h1>Página 2</h1>
+    <p>Texto da página 2...</p>
+  </div>
+</body>
+</html>
