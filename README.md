@@ -44,6 +44,7 @@ Permite que o **Agente de IA** atue como seu assistente pedagógico de ponta a p
 | `canvas_create_assignment_group` | **Criação de Grupo**: Cria um novo grupo ponderado (ex: 'Avaliação Oficial / Prova' com peso 50%). |
 | `canvas_update_assignment_group` | **Atualização de Grupo**: Atualiza peso percentual ou nome de um grupo de atividades existente. |
 | `canvas_move_assignment_to_group` | **Organização de Notas**: Move atividades ou quizzes para o seu respectivo grupo ponderado. |
+| `canvas_get_session_config` | **Configuração da Sessão**: Retorna o fuso horário institucional vigente (definido em `TIMEZONE` no .env) e o offset UTC para cálculo correto de prazos no Canvas (que exige datas em UTC). |
 | `canvas_get_institutional_rules` | **Regulamento Acadêmico Afya**: Consulta diretrizes de avaliação oficiais (CONSEPE 005/2024 e Guia NAPED 2026), limites N1/N2, prazos de devolutiva e revisão. |
 | `canvas_setup_afya_grading_scheme` | **Conformidade Institucional Automática**: Aplica no Canvas a matriz de notas oficial da Afya para a modalidade do curso (Presencial com/sem TPI, Híbrida, Online). |
 | `canvas_list_courses` | Lista as disciplinas ativas do professor (com IDs e nomes). |
@@ -93,6 +94,8 @@ Certifique-se de que o arquivo `.env` na raiz do projeto contenha:
 TOKEN=seu_token_aqui
 CANVAS_BASE_URL=https://afya.instructure.com
 PORT=3000
+# Fuso horário institucional (padrão IANA). Ex: America/Porto_Velho (Rondônia, UTC-4) ou America/Sao_Paulo (Brasília, UTC-3)
+TIMEZONE=America/Porto_Velho
 ```
 
 ---
@@ -248,4 +251,4 @@ journalctl -u afya-canvas -f         # acompanhar os logs em tempo real
 
 ## 📄 Instruções para Novos Agentes
 
-Para garantir que qualquer novo agente de IA entenda exatamente o fluxo pedagógico e as regras do professor sem perder o contexto, consulte o arquivo [`AGENT.md`](AGENT.md).
+Para garantir que qualquer novo agente de IA entenda exatamente o fluxo pedagógico e as regras do professor sem perder o contexto, consulte o arquivo [`AGENTS.md`](AGENTS.md).

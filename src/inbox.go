@@ -87,7 +87,7 @@ type ConversationDetailResult struct {
 	MarkdownThread string                `json:"markdown_thread"`
 }
 
-// formatBRT converte data ISO UTC para horário de Brasília (UTC-3)
+// formatBRT converte data ISO UTC para o fuso horário institucional configurado (TIMEZONE no .env)
 func formatBRT(isoDate string) string {
 	if isoDate == "" || isoDate == "<nil>" {
 		return "Sem data"
@@ -96,11 +96,7 @@ func formatBRT(isoDate string) string {
 	if err != nil {
 		return isoDate
 	}
-	loc, err := time.LoadLocation("America/Sao_Paulo")
-	if err != nil {
-		loc = time.FixedZone("BRT", -3*60*60)
-	}
-	return t.In(loc).Format("02/01/2006 às 15:04")
+	return t.In(InstitutionTimezone()).Format("02/01/2006 às 15:04")
 }
 
 // ListInboxConversations busca as mensagens do Inbox com triagem de dúvidas

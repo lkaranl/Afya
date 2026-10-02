@@ -65,9 +65,8 @@ func FormatBRDateTime(isoStr string) string {
 	if err != nil {
 		return isoStr
 	}
-	loc := time.FixedZone("BRT", -3*3600)
-	tBR := t.In(loc)
-	return tBR.Format("02/01/2006 às 15:04")
+	tLocal := t.In(InstitutionTimezone())
+	return tLocal.Format("02/01/2006 às 15:04")
 }
 
 func detectHasCode(body string) bool {
@@ -1011,6 +1010,66 @@ func (c *CanvasClient) CreateAssignment(p CreateAssignmentParams) (any, error) {
 	data, _, err := c.Request("POST", endpoint, payload)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao criar atividade no Canvas: %w", err)
+	}
+
+	var result any
+	err = json.Unmarshal(data, &result)
+	if err == nil && c.Cache != nil {
+		c.Cache.DeletePrefix("assignments:" + p.CourseID)
+	}
+	return result, err
+}
+
+// UpdateAssignmentParams define os campos editáveis de uma atividade existente no Canvas.
+type UpdateAssignmentParams struct {
+	CourseID     string `json:"course_id"`
+	AssignmentID string `json:"assignment_id"`
+	Name         string `json:"name,omitempty"`
+	Description  string `json:"description,omitempty"`
+	DueAt        string `json:"due_at,omitempty"`   // ISO UTC, ex: "2026-09-28T02:59:59Z"
+	UnlockAt     string `json:"unlock_at,omitempty"`
+	LockAt       string `json:"lock_at,omitempty"`
+	PointsPossible *float64 `json:"points_possible,omitempty"`
+}
+
+// UpdateAssignment atualiza campos de uma atividade existente (ex: prazo de entrega) via PUT na API do Canvas.
+func (c *CanvasClient) UpdateAssignment(p UpdateAssignmentParams) (any, error) {
+	if p.CourseID == "" || p.AssignmentID == "" {
+		return nil, fmt.Errorf("course_id e assignment_id são obrigatórios para atualizar atividade")
+	}
+
+	endpoint := fmt.Sprintf("/api/v1/courses/%s/assignments/%s", url.PathEscape(p.CourseID), url.PathEscape(p.AssignmentID))
+	assignMap := map[string]any{}
+
+	if p.Name != "" {
+		assignMap["name"] = p.Name
+	}
+	if p.Description != "" {
+		assignMap["description"] = p.Description
+	}
+	if p.DueAt != "" {
+		assignMap["due_at"] = p.DueAt
+	}
+	if p.UnlockAt != "" {
+		assignMap["unlock_at"] = p.UnlockAt
+	}
+	if p.LockAt != "" {
+		assignMap["lock_at"] = p.LockAt
+	}
+	if p.PointsPossible != nil {
+		assignMap["points_possible"] = *p.PointsPossible
+	}
+	if len(assignMap) == 0 {
+		return nil, fmt.Errorf("nenhum campo informado para atualização (name, description, due_at, unlock_at, lock_at ou points_possible)")
+	}
+
+	payload := map[string]any{
+		"assignment": assignMap,
+	}
+
+	data, _, err := c.Request("PUT", endpoint, payload)
+	if err != nil {
+		return nil, fmt.Errorf("erro ao atualizar atividade no Canvas: %w", err)
 	}
 
 	var result any

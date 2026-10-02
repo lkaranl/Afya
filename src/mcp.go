@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 type JSONRPCRequest struct {
@@ -399,6 +400,57 @@ var mcpTools = []MCPTool{
 				},
 			},
 			"required": []string{"course_id", "name", "description", "points_possible"},
+		},
+	},
+	{
+		Name:        "canvas_update_assignment",
+		Description: "Atualiza campos de uma atividade existente no Canvas LMS (ex: prazo de entrega/due_at, nome, enunciado, pontuação, datas de liberação e bloqueio). Não cria atividade nova.",
+		InputSchema: map[string]any{
+			"type": "object",
+			"properties": map[string]any{
+				"course_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da disciplina no Canvas",
+				},
+				"assignment_id": map[string]any{
+					"type":        "string",
+					"description": "ID numérico da atividade a ser atualizada",
+				},
+				"name": map[string]any{
+					"type":        "string",
+					"description": "Novo título da atividade (opcional)",
+				},
+				"description": map[string]any{
+					"type":        "string",
+					"description": "Novo enunciado em HTML institucional (opcional)",
+				},
+				"due_at": map[string]any{
+					"type":        "string",
+					"description": "Novo prazo de entrega no padrão ISO UTC (ex: '2026-09-28T02:59:59Z')",
+				},
+				"unlock_at": map[string]any{
+					"type":        "string",
+					"description": "Data de liberação da atividade (opcional)",
+				},
+				"lock_at": map[string]any{
+					"type":        "string",
+					"description": "Data de bloqueio final para envios (opcional)",
+				},
+				"points_possible": map[string]any{
+					"type":        "number",
+					"description": "Nova pontuação máxima da atividade (opcional)",
+				},
+			},
+			"required": []string{"course_id", "assignment_id"},
+		},
+	},
+	{
+		Name:        "canvas_get_session_config",
+		Description: "Retorna a configuração institucional da sessão: fuso horário vigente (nome IANA e offset UTC) para uso na definição correta de prazos (due_at/lock_at/unlock_at) e a URL base do Canvas. O Canvas exige datas em UTC; use o offset informado para converter o horário local do professor corretamente.",
+		InputSchema: map[string]any{
+			"type":       "object",
+			"properties": map[string]any{},
+			"required":   []string{},
 		},
 	},
 	{
@@ -1416,6 +1468,24 @@ func executeMCPTool(client *CanvasClient, name string, rawArgs json.RawMessage) 
 			return nil, err
 		}
 		return client.CreateAssignment(params)
+
+	case "canvas_get_session_config":
+		loc := InstitutionTimezone()
+		_, offset := time.Now().In(loc).Zone()
+		return map[string]any{
+			"timezone_name":   InstitutionTimezoneName(),
+			"utc_offset":      fmt.Sprintf("UTC%+02d:%02d", offset/3600, (offset%3600)/60),
+			"utc_offset_secs": offset,
+			"canvas_base_url": client.BaseURL,
+			"hint":            "O Canvas LMS exige datas (due_at, lock_at, unlock_at) sempre em UTC. Ao definir um prazo informado no horário local do professor, subtraia o utc_offset para obter o instante UTC correto.",
+		}, nil
+
+	case "canvas_update_assignment":
+		var params UpdateAssignmentParams
+		if err := json.Unmarshal(rawArgs, &params); err != nil {
+			return nil, err
+		}
+		return client.UpdateAssignment(params)
 
 	case "canvas_create_quiz":
 		var params CreateQuizParams
