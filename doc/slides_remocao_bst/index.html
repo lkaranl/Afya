@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slides Interativos: Remoção em BST & Percursos • Prof. Karan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="slide-progress-bar" id="progress-bar"></div>
+
+  <header>
+    <div class="brand-title">
+      <span>🌳</span> AFYA • CIÊNCIA DA COMPUTAÇÃO • ESTRUTURA DE DADOS
+    </div>
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <a href="../sandbox_bst/index.html" class="btn-action" style="padding: 4px 12px; font-size: 12px; border-color: #38bdf8; text-decoration: none;" target="_blank">
+        🧪 Abrir C-Sandbox
+      </a>
+      <div>Prof. Karan • AULA PRÁTICA INTERATIVA (4º PERÍODO)</div>
+    </div>
+  </header>
+
+  <main class="stage">
+
+    <!-- SLIDE 1: CAPA -->
+    <section class="slide active">
+      <div class="badge">MÓDULO 5 • AULA 2 DE ÁRVORES</div>
+      <h1 class="slide-title">Remoção de Nós em BST &<br>Percursos em Profundidade</h1>
+      <h2 class="slide-subtitle">
+        Compreendendo com rigor visual os 3 casos de exclusão, análise de complexidade, notação polonesa e desalocação segura de memória RAM.
+      </h2>
+      
+      <div class="grid-3">
+        <div class="card highlight-blue">
+          <h3>✂️ 3 Casos de Remoção</h3>
+          <p>Da remoção atômica de um nó folha à sucessão ao trono de um nó com 2 filhos através do sucessor imediato.</p>
+        </div>
+        <div class="card highlight-green">
+          <h3>🧭 3 Percursos Clássicos</h3>
+          <p>Simulador animado passo a passo de Pré-Ordem (Cópia), Em-Ordem (Ordenação) e Pós-Ordem (Limpeza e RPN).</p>
+        </div>
+        <div class="card highlight-yellow">
+          <h3>🧹 Memória & Complexidade</h3>
+          <p>Eliminando vazamentos com <code>destruirArvore()</code> e entendendo o trade-off entre $O(\log n)$ e $O(n)$.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: O PONTO DE PARTIDA -->
+    <section class="slide">
+      <div class="badge badge-warning">REVISÃO VS NOVO DESAFIO</div>
+      <h1 class="slide-title">O Que Sabemos vs O Que Falta?</h1>
+      <h2 class="slide-subtitle">
+        Na aula anterior construímos a árvore. Hoje aprenderemos a manipulá-la e limpá-la por completo.
+      </h2>
+
+      <div class="grid-2">
+        <div class="card highlight-green">
+          <h3>✅ O Que Você Já Domina</h3>
+          <ul>
+            <li>Criar nó na Heap com <code>malloc(sizeof(No))</code>.</li>
+            <li>Inserir chaves: menores à esquerda e maiores à direita.</li>
+            <li>Busca binária com tempo médio <code>O(log n)</code>.</li>
+            <li>Contar nós pares e percorrer a árvore.</li>
+          </ul>
+        </div>
+
+        <div class="card highlight-red">
+          <h3>⚠️ O Grande Risco da Exclusão</h3>
+          <p style="margin-bottom: 12px;">
+            E se um registro precisar ser removido da árvore? (Ex.: cancelamento de matrícula, venda de produto).
+          </p>
+          <div style="background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.3); border-radius: 10px; padding: 12px 16px; font-size: 14px; color: #fecdd3;">
+            ❌ <strong>NUNCA faça apenas <code>free(no)</code>!</strong> Se o nó tiver filhos ou subárvores abaixo dele, seus ramos inteiros ficarão perdidos no limbo da RAM, gerando lixo de memória e quebrando os ponteiros da árvore.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: A REGRA SAGRADA -->
+    <section class="slide">
+      <div class="badge">CONCEITO FUNDAMENTAL</div>
+      <h1 class="slide-title">A Regra de Ouro da BST</h1>
+      <h2 class="slide-subtitle">
+        Toda e qualquer remoção deve preservar esta regra sagrada 100% íntegra.
+      </h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="card highlight-blue" style="margin-bottom: 14px;">
+            <h3 style="color: #38bdf8;">📌 Invariante de Busca</h3>
+            <p style="font-size: 15.5px; color: #f8fafc; font-weight: 600;">
+              Para QUALQUER nó com chave X:
+            </p>
+            <ul style="margin-top: 8px;">
+              <li>Todos os nós à <strong>ESQUERDA</strong> são estritamente <strong>MENORES</strong> que X.</li>
+              <li>Todos os nós à <strong>DIREITA</strong> são estritamente <strong>MAIORES</strong> que X.</li>
+            </ul>
+          </div>
+          <div class="card highlight-yellow">
+            <p style="font-size: 14.5px; margin: 0;">
+              💡 <strong>Regra de ouro:</strong> Ao remover um nó, a árvore precisa ser "remendada" de forma que a busca binária continue funcionando para todos os elementos restantes.
+            </p>
+          </div>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <!-- Arestas -->
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="300" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="420" y2="175" class="tree-edge"/>
+
+            <!-- Nós Nível 0 -->
+            <g class="tree-node" transform="translate(250, 40)">
+              <circle r="20" class="node-circle" style="stroke: #38bdf8;"/>
+              <text class="node-text">50</text>
+            </g>
+            <!-- Nós Nível 1 -->
+            <g class="tree-node" transform="translate(140, 105)">
+              <circle r="19" class="node-circle"/>
+              <text class="node-text">30</text>
+            </g>
+            <g class="tree-node" transform="translate(360, 105)">
+              <circle r="19" class="node-circle"/>
+              <text class="node-text">70</text>
+            </g>
+            <!-- Nós Nível 2 -->
+            <g class="tree-node" transform="translate(80, 175)">
+              <circle r="18" class="node-circle"/>
+              <text class="node-text">20</text>
+            </g>
+            <g class="tree-node" transform="translate(200, 175)">
+              <circle r="18" class="node-circle"/>
+              <text class="node-text">40</text>
+            </g>
+            <g class="tree-node" transform="translate(300, 175)">
+              <circle r="18" class="node-circle"/>
+              <text class="node-text">60</text>
+            </g>
+            <g class="tree-node" transform="translate(420, 175)">
+              <circle r="18" class="node-circle"/>
+              <text class="node-text">80</text>
+            </g>
+          </svg>
+          <div style="font-size: 13px; color: #94a3b8; margin-top: 6px;">
+            Árvore Modelo Perfeita: &lt; 50 à esquerda | &gt; 50 à direita
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: CASO 1 - FOLHA -->
+    <section class="slide">
+      <div class="badge badge-success">CASO 1 • O MAIS TRANQUILO</div>
+      <h1 class="slide-title">Remover Nó Folha (Zero Filhos)</h1>
+      <h2 class="slide-subtitle">
+        Analogia: podar uma folha na ponta do galho. Nada abaixo cai ou se quebra.
+      </h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="card highlight-green" style="margin-bottom: 12px;">
+            <h3>🌱 Cenário</h3>
+            <p>O nó que queremos excluir não tem nenhum filho: <code>raiz-&gt;esq == NULL &amp;&amp; raiz-&gt;dir == NULL</code>.</p>
+          </div>
+
+          <div class="card highlight-blue" style="margin-bottom: 12px;">
+            <h3>📝 Passo a Passo Cirúrgico</h3>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span class="step-pill">1</span> Localize o nó folha via busca binária.
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span class="step-pill">2</span> Desaloque a memória com <code>free(raiz)</code>.
+            </div>
+            <div style="display: flex; align-items: center;">
+              <span class="step-pill">3</span> Retorne <code>NULL</code> para que o ponteiro do pai aponte para o vazio.
+            </div>
+          </div>
+
+          <div class="code-box"><span class="c-cm">// Caso 1 em C:</span>
+<span class="c-kw">if</span> (raiz->esq == <span class="c-num">NULL</span> &amp;&amp; raiz->dir == <span class="c-num">NULL</span>) {
+    <span class="c-lib">free</span>(raiz);
+    <span class="c-kw">return</span> <span class="c-num">NULL</span>; <span class="c-cm">// Pai recebe NULL</span>
+}</div>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge" id="edge-case1" stroke-dasharray="4"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+
+            <g transform="translate(250, 40)"><circle r="20" class="node-circle"/><text class="node-text">50</text></g>
+            <g transform="translate(140, 105)"><circle r="19" class="node-circle"/><text class="node-text">30</text></g>
+            <g transform="translate(360, 105)"><circle r="19" class="node-circle"/><text class="node-text">70</text></g>
+            
+            <!-- Nó 20 é folha (Alvo) -->
+            <g transform="translate(80, 175)" class="node-target" id="node-case1">
+              <circle r="19" class="node-circle"/>
+              <text class="node-text">20</text>
+            </g>
+            <g transform="translate(200, 175)"><circle r="18" class="node-circle"/><text class="node-text">40</text></g>
+          </svg>
+          <div class="interactive-toolbar">
+            <button class="btn-action btn-danger" onclick="animarCaso1()">✂️ Simular Exclusão do 20</button>
+            <button class="btn-action" onclick="resetarCaso1()">🔄 Restaurar</button>
+          </div>
+          <div class="status-box" id="status-case1">
+            Clique no botão acima para ver o nó folha ser liberado e o ponteiro virar NULL.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: CASO 2 - 1 FILHO -->
+    <section class="slide">
+      <div class="badge badge-warning">CASO 2 • ADOÇÃO DO NETO</div>
+      <h1 class="slide-title">Remover Nó com 1 Único Filho</h1>
+      <h2 class="slide-subtitle">
+        Analogia de Família: Quando o pai se ausenta, o avô adota o neto diretamente!
+      </h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="card highlight-yellow" style="margin-bottom: 12px;">
+            <h3>👪 Cenário</h3>
+            <p>O nó possui apenas o filho da esquerda <strong>OU</strong> apenas o da direita.</p>
+          </div>
+
+          <div class="card highlight-blue" style="margin-bottom: 12px;">
+            <h3>📝 Mecânica dos Ponteiros</h3>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span class="step-pill">1</span> Salve o endereço do neto num ponteiro temporário: <code>temp = raiz-&gt;dir</code>.
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span class="step-pill">2</span> Desaloque o pai com <code>free(raiz)</code>.
+            </div>
+            <div style="display: flex; align-items: center;">
+              <span class="step-pill">3</span> Retorne o neto para que o avô aponte diretamente para ele!
+            </div>
+          </div>
+
+          <div class="code-box"><span class="c-cm">// Caso 2 em C (só tem filho direito):</span>
+<span class="c-kw">if</span> (raiz->esq == <span class="c-num">NULL</span>) {
+    <span class="c-type">No*</span> temp = raiz->dir; <span class="c-cm">// Salva o neto</span>
+    <span class="c-lib">free</span>(raiz);            <span class="c-cm">// Libera o pai</span>
+    <span class="c-kw">return</span> temp;           <span class="c-cm">// Avô adota o neto!</span>
+}</div>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge" id="edge-case2-avo"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="190" y2="175" class="tree-edge" id="edge-case2-pai"/>
+
+            <!-- Avô -->
+            <g transform="translate(250, 40)"><circle r="20" class="node-circle"/><text class="node-text">50</text></g>
+            <g transform="translate(360, 105)"><circle r="19" class="node-circle"/><text class="node-text">70</text></g>
+            
+            <!-- Pai (Nó 30 a ser removido) -->
+            <g transform="translate(140, 105)" class="node-target" id="node-case2-pai">
+              <circle r="19" class="node-circle"/>
+              <text class="node-text">30</text>
+            </g>
+
+            <!-- Neto (Nó 40 a ser adotado) -->
+            <g transform="translate(190, 175)" id="node-case2-neto" class="node-adopted">
+              <circle r="19" class="node-circle"/>
+              <text class="node-text">40</text>
+            </g>
+          </svg>
+          <div class="interactive-toolbar">
+            <button class="btn-action btn-warning" onclick="animarCaso2()">👪 Simular Adoção do 40</button>
+            <button class="btn-action" onclick="resetarCaso2()">🔄 Restaurar</button>
+          </div>
+          <div class="status-box" id="status-case2">
+            O nó 30 tem apenas o filho 40. Clique para ver a ponte de adoção direta.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: CASO 3 - O DILEMA DOS 2 FILHOS -->
+    <section class="slide">
+      <div class="badge badge-danger">CASO 3 • O CASO NOBRE</div>
+      <h1 class="slide-title">Remover Nó com 2 Filhos</h1>
+      <h2 class="slide-subtitle">
+        O dilema: Existem 2 subárvores inteiras abaixo dele. Quem tem direito de assumir o lugar?
+      </h2>
+
+      <div class="grid-2">
+        <div class="card highlight-red">
+          <h3>👑 A Sucessão ao Trono Real</h3>
+          <p style="margin-bottom: 12px;">
+            Imagine que o rei faleceu. Quem pode sentar no trono sem violar a lei do reino?
+          </p>
+          <p style="font-size: 15px; color: #f8fafc; font-weight: 700; margin-bottom: 10px;">
+            👉 O SUCESSOR IMEDIATO: O menor elemento que ainda é maior que ele!
+          </p>
+          <div style="background: rgba(56, 189, 248, 0.12); border-left: 3px solid #38bdf8; padding: 12px 16px; border-radius: 8px;">
+            🔍 <strong>A Bússola do Sucessor:</strong><br>
+            1. Dê <strong>1 passo para a DIREITA</strong> (vai para os maiores);<br>
+            2. Vá <strong>TUDO para a ESQUERDA</strong> até o final da linha!
+          </div>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge" style="stroke: #38bdf8; stroke-width: 3.5px;"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="300" y2="175" class="tree-edge" style="stroke: #34d399; stroke-width: 3.5px;"/>
+            <line x1="360" y1="105" x2="420" y2="175" class="tree-edge"/>
+
+            <!-- Raiz Alvo -->
+            <g transform="translate(250, 40)" class="node-target">
+              <circle r="21" class="node-circle"/>
+              <text class="node-text">50</text>
+            </g>
+            <g transform="translate(140, 105)"><circle r="19" class="node-circle"/><text class="node-text">30</text></g>
+            <g transform="translate(360, 105)"><circle r="19" class="node-circle"/><text class="node-text">70</text></g>
+            
+            <g transform="translate(80, 175)"><circle r="18" class="node-circle"/><text class="node-text">20</text></g>
+            <g transform="translate(200, 175)"><circle r="18" class="node-circle"/><text class="node-text">40</text></g>
+
+            <!-- Sucessor 60 -->
+            <g transform="translate(300, 175)" class="node-successor">
+              <circle r="20" class="node-circle"/>
+              <text class="node-text">60</text>
+            </g>
+            <g transform="translate(420, 175)"><circle r="18" class="node-circle"/><text class="node-text">80</text></g>
+          </svg>
+          <div class="status-box" style="color: #a7f3d0;">
+            ✨ O nó 60 é o sucessor: maior que 30, 20, 40 e menor que 70, 80!
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: CASO 3 INTERATIVO (O TRUQUE DA TROCA) -->
+    <section class="slide">
+      <div class="badge badge-danger">SIMULADOR DO CASO 3</div>
+      <h1 class="slide-title">O Truque da Substituição</h1>
+      <h2 class="slide-subtitle">
+        Não desconectamos a árvore. Apenas copiamos o valor do sucessor e apagamos a folha lá embaixo!
+      </h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="card highlight-blue" style="margin-bottom: 12px;">
+            <h3>🪄 Os 3 Passos da Mágica</h3>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span class="step-pill">1</span> Encontre o sucessor: <code>No* temp = menorNo(raiz->dir);</code>
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span class="step-pill">2</span> Copie o valor dele para a raiz: <code>raiz->conteudo = temp->conteudo;</code>
+            </div>
+            <div style="display: flex; align-items: center;">
+              <span class="step-pill">3</span> Mande remover o sucessor na direita (ele é folha ou caso 2!).
+            </div>
+          </div>
+
+          <div class="code-box"><span class="c-cm">// Caso 3 em C:</span>
+<span class="c-type">No*</span> temp = <span class="c-fn">menorNo</span>(raiz->dir);     <span class="c-cm">// Acha o 60</span>
+raiz->conteudo = temp->conteudo;    <span class="c-cm">// Raiz vira 60</span>
+raiz->dir = <span class="c-fn">remover</span>(raiz->dir, temp->conteudo); <span class="c-cm">// Apaga o 60 antigo</span></div>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="300" y2="175" class="tree-edge" id="edge-case3-suc"/>
+            <line x1="360" y1="105" x2="420" y2="175" class="tree-edge"/>
+
+            <!-- Raiz (Muda de 50 para 60) -->
+            <g transform="translate(250, 40)" id="node-case3-raiz">
+              <circle r="21" class="node-circle" id="circle-case3-raiz"/>
+              <text class="node-text" id="text-case3-raiz">50</text>
+            </g>
+            <g transform="translate(140, 105)"><circle r="19" class="node-circle"/><text class="node-text">30</text></g>
+            <g transform="translate(360, 105)"><circle r="19" class="node-circle"/><text class="node-text">70</text></g>
+            <g transform="translate(80, 175)"><circle r="18" class="node-circle"/><text class="node-text">20</text></g>
+            <g transform="translate(200, 175)"><circle r="18" class="node-circle"/><text class="node-text">40</text></g>
+
+            <!-- Sucessor original 60 -->
+            <g transform="translate(300, 175)" id="node-case3-suc" class="node-successor">
+              <circle r="19" class="node-circle"/>
+              <text class="node-text">60</text>
+            </g>
+            <g transform="translate(420, 175)"><circle r="18" class="node-circle"/><text class="node-text">80</text></g>
+          </svg>
+          <div class="interactive-toolbar">
+            <button class="btn-action btn-success" onclick="animarCaso3()">👑 Simular Remoção da Raiz (50)</button>
+            <button class="btn-action" onclick="resetarCaso3()">🔄 Restaurar</button>
+          </div>
+          <div class="status-box" id="status-case3">
+            Clique no botão acima para ver o 60 assumir a raiz e sua cópia na base ser liberada.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: CÓDIGO COMPLETO EM C -->
+    <section class="slide">
+      <div class="badge">CÓDIGO COMPLETO DISSECADO</div>
+      <h1 class="slide-title">A Função remover() em C</h1>
+      <h2 class="slide-subtitle">
+        Observe como as atribuições <code>raiz-&gt;esq = remover(...)</code> remendam a árvore no retorno.
+      </h2>
+
+      <div class="code-box"><span class="c-type">No*</span> <span class="c-fn">remover</span>(<span class="c-type">No*</span> raiz, <span class="c-type">int</span> valor) {
+    <span class="c-kw">if</span> (raiz == <span class="c-num">NULL</span>) <span class="c-kw">return</span> <span class="c-num">NULL</span>; <span class="c-cm">// Chave não encontrada ou árvore vazia</span>
+
+    <span class="c-cm">// 1. NAVEGAÇÃO RECURSIVA ATÉ LOCALIZAR O VALOR</span>
+    <span class="c-kw">if</span> (valor &lt; raiz->conteudo)
+        raiz->esq = <span class="c-fn">remover</span>(raiz->esq, valor);
+    <span class="c-kw">else</span> <span class="c-kw">if</span> (valor > raiz->conteudo)
+        raiz->dir = <span class="c-fn">remover</span>(raiz->dir, valor);
+    <span class="c-kw">else</span> {
+        <span class="c-cm">// 2. NÓ ENCONTRADO! QUAL É O CASO?</span>
+        <span class="c-kw">if</span> (raiz->esq == <span class="c-num">NULL</span>) {        <span class="c-cm">// Caso 1 (folha) ou Caso 2 (só filho dir)</span>
+            <span class="c-type">No*</span> temp = raiz->dir;
+            <span class="c-lib">free</span>(raiz);
+            <span class="c-kw">return</span> temp;
+        } <span class="c-kw">else</span> <span class="c-kw">if</span> (raiz->dir == <span class="c-num">NULL</span>) { <span class="c-cm">// Caso 2 (só filho esq)</span>
+            <span class="c-type">No*</span> temp = raiz->esq;
+            <span class="c-lib">free</span>(raiz);
+            <span class="c-kw">return</span> temp;
+        }
+
+        <span class="c-cm">// Caso 3: Tem DOIS filhos! Busca o menor da subárvore direita</span>
+        <span class="c-type">No*</span> temp = <span class="c-fn">menorNo</span>(raiz->dir);
+        raiz->conteudo = temp->conteudo;                 <span class="c-cm">// Copia valor do sucessor</span>
+        raiz->dir = <span class="c-fn">remover</span>(raiz->dir, temp->conteudo); <span class="c-cm">// Remove a duplicata folha</span>
+    }
+    <span class="c-kw">return</span> raiz;
+}</div>
+    </section>
+
+    <!-- SLIDE 9: PERCURSOS INTERATIVOS -->
+    <section class="slide">
+      <div class="badge badge-purple">SIMULADOR VISUAL DE PERCURSOS</div>
+      <h1 class="slide-title">Os 3 Caminhamentos em Profundidade</h1>
+      <h2 class="slide-subtitle">
+        Clique nos botões abaixo e veja a ordem exata em que o ponteiro visita cada nó!
+      </h2>
+
+      <div class="grid-2">
+        <div class="tree-viewport">
+          <svg class="tree-svg" id="percursos-svg" viewBox="0 0 500 240">
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="300" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="420" y2="175" class="tree-edge"/>
+
+            <g transform="translate(250, 40)" id="pnode-50"><circle r="20" class="node-circle"/><text class="node-text">50</text></g>
+            <g transform="translate(140, 105)" id="pnode-30"><circle r="19" class="node-circle"/><text class="node-text">30</text></g>
+            <g transform="translate(360, 105)" id="pnode-70"><circle r="19" class="node-circle"/><text class="node-text">70</text></g>
+            <g transform="translate(80, 175)" id="pnode-20"><circle r="18" class="node-circle"/><text class="node-text">20</text></g>
+            <g transform="translate(200, 175)" id="pnode-40"><circle r="18" class="node-circle"/><text class="node-text">40</text></g>
+            <g transform="translate(300, 175)" id="pnode-60"><circle r="18" class="node-circle"/><text class="node-text">60</text></g>
+            <g transform="translate(420, 175)" id="pnode-80"><circle r="18" class="node-circle"/><text class="node-text">80</text></g>
+          </svg>
+          <div class="status-box" id="status-percursos" style="font-family: var(--font-code); font-size: 15px; font-weight: 700; color: #facc15;">
+            Escolha um percurso ao lado para animar
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="card highlight-blue" style="padding: 12px 18px; cursor: pointer;" onclick="animarPercurso('pre')">
+            <h3 style="color: #38bdf8; margin-bottom: 4px;">1. Pré-Ordem (Raiz ➔ Esq ➔ Dir)</h3>
+            <p style="font-size: 13.5px; margin: 0;"><strong>Aplicação Real:</strong> Serialização e cópia idêntica da árvore para arquivo ou banco.</p>
+            <button class="btn-action" style="margin-top: 8px; width: fit-content;">▶ Animar Pré-Ordem</button>
+          </div>
+
+          <div class="card highlight-green" style="padding: 12px 18px; cursor: pointer;" onclick="animarPercurso('em')">
+            <h3 style="color: #4ade80; margin-bottom: 4px;">2. Em-Ordem (Esq ➔ Raiz ➔ Dir)</h3>
+            <p style="font-size: 13.5px; margin: 0;"><strong>Aplicação Real:</strong> Imprime todos os nós em <strong>ordem estritamente crescente</strong> $O(n)$!</p>
+            <button class="btn-action btn-success" style="margin-top: 8px; width: fit-content;">▶ Animar Em-Ordem</button>
+          </div>
+
+          <div class="card highlight-purple" style="padding: 12px 18px; cursor: pointer;" onclick="animarPercurso('pos')">
+            <h3 style="color: #c084fc; margin-bottom: 4px;">3. Pós-Ordem (Esq ➔ Dir ➔ Raiz)</h3>
+            <p style="font-size: 13.5px; margin: 0;"><strong>Aplicação Real:</strong> Limpeza segura de memória RAM com <code>free()</code> e Notação Polonesa Reversa.</p>
+            <button class="btn-action btn-purple" style="margin-top: 8px; width: fit-content;">▶ Animar Pós-Ordem</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: O PERIGO DO FREE E A PÓS-ORDEM -->
+    <section class="slide">
+      <div class="badge badge-danger">SEGURANÇA DA MEMÓRIA RAM</div>
+      <h1 class="slide-title">Por que a Pós-Ordem Salva a Vida?</h1>
+      <h2 class="slide-subtitle">
+        Veja por que a Pós-Ordem é a ÚNICA maneira correta de dar <code>free()</code> sem quebrar o programa.
+      </h2>
+
+      <div class="grid-2">
+        <div class="card highlight-red">
+          <h3 style="color: #f43f5e;">❌ O Erro Clássico de Quem Começa</h3>
+          <p style="margin-bottom: 8px;">
+            Muitos alunos escrevem a destruição na ordem errada:
+          </p>
+          <div class="code-box" style="margin-bottom: 8px;"><span class="c-lib">free</span>(raiz);               <span class="c-cm">// 💀 ERRO GRAVE!</span>
+<span class="c-fn">destruir</span>(raiz->esq);      <span class="c-cm">// raiz já foi apagada da RAM!</span>
+<span class="c-fn">destruir</span>(raiz->dir);      <span class="c-cm">// Segmentation Fault / Travamento!</span></div>
+          <p style="font-size: 13.5px; color: #fda4af;">
+            Se você apaga o pai primeiro, os ponteiros para os filhos viram ponteiros fantasmas (<em>Dangling Pointers</em>).
+          </p>
+        </div>
+
+        <div class="card highlight-green">
+          <h3 style="color: #4ade80;">✅ A Solução em Pós-Ordem</h3>
+          <p style="margin-bottom: 8px;">
+            Primeiro liberamos as subárvores inteiras, e por último a raiz:
+          </p>
+          <div class="code-box"><span class="c-type">void</span> <span class="c-fn">destruirArvore</span>(<span class="c-type">No*</span> raiz) {
+    <span class="c-kw">if</span> (raiz == <span class="c-num">NULL</span>) <span class="c-kw">return</span>;
+
+    <span class="c-fn">destruirArvore</span>(raiz->esq); <span class="c-cm">// 1. Limpa filho esquerdo</span>
+    <span class="c-fn">destruirArvore</span>(raiz->dir); <span class="c-cm">// 2. Limpa filho direito</span>
+    <span class="c-lib">free</span>(raiz);                 <span class="c-cm">// 3. Só agora libera a si mesmo!</span>
+}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOVO SLIDE 11: ÁRVORES DE EXPRESSÃO E COMPILADORES -->
+    <section class="slide">
+      <div class="badge badge-purple">APLICAÇÃO NA INDÚSTRIA & COMPILADORES</div>
+      <h1 class="slide-title">Árvores de Expressão: Como Compiladores Calculam?</h1>
+      <h2 class="slide-subtitle">
+        Como a relação entre Pré, Em e Pós-Ordem dá vida às calculadoras e compiladores de linguagens de programação.
+      </h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="card highlight-blue" style="margin-bottom: 12px;">
+            <h3 style="color: #38bdf8;">🧮 Expressão: <code>(3 + 5) * (10 - 2)</code></h3>
+            <ul style="margin-top: 6px; font-size: 14px;">
+              <li><strong>Em-Ordem (Infixa):</strong> <code>3 + 5 * 10 - 2</code><br>
+                <span style="color: #94a3b8; font-size: 12.5px;">Formato humano natural. Exige parênteses para não ambíguo.</span>
+              </li>
+              <li style="margin-top: 8px;"><strong>Pré-Ordem (Prefixada / Notação Polonesa):</strong> <code>* + 3 5 - 10 2</code><br>
+                <span style="color: #94a3b8; font-size: 12.5px;">Usada em linguagens funcionais como Lisp e Scheme. O operador vem antes dos operandos.</span>
+              </li>
+              <li style="margin-top: 8px;"><strong>Pós-Ordem (Posfixada / Notação Polonesa Reversa - RPN):</strong> <code>3 5 + 10 2 - *</code><br>
+                <span style="color: #4ade80; font-size: 12.5px; font-weight: 600;">Usada em calculadoras HP, Bytecode Java (JVM) e WebAssembly com Pilha! Zero parênteses!</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="card highlight-yellow">
+            <p style="font-size: 13.5px; margin: 0;">
+              💡 <strong>Insight para o Desenvolvedor:</strong> Ao caminhar em <em>Pós-Ordem</em>, empilhe números. Ao encontrar um operador, desempilhe dois e calcule. Não há parênteses e a execução é instantânea!
+            </p>
+          </div>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <!-- Arestas Expressao -->
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="300" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="420" y2="175" class="tree-edge"/>
+
+            <!-- Operador Raiz '*' -->
+            <g transform="translate(250, 40)">
+              <circle r="21" class="node-circle" style="fill: #7c3aed; stroke: #c084fc;"/>
+              <text class="node-text" style="font-size: 18px;">*</text>
+            </g>
+            <!-- Operador '+' -->
+            <g transform="translate(140, 105)">
+              <circle r="20" class="node-circle" style="fill: #2563eb; stroke: #60a5fa;"/>
+              <text class="node-text" style="font-size: 18px;">+</text>
+            </g>
+            <!-- Operador '-' -->
+            <g transform="translate(360, 105)">
+              <circle r="20" class="node-circle" style="fill: #2563eb; stroke: #60a5fa;"/>
+              <text class="node-text" style="font-size: 18px;">-</text>
+            </g>
+            <!-- Folhas (Operandos) -->
+            <g transform="translate(80, 175)"><circle r="18" class="node-circle"/><text class="node-text">3</text></g>
+            <g transform="translate(200, 175)"><circle r="18" class="node-circle"/><text class="node-text">5</text></g>
+            <g transform="translate(300, 175)"><circle r="18" class="node-circle"/><text class="node-text">10</text></g>
+            <g transform="translate(420, 175)"><circle r="18" class="node-circle"/><text class="node-text">2</text></g>
+          </svg>
+          <div style="font-size: 13px; color: #a7f3d0; margin-top: 6px;">
+            Árvore Sintática da Expressão: (3 + 5) * (10 - 2) = 64
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOVO SLIDE 12: COMPLEXIDADE ASSINTÓTICA E DEGENERAÇÃO -->
+    <section class="slide">
+      <div class="badge badge-danger">ANÁLISE DE ALGORITMOS & EFICIÊNCIA</div>
+      <h1 class="slide-title">Complexidade: Do O(log n) ao Pesadelo O(n)</h1>
+      <h2 class="slide-subtitle">
+        O que acontece quando os dados chegam já ordenados em uma Árvore Binária de Busca ingênua?
+      </h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="card highlight-red" style="margin-bottom: 12px;">
+            <h3 style="color: #f87171;">⚠️ A Árvore Degenerada ("Vara de Pescar")</h3>
+            <p style="font-size: 14px; margin-bottom: 8px;">
+              Se você inserir na BST as chaves em ordem crescente: <code>10, 20, 30, 40, 50</code>, cada nó será sempre maior que o anterior e cairá na <strong>subárvore direita</strong>.
+            </p>
+            <p style="font-size: 13.5px; color: #fecdd3;">
+              Resultado: A árvore vira uma <strong>Lista Simplesmente Encadeada</strong> disfarçada, perdendo todo o benefício da busca binária!
+            </p>
+          </div>
+
+          <table class="complexity-table">
+            <thead>
+              <tr>
+                <th>Operação</th>
+                <th>Árvore Balanceada</th>
+                <th>Pior Caso (Degenerada)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Busca</strong></td>
+                <td><span class="badge-complexity-good">O(log n)</span></td>
+                <td><span class="badge-complexity-bad">O(n)</span></td>
+              </tr>
+              <tr>
+                <td><strong>Inserção</strong></td>
+                <td><span class="badge-complexity-good">O(log n)</span></td>
+                <td><span class="badge-complexity-bad">O(n)</span></td>
+              </tr>
+              <tr>
+                <td><strong>Remoção</strong></td>
+                <td><span class="badge-complexity-good">O(log n)</span></td>
+                <td><span class="badge-complexity-bad">O(n)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <!-- Árvore Degenerada (Vara de Pescar) -->
+            <line x1="80" y1="30" x2="140" y2="70" class="tree-edge" style="stroke: #f43f5e;"/>
+            <line x1="140" y1="70" x2="200" y2="110" class="tree-edge" style="stroke: #f43f5e;"/>
+            <line x1="200" y1="110" x2="260" y2="150" class="tree-edge" style="stroke: #f43f5e;"/>
+            <line x1="260" y1="150" x2="320" y2="190" class="tree-edge" style="stroke: #f43f5e;"/>
+
+            <g transform="translate(80, 30)"><circle r="17" class="node-circle" style="stroke: #f43f5e;"/><text class="node-text">10</text></g>
+            <g transform="translate(140, 70)"><circle r="17" class="node-circle" style="stroke: #f43f5e;"/><text class="node-text">20</text></g>
+            <g transform="translate(200, 110)"><circle r="17" class="node-circle" style="stroke: #f43f5e;"/><text class="node-text">30</text></g>
+            <g transform="translate(260, 150)"><circle r="17" class="node-circle" style="stroke: #f43f5e;"/><text class="node-text">40</text></g>
+            <g transform="translate(320, 190)"><circle r="17" class="node-circle" style="stroke: #f43f5e;"/><text class="node-text">50</text></g>
+          </svg>
+          <div style="font-size: 13.5px; color: #fca5a5; margin-top: 6px; text-align: center;">
+            Degeneração: Altura h = n. Buscar o 50 exige 5 saltos em vez de 2!
+          </div>
+          <div style="font-size: 13px; color: #38bdf8; margin-top: 6px; font-weight: 600;">
+            🚀 A Solução da Engenharia: Árvores AVL com Rotações Automáticas!
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: DESAFIO DE FIXAÇÃO -->
+    <section class="slide">
+      <div class="badge badge-warning">DESAFIO DE FIXAÇÃO</div>
+      <h1 class="slide-title">Desafio Prático: Teste seu Raciocínio</h1>
+      <h2 class="slide-subtitle">
+        Analise a estrutura da árvore abaixo e identifique qual nó deve assumir a vaga.
+      </h2>
+
+      <div class="grid-2">
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="300" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="420" y2="175" class="tree-edge"/>
+
+            <g transform="translate(250, 40)"><circle r="20" class="node-circle"/><text class="node-text">50</text></g>
+            <g transform="translate(140, 105)"><circle r="19" class="node-circle"/><text class="node-text">30</text></g>
+            <!-- Nó 70 em destaque de pergunta -->
+            <g transform="translate(360, 105)" class="node-target">
+              <circle r="21" class="node-circle"/>
+              <text class="node-text">70</text>
+            </g>
+            <g transform="translate(80, 175)"><circle r="18" class="node-circle"/><text class="node-text">20</text></g>
+            <g transform="translate(200, 175)"><circle r="18" class="node-circle"/><text class="node-text">40</text></g>
+            <g transform="translate(300, 175)"><circle r="18" class="node-circle"/><text class="node-text">60</text></g>
+            <g transform="translate(420, 175)"><circle r="18" class="node-circle"/><text class="node-text">80</text></g>
+          </svg>
+          <div style="font-size: 13.5px; color: #cbd5e1; margin-top: 8px; text-align: center;">
+            🎯 <strong>Pergunta:</strong> Se quisermos remover o <strong>nó 70</strong> (que tem 2 filhos: 60 e 80), qual nó será o seu sucessor imediato para substituí-lo?
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; justify-content: center;">
+          <button class="btn-action" style="padding: 14px; text-align: left; font-size: 15px;" onclick="responderQuiz(1)">
+            A) O nó 80 (maior elemento da subárvore direita)
+          </button>
+          <button class="btn-action" style="padding: 14px; text-align: left; font-size: 15px;" onclick="responderQuiz(2)">
+            B) O nó 60 (menor elemento da subárvore direita)
+          </button>
+          <button class="btn-action" style="padding: 14px; text-align: left; font-size: 15px;" onclick="responderQuiz(3)">
+            C) O nó 50 (a raiz da árvore)
+          </button>
+          <div class="status-box" id="status-quiz" style="font-size: 15px; font-weight: 700;">
+            Selecione uma alternativa para validar o raciocínio.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: RESUMO FINAL -->
+    <section class="slide">
+      <div class="badge badge-purple">CHECKLIST MENTAL DO ESTUDANTE</div>
+      <h1 class="slide-title">As 3 Dicas de Ouro da Aula</h1>
+      <h2 class="slide-subtitle">
+        Grave isto para as avaliações e para a sua carreira como desenvolvedor de software:
+      </h2>
+
+      <div class="grid-3">
+        <div class="card highlight-green">
+          <h3>1. Folha é Simples</h3>
+          <p>Sem filhos? Dê <code>free(raiz)</code> e retorne <code>NULL</code> para o pai apontar para o nada.</p>
+        </div>
+
+        <div class="card highlight-yellow">
+          <h3>2. Um Filho é Adoção</h3>
+          <p>Salve o neto em <code>temp</code>, libere o pai com <code>free()</code> e retorne o neto diretamente para o avô.</p>
+        </div>
+
+        <div class="card highlight-red">
+          <h3>3. Dois Filhos é Troca</h3>
+          <p>Busque o menor da direita, copie o valor dele para a raiz e mande remover a folha duplicada!</p>
+        </div>
+      </div>
+
+      <div class="card highlight-blue" style="margin-top: 16px; text-align: center;">
+        <h3 style="justify-content: center; color: #38bdf8;">🚀 Parabéns! Você agora domina o ciclo completo de Árvores BST!</h3>
+        <p style="font-size: 14.5px; margin: 0;">
+          Próximo Encontro: Noções de Balanceamento e Rotações em <strong>Árvores AVL</strong>!
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="shortcuts-hint">
+      Atalhos: <kbd>◀</kbd> <kbd>▶</kbd> ou <kbd>Espaço</kbd> para navegar • <kbd>F</kbd> Tela cheia
+    </div>
+    <div class="nav-controls">
+      <button class="btn-nav" onclick="prevSlide()">◀ Anterior</button>
+      <span class="slide-counter" id="counter">1 / 14</span>
+      <button class="btn-nav primary" onclick="nextSlide()">Próximo ▶</button>
+      <button class="btn-nav" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laboratório Virtual C • Árvore Binária de Busca (BST) • Prof. Karan</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <span class="logo">🌳</span>
+      <span>AFYA • LABORATÓRIO VIRTUAL DE C</span>
+      <span class="tag">Estrutura de Dados • BST Sandbox</span>
+    </div>
+    <div class="top-actions">
+      <a href="../SLIDES_REMOCAO_E_PERCURSOS_BST.html" class="btn-header">
+        ◀ Voltar aos Slides
+      </a>
+      <button class="btn-header primary" onclick="document.documentElement.requestFullscreen().catch(()=>{})">
+        ⛶ Tela Cheia
+      </button>
+    </div>
+  </header>
+
+  <!-- WORKSPACE SPLIT (EDITOR C + VISUALIZADOR) -->
+  <div class="main-workspace">
+
+    <!-- LADO ESQUERDO: EDITOR C -->
+    <section class="code-panel">
+      <div class="panel-header">
+        <div class="tab-title">
+          <span>📄</span> arvore_bst.c
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 11.5px; color: #94a3b8;">Preset:</span>
+          <select id="preset-select" class="preset-select">
+            <option value="balanced">🌳 Árvore Equilibrada (Padrão)</option>
+            <option value="gamingLeaderboard">🎮 Ranking de Jogos (BST vs Vetor)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="editor-container">
+        <div class="line-numbers" id="line-numbers"></div>
+        <div class="editor-wrapper">
+          <div id="code-line-highlighter" class="code-line-highlighter"></div>
+          <pre id="highlighting" aria-hidden="true"><code id="highlighting-content"></code></pre>
+          <textarea id="code-editor" class="code-textarea" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+        </div>
+      </div>
+
+      <div class="editor-footer">
+        <div class="auto-run-badge">
+          <span class="pulse-dot"></span>
+          <span>Compilação & Análise em Tempo Real</span>
+        </div>
+        <div>Digite código C na <code>main()</code> para ver a árvore mudar ao vivo</div>
+      </div>
+    </section>
+
+    <!-- LADO DIREITO: VISUALIZADOR DE ÁRVORE -->
+    <section class="visual-panel">
+      
+      <!-- STATS BAR -->
+      <div class="stats-bar">
+        <div class="stat-item">
+          <span>Total de Nós (n):</span>
+          <strong id="stat-nodes">0</strong>
+        </div>
+        <div class="stat-item">
+          <span>Altura da Árvore (h):</span>
+          <strong id="stat-height">0</strong>
+        </div>
+        <div class="stat-item good">
+          <span>Folhas:</span>
+          <strong id="stat-leaves">0</strong>
+        </div>
+        <div class="stat-item">
+          <span>Raiz Atual:</span>
+          <strong id="stat-root">NULL</strong>
+        </div>
+        <!-- MEDIDOR DE SAÚDE DA ÁRVORE (O(log n) vs O(n)) -->
+        <div class="stat-item health-item" id="stat-health-item" title="Diagnóstico de complexidade assintótica da BST">
+          <span>Eficiência:</span>
+          <strong id="stat-health" class="health-pill balanced">🟢 O(log n) Equilibrada</strong>
+        </div>
+        <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+          <!-- BOTÃO GAVETA DE MEMÓRIA HEAP -->
+          <button class="btn-ctrl btn-heap-toggle" id="btn-heap-toggle" onclick="toggleHeapDrawer()">
+            💾 Memória RAM Heap
+          </button>
+        </div>
+      </div>
+
+      <!-- CANVAS VIEWPORT -->
+      <div class="canvas-viewport">
+        <svg id="tree-canvas"></svg>
+
+        <!-- BANNER DO MODO CÂMERA LENTA (DEBUGGER VISUAL) -->
+        <div id="debugger-banner" class="debugger-banner">
+          <span class="dbg-icon">🐢</span>
+          <span id="debugger-text">Modo Passo a Passo Ativo • Pronto</span>
+          <button class="dbg-close" onclick="fecharDebuggerBanner()">✕</button>
+        </div>
+
+        <!-- TOOLTIP FLUTUANTE DE HOVER (POR QUE ESTÁ AQUI?) -->
+        <div id="node-hover-tooltip" class="node-hover-tooltip"></div>
+
+        <!-- PAINEL DE EXPLICAÇÃO PEDAGÓGICA AO CLICAR NO NÓ -->
+        <div id="node-explanation-card" class="node-explanation-card"></div>
+
+        <!-- GAVETA RETRÁTIL: SIMULADOR DE MEMÓRIA HEAP (MALLOC E FREE) -->
+        <div id="heap-drawer" class="heap-drawer">
+          <div class="heap-header">
+            <div class="heap-title">
+              <span>💾</span> Memória RAM Heap • Simulador de Ponteiros (malloc &amp; free)
+            </div>
+            <div class="heap-meta">
+              <span id="heap-bytes-count">Nós Vivos: 0 (0 bytes)</span>
+              <button class="heap-close-btn" onclick="toggleHeapDrawer()">✕</button>
+            </div>
+          </div>
+          <div class="heap-body">
+            <div class="heap-table-wrapper">
+              <table class="heap-table">
+                <thead>
+                  <tr>
+                    <th>Endereço (&amp;)</th>
+                    <th>conteudo</th>
+                    <th>*esq (Ponteiro)</th>
+                    <th>*dir (Ponteiro)</th>
+                    <th>Estado na Heap</th>
+                  </tr>
+                </thead>
+                <tbody id="heap-table-body">
+                  <!-- Injetado dinamicamente -->
+                </tbody>
+              </table>
+            </div>
+            <div class="heap-logs-panel">
+              <div class="heap-log-title">📜 Registro de Alocações em C:</div>
+              <div id="heap-logs-list" class="heap-logs-list"></div>
+            </div>
+          </div>
+        </div> <!-- FECHAMENTO CORRETO DA GAVETA HEAP-DRAWER -->
+
+        <div class="empty-state" id="empty-state">
+          <span class="icon">🌱</span>
+          <p><strong>A árvore está vazia (raiz == NULL)</strong></p>
+          <p style="font-size: 13px;">Digite <code>raiz = inserir(raiz, X);</code> no editor ou use os controles abaixo!</p>
+        </div>
+      </div>
+
+      <!-- PAINEL EXCLUSIVO DO DUELO: MODO TRADICIONAL VS ÁRVORE BINÁRIA (RANKING DE JOGOS) -->
+      <div id="leaderboard-duel-panel" class="leaderboard-duel-panel">
+        <div class="duel-header">
+          <div class="duel-title">
+            <span>⚔️</span>
+            <span>Duelo de Busca: <strong>Modo Tradicional (Vetor)</strong> vs <strong>Modo Árvore (BST)</strong></span>
+          </div>
+          <div class="duel-target-selector">
+            <span>Buscar Score:</span>
+            <select id="duel-target-val" class="duel-select" onchange="atualizarAlvoDuelo(this.value)">
+              <option value="9500" selected>Score 9500 (Pior Caso: 15 buscas no Vetor vs 4 na BST)</option>
+              <option value="4300">Score 4300 (Subárvore Esquerda - Nível 3)</option>
+              <option value="6800">Score 6800 (Subárvore Direita - Nível 3)</option>
+              <option value="1200">Score 1200 (Ramo Esquerdo - Nível 2)</option>
+              <option value="600">Score 600 (Início do Vetor / Folha)</option>
+              <option value="5000">Score 5000 (Raiz: 8 testes no Vetor vs 1 na BST)</option>
+              <option value="9999">Score 9999 (Inexistente)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- DOIS BOTÕES DIRETOS DE PLAY SOLICITADOS -->
+        <div class="duel-play-controls">
+          <button class="btn-duel-play play-trad" id="btn-play-trad" onclick="rodarDuelo('vetor')">
+            <span class="play-icon">▶</span>
+            <span>Play: Modo Tradicional (Vetor Linear)</span>
+            <span class="badge-complexity">O(n)</span>
+          </button>
+          <button class="btn-duel-play play-bst" id="btn-play-bst" onclick="rodarDuelo('bst')">
+            <span class="play-icon">▶</span>
+            <span>Play: Modo Árvore Binária (BST)</span>
+            <span class="badge-complexity bst">O(log n)</span>
+          </button>
+        </div>
+
+        <!-- FITA VISUAL DO VETOR EM RAM (MODO TRADICIONAL) -->
+        <div id="duel-vector-display" class="duel-vector-display">
+          <span class="duel-vec-label">Array na RAM:</span>
+          <div class="duel-cells" id="duel-vector-cells"></div>
+        </div>
+
+        <!-- NARRATIVA DE STATUS EM TEMPO REAL -->
+        <div id="duel-live-status" class="duel-live-status">
+          <span class="duel-status-dot"></span>
+          <span id="duel-live-text">Clique em um dos botões de <strong>Play</strong> acima para ver o código C executando em cores linha por linha!</span>
+        </div>
+
+        <!-- PLACAR FINAL COM TEMPO E CUSTO DE CADA BUSCA -->
+        <div id="duel-results-board" class="duel-results-board">
+          <div class="result-card trad-result" id="card-result-trad">
+            <div class="res-badge">🐢 Modo Tradicional (Vetor Linear)</div>
+            <div class="res-stat"><span>Comparações:</span> <strong id="res-trad-comps">-</strong></div>
+            <div class="res-stat"><span>Tempo Simulado:</span> <strong id="res-trad-time">-</strong></div>
+            <div class="res-stat"><span>Complexidade:</span> <strong style="color:#f87171;">O(n) Linear</strong></div>
+            <div class="res-stat"><span>Custo de Inserção:</span> <small id="res-trad-cost">Exige shift (mover elementos) na RAM</small></div>
+          </div>
+          <div class="result-card bst-result" id="card-result-bst">
+            <div class="res-badge">⚡ Modo Árvore Binária (BST)</div>
+            <div class="res-stat"><span>Comparações:</span> <strong id="res-bst-comps">-</strong></div>
+            <div class="res-stat"><span>Tempo Simulado:</span> <strong id="res-bst-time">-</strong></div>
+            <div class="res-stat"><span>Complexidade:</span> <strong style="color:#34d399;">O(log n) Logarítmica</strong></div>
+            <div class="res-stat"><span>Custo de Inserção:</span> <small id="res-bst-cost">Apenas 1 malloc (0 elementos movidos)</small></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUICK CONTROLS BAR (MODO GERAL: ÁRVORE EQUILIBRADA) -->
+      <div class="quick-controls" id="quick-controls-bar">
+        <div class="quick-inputs">
+          <input type="number" id="quick-input" class="quick-input" placeholder="Valor (ex: 45)">
+          <button class="btn-ctrl btn-add" onclick="inserirNoRapido()" title="Inserir nó com animação passo a passo pela árvore">
+            ➕ Inserir
+          </button>
+          <button class="btn-ctrl btn-del" onclick="removerNoRapido()" title="Remover nó com explicação">
+            ➖ Remover
+          </button>
+        </div>
+
+        <!-- CONTROLE DO MODO CÂMERA LENTA -->
+        <div class="slowmo-control-box">
+          <label class="slowmo-checkbox-label" title="Assista o nó descendo pela árvore e comparando cada valor na inserção">
+            <input type="checkbox" id="slowmo-toggle" checked>
+            <span>🐢 Câmera Lenta (Inserção Passo a Passo)</span>
+          </label>
+          <select id="slowmo-speed" class="slowmo-speed-select">
+            <option value="600">Velocidade: Rápida</option>
+            <option value="1100" selected>Velocidade: Didática</option>
+            <option value="1800">Velocidade: Super Lenta</option>
+          </select>
+        </div>
+
+        <div>
+          <button class="btn-ctrl" onclick="resetarArvore()">
+            🔄 Resetar Código
+          </button>
+        </div>
+      </div>
+
+      <!-- TRAVERSALS (PERCURSOS COM ANIMAÇÃO INTERATIVA - MODO GERAL) -->
+      <div class="traversal-tray" id="traversal-tray-panel">
+        <div class="traversal-header-row">
+          <span style="font-weight: 700; color: #f8fafc; font-size: 12.5px;">🔁 Animação Interativa de Percursos (Visualizar Recursão):</span>
+          <span id="trav-running-badge" class="trav-running-badge">Pronto</span>
+        </div>
+        <div class="traversal-row">
+          <button class="btn-play-trav" onclick="animarPercurso('inorder')" id="btn-anim-inorder" title="Animar recursão Em-Ordem">▶ Animar</button>
+          <span class="traversal-tag">Em-Ordem:</span>
+          <span class="traversal-values" id="trav-inorder">-</span>
+        </div>
+        <div class="traversal-row">
+          <button class="btn-play-trav" onclick="animarPercurso('preorder')" id="btn-anim-preorder" title="Animar recursão Pré-Ordem">▶ Animar</button>
+          <span class="traversal-tag" style="color: #4ade80;">Pré-Ordem:</span>
+          <span class="traversal-values" id="trav-preorder">-</span>
+        </div>
+        <div class="traversal-row">
+          <button class="btn-play-trav" onclick="animarPercurso('postorder')" id="btn-anim-postorder" title="Animar recursão Pós-Ordem">▶ Animar</button>
+          <span class="traversal-tag" style="color: #c084fc;">Pós-Ordem:</span>
+          <span class="traversal-values" id="trav-postorder">-</span>
+        </div>
+        <div id="traversal-live-status" class="traversal-live-status">
+          <span class="trav-status-indicator"></span>
+          <span id="trav-status-text">Clique em <strong>▶ Animar</strong> para ver a visita de nós e o momento exato do <code>printf</code> na recursão!</span>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <script src="sandbox.js"></script>
+</body>
+</html>

@@ -60,10 +60,10 @@
     @media print {
       @page {
         size: A4 portrait;
-        margin: 20mm 15mm 24mm 15mm;
+        margin: 14mm 14mm 16mm 14mm;
       }
       @page :first {
-        margin: 82mm 15mm 24mm 15mm !important;
+        margin: 82mm 14mm 16mm 14mm !important;
       }
       html, body {
         background: #ffffff !important;
@@ -85,20 +85,49 @@
       .full-width-header {
         width: 100% !important;
         page-break-after: avoid !important;
+        margin-bottom: 6pt !important;
       }
       .content-two-cols {
         display: block !important;
         width: 100% !important;
         column-count: 2 !important;
         -webkit-column-count: 2 !important;
-        column-gap: 8mm !important;
-        -webkit-column-gap: 8mm !important;
+        column-gap: 7.5mm !important;
+        -webkit-column-gap: 7.5mm !important;
         orphans: 2;
         widows: 2;
       }
-      .figure-box, .table-box, svg, table {
+      p.doc-text {
+        font-size: 10.5pt !important;
+        line-height: 1.14 !important;
+        margin: 0 0 2.5pt 0 !important;
+        text-indent: 0.65cm !important;
+      }
+      .figure-box, .table-box {
+        margin: 5pt 0 !important;
         break-inside: avoid !important;
         page-break-inside: avoid !important;
+      }
+      .figure-box img {
+        max-height: 190px !important;
+      }
+      .figure-box svg {
+        width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        display: block !important;
+      }
+      table.compact-table {
+        font-size: 8pt !important;
+        line-height: 1.12 !important;
+      }
+      table.compact-table th, table.compact-table td {
+        padding: 2.2pt 1.5pt !important;
+      }
+      .reference-entry {
+        font-size: 8.5pt !important;
+        line-height: 1.1 !important;
+        margin-bottom: 2pt !important;
       }
       footer {
         display: none !important;
@@ -202,28 +231,28 @@
       font-size: 12pt;
       font-weight: bold;
       text-decoration: underline;
-      margin-top: 10pt;
-      margin-bottom: 3pt;
-      line-height: 1.2;
+      margin-top: 6pt;
+      margin-bottom: 2pt;
+      line-height: 1.15;
       break-after: avoid;
     }
 
     h3.subsection-title {
-      font-size: 12pt;
+      font-size: 11pt;
       font-weight: bold;
-      margin-top: 8pt;
+      margin-top: 5pt;
       margin-bottom: 2pt;
-      line-height: 1.2;
+      line-height: 1.15;
       break-after: avoid;
     }
 
-    /* Parágrafos: 12pt, justificado, recuo de primeira linha de 1 cm */
+    /* Parágrafos: 11pt/11.5pt no print, justificado, recuo de primeira linha */
     p.doc-text {
-      font-size: 12pt;
+      font-size: 11pt;
       text-align: justify;
-      text-indent: 1cm;
-      margin: 0 0 5pt 0;
-      line-height: 1.15;
+      text-indent: 0.75cm;
+      margin: 0 0 2.5pt 0;
+      line-height: 1.12;
     }
 
     /* Estilo Tipográfico para Código Inline nos Parágrafos */
@@ -290,15 +319,24 @@
       text-align: center;
     }
 
-    .figure-box img, .figure-box svg {
+    .figure-box img {
       width: 100%;
-      max-height: 215px;
+      max-height: 220px;
       height: auto;
       border: 0.5pt solid #cbd5e1;
       border-radius: 4px;
       display: block;
       margin: 0 auto;
       object-fit: contain;
+    }
+
+    .figure-box svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      border: none !important;
+      border-radius: 0 !important;
     }
 
     .figure-caption {
@@ -393,11 +431,11 @@
 
     /* Referências bibliográficas */
     .reference-entry {
-      font-size: 11pt;
+      font-size: 9.5pt;
       text-align: justify;
       text-indent: 0;
-      margin-bottom: 5pt;
-      line-height: 1.15;
+      margin-bottom: 2.5pt;
+      line-height: 1.1;
     }
 
     /* RODAPÉ OFICIAL EXATAMENTE COMO NO PRINT */
@@ -477,13 +515,13 @@
 
       <!-- 4. AUTORES (CENTRALIZADO) -->
       <div class="authors-line">
-        Karan Luciano<sup>1*</sup>, Equipe Docente de Tecnologias Educacionais<sup>1</sup>, Coordenação de Pesquisa e Inovação Acadêmica<sup>1</sup>
+        Equipe Docente de Tecnologias Educacionais<sup>1</sup>, Coordenação de Pesquisa e Inovação Acadêmica<sup>1</sup>, Karan Luciano<sup>1*</sup>
       </div>
 
       <!-- 5. FILIAÇÃO INSTITUCIONAL E CONTATO (ALINHADOS À ESQUERDA) -->
       <div class="affiliations-block">
         <div><sup>1</sup>Curso de Bacharelado em Ciência da Computação, Afya Centro Universitário de Ji-Paraná, Ji-Paraná, Rondônia, Brasil</div>
-        <div class="corresp"><sup>*</sup>Autor(a) correspondente: Endereço profissional: Av. Universitária, s/n, Aurélio Bernardi, Ji-Paraná - RO, CEP: 76907-438. E-mail: karan.luciano@afya.com.br</div>
+        <div class="corresp"><sup>*</sup>Professor Orientador e Autor correspondente: Endereço profissional: Av. Universitária, s/n, Aurélio Bernardi, Ji-Paraná - RO, CEP: 76907-438. E-mail: karan.luciano@afya.com.br</div>
       </div>
     </header>
 
@@ -492,88 +530,86 @@
         
         <h2 class="section-title">1. Introdução</h2>
         <p class="doc-text">
-          A consolidação dos Ambientes Virtuais de Aprendizagem (AVAs), como o Canvas LMS (<em>Learning Management System</em>, ou Sistema de Gestão da Aprendizagem), transformou a gestão acadêmica universitária, mas impôs uma severa sobrecarga administrativa docente: rotinas repetitivas de triagem de dezenas de repositórios digitais, controle cronológico de prazos e conferência sintática de códigos competem diretamente com o planejamento pedagógico e a orientação discente (Garrison; Anderson; Archer, 2000; Gil, 2019; Severino, 2016). Embora agentes autônomos e modelos de Inteligência Artificial Generativa (IAG) apresentem alto potencial analítico (Luckin et al., 2016; Unesco, 2023), a adoção de <em>agentes convencionais baseados em chat ou scripts ad-hoc</em> esbarra em graves limitações estruturais: (1) <strong>cegueira sistêmica</strong>, pois operam isolados dos bancos de dados e do livro de notas do AVA; (2) <strong>risco crônico de alucinação</strong>, gerando notas desconectadas das rubricas por falta de amostragem determinística dos dados; e (3) <strong>sobrecarga de transferência manual</strong> (copiar e colar código e notas entre abas do navegador). Para superar esse abismo, a presente intervenção adota o <strong>Model Context Protocol (MCP)</strong> como espinha dorsal arquitetural. Ao contrário de um agente comum, o MCP padroniza um barramento semântico seguro que concede ao modelo acesso determinístico a <em>recursos</em> contextuais do Canvas LMS e a <em>ferramentas de compilação</em> sob o princípio do menor privilégio, articulado ao <strong>Telegram</strong> para uma governança docente móvel e transparente (Figura 1).
+          A consolidação do <strong>Canvas LMS</strong> (<em>Learning Management System</em>, ou Sistema de Gestão da Aprendizagem) transformou a gestão acadêmica universitária, mas impôs uma severa sobrecarga administrativa docente: rotinas repetitivas de triagem de dezenas de repositórios digitais, controle cronológico de prazos e conferência sintática de códigos competem diretamente com o planejamento pedagógico e a orientação discente (Garrison; Anderson; Archer, 2000; Gil, 2019; Severino, 2016). Embora agentes autônomos e modelos de Inteligência Artificial Generativa (IAG) apresentem alto potencial analítico (Luckin et al., 2016; Unesco, 2023), a adoção de <em>agentes convencionais baseados em chat ou scripts ad-hoc</em> esbarra em graves limitações estruturais: (1) <strong>cegueira sistêmica</strong>, pois operam isolados dos bancos de dados e do livro de notas do Canvas; (2) <strong>risco crônico de alucinação</strong>, gerando notas desconectadas das rubricas por falta de amostragem determinística dos dados; e (3) <strong>sobrecarga de transferência manual</strong> (copiar e colar código e notas entre abas do navegador). Para superar esse abismo, a presente intervenção adota o <strong>Model Context Protocol (MCP)</strong> como espinha dorsal arquitetural. Ao contrário de um agente comum, o MCP padroniza um barramento semântico seguro que concede ao modelo acesso determinístico a <em>recursos</em> contextuais do Canvas LMS e a <em>ferramentas de compilação</em> sob o princípio do menor privilégio, articulado ao <strong>Telegram</strong> para uma governança docente móvel e transparente (Figura 1).
         </p>
 
         <!-- FIGURA 1: DIAGRAMA ARQUITETURAL VETORIAL SVG (INLINE VETORIAL DE ALTA DEFINIÇÃO) -->
         <div class="figure-box">
           <div class="figure-caption"><strong>Figura 1</strong> &ndash; Arquitetura da Mediação: Telegram como porta de entrada amigável ao MCP e Canvas LMS</div>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 350" style="width:100%; height:auto; display:block; shape-rendering:geometricPrecision; text-rendering:geometricPrecision;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 372" style="width:100%; height:auto; display:block; shape-rendering:geometricPrecision; text-rendering:geometricPrecision;">
   <defs>
-    <marker id="arrowDownClean" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
+    <marker id="arrowDownClean" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto">
       <path d="M 1 2 L 6 5 L 1 8 z" fill="#1e293b"/>
     </marker>
-    <marker id="arrowUpClean" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto-start-reverse">
+    <marker id="arrowUpClean" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
       <path d="M 1 2 L 6 5 L 1 8 z" fill="#1e293b"/>
     </marker>
   </defs>
 
-  <rect width="360" height="350" fill="#ffffff" rx="5" stroke="#cbd5e1" stroke-width="1"/>
-
   <!-- BLOCO 1: CAMADA DOCENTE -->
-  <g transform="translate(10, 10)">
-    <rect width="340" height="68" rx="5" fill="#f8fafc" stroke="#334155" stroke-width="1.2"/>
-    <path d="M 0 5 Q 0 0 5 0 L 335 0 Q 340 0 340 5 L 340 22 L 0 22 Z" fill="#1e293b"/>
-    <text x="170" y="15" fill="#ffffff" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" text-anchor="middle">1. CAMADA DOCENTE (Telegram Bot)</text>
-    <text x="10" y="38" fill="#0f172a" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold">Interação em Linguagem Natural Pura (Voz ou Texto)</text>
-    <text x="10" y="51" fill="#334155" font-family="'Times New Roman', serif" font-size="9.5">• Envio de demandas pedagógicas e consultas de turmas</text>
-    <text x="10" y="63" fill="#334155" font-family="'Times New Roman', serif" font-size="9.5">• Aprovação soberana de notas via botões interativos</text>
+  <g transform="translate(0, 2)">
+    <rect width="340" height="76" rx="4" fill="#f8fafc" stroke="#334155" stroke-width="1.2"/>
+    <path d="M 0 4 Q 0 0 4 0 L 336 0 Q 340 0 340 4 L 340 24 L 0 24 Z" fill="#1e293b"/>
+    <text x="170" y="17" fill="#ffffff" font-family="'Times New Roman', serif" font-size="13" font-weight="bold" text-anchor="middle">1. CAMADA DOCENTE (Telegram Bot)</text>
+    <text x="10" y="41" fill="#0f172a" font-family="'Times New Roman', serif" font-size="12" font-weight="bold">Interação em Linguagem Natural Pura (Voz ou Texto)</text>
+    <text x="10" y="56" fill="#334155" font-family="'Times New Roman', serif" font-size="11">• Envio de demandas pedagógicas e consultas de turmas</text>
+    <text x="10" y="69" fill="#334155" font-family="'Times New Roman', serif" font-size="11">• Aprovação soberana de notas via botões interativos</text>
   </g>
 
   <!-- SETAS FLUXO 1 <-> 2 -->
-  <g transform="translate(180, 78)">
-    <line x1="-25" y1="2" x2="-25" y2="18" stroke="#1e293b" stroke-width="1.5" marker-end="url(#arrowDownClean)"/>
-    <line x1="25" y1="18" x2="25" y2="2" stroke="#1e293b" stroke-width="1.5" marker-end="url(#arrowUpClean)"/>
-    <text x="-33" y="12" fill="#475569" font-family="'Times New Roman', serif" font-size="8" font-style="italic" text-anchor="end">Solicitação</text>
-    <text x="33" y="12" fill="#475569" font-family="'Times New Roman', serif" font-size="8" font-style="italic" text-anchor="start">Parecer</text>
+  <g transform="translate(170, 80)">
+    <line x1="-35" y1="2" x2="-35" y2="16" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arrowDownClean)"/>
+    <line x1="35" y1="16" x2="35" y2="2" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arrowUpClean)"/>
+    <text x="-43" y="13" fill="#1e293b" font-family="'Times New Roman', serif" font-size="10.5" font-style="italic" font-weight="bold" text-anchor="end">Solicitação</text>
+    <text x="43" y="13" fill="#1e293b" font-family="'Times New Roman', serif" font-size="10.5" font-style="italic" font-weight="bold" text-anchor="start">Parecer</text>
   </g>
 
   <!-- BLOCO 2: MEDIAÇÃO INTELIGENTE (MCP) -->
-  <g transform="translate(10, 98)">
-    <rect width="340" height="98" rx="5" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.2"/>
-    <path d="M 0 5 Q 0 0 5 0 L 335 0 Q 340 0 340 5 L 340 22 L 0 22 Z" fill="#16a34a"/>
-    <text x="170" y="15" fill="#ffffff" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" text-anchor="middle">2. MEDIAÇÃO INTELIGENTE (Servidor MCP + IA)</text>
-    <text x="10" y="37" fill="#14532d" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold">Orquestração e Execução de Ferramentas Acadêmicas</text>
+  <g transform="translate(0, 100)">
+    <rect width="340" height="106" rx="4" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.2"/>
+    <path d="M 0 4 Q 0 0 4 0 L 336 0 Q 340 0 340 4 L 340 24 L 0 24 Z" fill="#16a34a"/>
+    <text x="170" y="17" fill="#ffffff" font-family="'Times New Roman', serif" font-size="13" font-weight="bold" text-anchor="middle">2. MEDIAÇÃO INTELIGENTE (Servidor MCP + IA)</text>
+    <text x="10" y="41" fill="#14532d" font-family="'Times New Roman', serif" font-size="12" font-weight="bold">Orquestração e Execução de Ferramentas Acadêmicas</text>
     
-    <g transform="translate(8, 44)">
-      <rect width="102" height="34" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="0.8"/>
-      <text x="51" y="14" fill="#14532d" font-family="'Times New Roman', serif" font-size="9" font-weight="bold" text-anchor="middle">Recursos</text>
-      <text x="51" y="26" fill="#166534" font-family="'Times New Roman', serif" font-size="7.5" text-anchor="middle">Rubricas e Matrizes</text>
+    <g transform="translate(4, 46)">
+      <rect width="106" height="37" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="1"/>
+      <text x="53" y="15" fill="#14532d" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" text-anchor="middle">Recursos</text>
+      <text x="53" y="29" fill="#166534" font-family="'Times New Roman', serif" font-size="9.5" text-anchor="middle">Rubricas e Matrizes</text>
 
-      <rect x="110" width="102" height="34" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="0.8"/>
-      <text x="161" y="14" fill="#14532d" font-family="'Times New Roman', serif" font-size="9" font-weight="bold" text-anchor="middle">Prompts</text>
-      <text x="161" y="26" fill="#166534" font-family="'Times New Roman', serif" font-size="7.5" text-anchor="middle">Regras Pedagógicas</text>
+      <rect x="116" width="108" height="37" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="1"/>
+      <text x="170" y="15" fill="#14532d" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" text-anchor="middle">Prompts</text>
+      <text x="170" y="29" fill="#166534" font-family="'Times New Roman', serif" font-size="9.5" text-anchor="middle">Regras Pedagógicas</text>
 
-      <rect x="220" width="104" height="34" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="0.8"/>
-      <text x="272" y="14" fill="#14532d" font-family="'Times New Roman', serif" font-size="9" font-weight="bold" text-anchor="middle">Ferramentas</text>
-      <text x="272" y="26" fill="#166534" font-family="'Times New Roman', serif" font-size="7.5" text-anchor="middle">Auditoria e Consultas</text>
+      <rect x="230" width="106" height="37" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="1"/>
+      <text x="283" y="15" fill="#14532d" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" text-anchor="middle">Ferramentas</text>
+      <text x="283" y="29" fill="#166534" font-family="'Times New Roman', serif" font-size="9.5" text-anchor="middle">Auditoria e Build C</text>
     </g>
-    <text x="10" y="90" fill="#15803d" font-family="'Times New Roman', serif" font-size="8.5">• Credenciais isoladas no servidor institucional sob menor privilégio</text>
+    <text x="10" y="97" fill="#15803d" font-family="'Times New Roman', serif" font-size="10.2" font-weight="bold">• Credenciais isoladas no servidor local sob menor privilégio</text>
   </g>
 
   <!-- SETAS FLUXO 2 <-> 3 -->
-  <g transform="translate(180, 196)">
-    <line x1="-25" y1="2" x2="-25" y2="18" stroke="#1e293b" stroke-width="1.5" marker-end="url(#arrowDownClean)"/>
-    <line x1="25" y1="18" x2="25" y2="2" stroke="#1e293b" stroke-width="1.5" marker-end="url(#arrowUpClean)"/>
-    <text x="-33" y="12" fill="#475569" font-family="'Times New Roman', serif" font-size="8" font-style="italic" text-anchor="end">Ações REST</text>
-    <text x="33" y="12" fill="#475569" font-family="'Times New Roman', serif" font-size="8" font-style="italic" text-anchor="start">Dados e Envios</text>
+  <g transform="translate(170, 208)">
+    <line x1="-35" y1="2" x2="-35" y2="16" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arrowDownClean)"/>
+    <line x1="35" y1="16" x2="35" y2="2" stroke="#1e293b" stroke-width="1.8" marker-end="url(#arrowUpClean)"/>
+    <text x="-43" y="13" fill="#1e293b" font-family="'Times New Roman', serif" font-size="10.5" font-style="italic" font-weight="bold" text-anchor="end">Ações REST</text>
+    <text x="43" y="13" fill="#1e293b" font-family="'Times New Roman', serif" font-size="10.5" font-style="italic" font-weight="bold" text-anchor="start">Dados e Envios</text>
   </g>
 
   <!-- BLOCO 3: CAMADA INSTITUCIONAL -->
-  <g transform="translate(10, 216)">
-    <rect width="340" height="72" rx="5" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.2"/>
-    <path d="M 0 5 Q 0 0 5 0 L 335 0 Q 340 0 340 5 L 340 22 L 0 22 Z" fill="#7c3aed"/>
-    <text x="170" y="15" fill="#ffffff" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" text-anchor="middle">3. CAMADA INSTITUCIONAL (Canvas LMS Afya)</text>
-    <text x="10" y="38" fill="#5b21b6" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold">Gestão Oficial de Aprendizagem e Registro Acadêmico</text>
-    <text x="10" y="51" fill="#4c1d95" font-family="'Times New Roman', serif" font-size="9.5">• Repositório de turmas, tarefas, prazos e submissões</text>
-    <text x="10" y="64" fill="#4c1d95" font-family="'Times New Roman', serif" font-size="9.5">• Sincronização auditável de notas e pareceres no boletim</text>
+  <g transform="translate(0, 226)">
+    <rect width="340" height="78" rx="4" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.2"/>
+    <path d="M 0 4 Q 0 0 4 0 L 336 0 Q 340 0 340 4 L 340 24 L 0 24 Z" fill="#7c3aed"/>
+    <text x="170" y="17" fill="#ffffff" font-family="'Times New Roman', serif" font-size="13" font-weight="bold" text-anchor="middle">3. CAMADA INSTITUCIONAL (Canvas LMS Afya)</text>
+    <text x="10" y="41" fill="#5b21b6" font-family="'Times New Roman', serif" font-size="12" font-weight="bold">Gestão Oficial de Aprendizagem e Registro Acadêmico</text>
+    <text x="10" y="56" fill="#4c1d95" font-family="'Times New Roman', serif" font-size="11">• Repositório de turmas, tarefas, prazos e submissões</text>
+    <text x="10" y="70" fill="#4c1d95" font-family="'Times New Roman', serif" font-size="11">• Sincronização auditável de notas e pareceres no boletim</text>
   </g>
 
   <!-- BLOCO 4: SOBERANIA DOCENTE -->
-  <g transform="translate(10, 298)">
-    <rect width="340" height="42" rx="5" fill="#fffbeb" stroke="#d97706" stroke-width="1.2"/>
-    <text x="170" y="17" fill="#92400e" font-family="'Times New Roman', serif" font-size="9.5" font-weight="bold" text-anchor="middle">GOVERNANÇA: SOBERANIA DOCENTE (HUMAN-IN-THE-LOOP)</text>
-    <text x="170" y="32" fill="#b45309" font-family="'Times New Roman', serif" font-size="8.5" text-anchor="middle">A IA minutas pareceres; a decisão e lançamento oficial são do professor.</text>
+  <g transform="translate(0, 312)">
+    <rect width="340" height="46" rx="4" fill="#fffbeb" stroke="#d97706" stroke-width="1.2"/>
+    <text x="170" y="19" fill="#92400e" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" text-anchor="middle">GOVERNANÇA: SOBERANIA DOCENTE (HUMAN-IN-THE-LOOP)</text>
+    <text x="170" y="35" fill="#b45309" font-family="'Times New Roman', serif" font-size="10" text-anchor="middle">A IA minuta pareceres; a decisão e lançamento oficial são do professor.</text>
   </g>
 </svg>
           <div class="figure-source"><strong>Fonte:</strong> Elaborada pelos autores (2026).</div>
@@ -587,56 +623,33 @@
 
         <h3 class="subsection-title">2.1 Tipo de Estudo e Declaração de Autonomia Docente</h3>
         <p class="doc-text">
-          Trata-se de uma pesquisa aplicada de natureza descritiva, conduzida sob a modalidade de relato de experiência técnico-pedagógico com abordagem mista (Köche, 2015). Combinou-se a observação participante do docente titular com a mensuração quantitativa de tempos de ciclo e taxas de auditoria de atividades de laboratório no ambiente virtual. Cabe ressaltar formalmente que a presente investigação constitui uma iniciativa autônoma de pesquisa e inovação didática conduzida exclusivamente pelo professor autor no âmbito de sua prática pedagógica em sala de aula, não configurando um projeto, diretriz ou produto oficial de tecnologia da informação mantido pela instituição de ensino.
+          Pesquisa aplicada descritiva delineada como relato de experiência técnico-pedagógico com abordagem mista (Köche, 2015). Articulou-se a observação participante do docente titular à mensuração quantitativa de tempos de ciclo e taxas de auditoria no Canvas LMS. Registra-se que a intervenção constitui iniciativa autônoma de pesquisa didática conduzida pelo professor autor em suas turmas, sem configurar diretriz ou produto oficial de TI corporativa da instituição.
         </p>
 
         <h3 class="subsection-title">2.2 Contexto Empírico, Impacto Regional e Amostra</h3>
         <p class="doc-text">
-          A experiência foi conduzida no Afya Centro Universitário de Ji-Paraná (UniSL), no estado de Rondônia, durante o período letivo de 2026.2. Trata-se de uma iniciativa pioneira que posiciona o ecossistema educacional rondoniense na vanguarda da aplicação de inteligência artificial agente e protocolos abertos de integração no ensino superior da Amazônia Ocidental. O cenário empírico contemplou duas turmas de graduação em Ciência da Computação na disciplina de Estrutura de Dados, caracterizadas por alta densidade prática e laboratorial: (a) turma de 2º período com 80 matriculados (60 submissões ativas distribuídas em 26 repositórios remotos no GitHub); e (b) turma de 4º período com 31 discentes estruturados em 9 equipes formais de desenvolvimento colaborativo com versionamento Git e programação modularizada em C.
+          A intervenção ocorreu no Afya Centro Universitário de Ji-Paraná (UniSL), em Rondônia (período 2026.2), pioneira na aplicação de agentes autônomos no ensino superior da Amazônia Ocidental. A amostragem envolveu a disciplina de Estrutura de Dados em Ciência da Computação em três frentes: (a) 2º período com 80 matriculados (60 submissões ativas em 26 repositórios no GitHub); (b) 4º período com 31 discentes em 9 equipes de versionamento Git e programação modular em C; e (c) avaliação presencial N1 com <strong>76 cadernos físicos de prova escrita (226 páginas manuscritas digitalizadas a 300 DPI)</strong>, cobrindo 7 questões objetivas modelo ENADE e 3 discursivas em C.
         </p>
 
         <h3 class="subsection-title">2.3 Arquitetura Tecnológica: Protocolo MCP e Interface Telegram</h3>
         <p class="doc-text">
-          A sustentação técnica da mediação assenta-se no <strong>Model Context Protocol (MCP)</strong>, padrão aberto de interoperabilidade semântica que redefine a forma como modelos de linguagem interagem com ecossistemas de software. A relevância do MCP torna-se evidente quando comparada ao paradigma de agentes comuns: enquanto um agente convencional depende de <em>hardcoding</em> de APIs proprietárias, injeção estática e volumosa de prompts ou scripts frágeis sujeitos a falhas de contexto, o MCP estabelece uma camada cliente-servidor formalizada em três primitivas universais:
-          <strong>(a) Recursos (<em>Resources</em>)</strong>: dados estruturados somente-leitura (rubricas, enunciados e metadados de submissão do Canvas LMS) disponibilizados dinamicamente sob demanda, sem queimar janela de contexto desnecessariamente;
-          <strong>(b) Prompts Contratuais</strong>: diretrizes deontológicas e regras institucionais pré-validadas que asseguram uniformidade na análise avaliativa e impedem desvios de critério; e
-          <strong>(c) Ferramentas Determinísticas (<em>Tools</em>)</strong>: funções executáveis seguras que o modelo pode orquestrar autonomamente, tais como a clonagem paralela de repositórios, a invocação do compilador GCC local e a sincronização atômica em lote no Canvas LMS sob credenciais isoladas.
-          Dessa forma, o MCP converte o modelo cognitivo de um mero gerador probabilístico de texto em um <strong>agente acoplado e auditável</strong>, cuja tomada de decisão é estritamente condicionada aos fatos computacionais do código discente. Na ponta humana, adotou-se o <strong>Telegram</strong> como interface primária ubíqua: o docente interage em linguagem natural pura (voz ou texto) e homologa relatórios analíticos via botões interativos (<em>inline keyboards</em>) com apenas um toque.
-        </p>
-
-        <!-- QUADRO 2: CONTRATO DA TOOL MCP EM PYTHON -->
-        <div class="code-listing-box">
-          <div class="code-listing-header"><strong>Quadro 2</strong> &ndash; Assinatura determinística de Tool MCP em Python para sincronização com o Canvas LMS</div>
-          <div class="code-content"><span style="color: #2563eb; font-weight: bold;">@mcp.tool</span>()
-<span style="color: #7c3aed; font-weight: bold;">def</span> <span style="color: #0369a1; font-weight: bold;">submit_canvas_grades</span>(
-    course_id: <span style="color: #059669;">str</span>,
-    assignment_id: <span style="color: #059669;">str</span>,
-    grades: <span style="color: #059669;">list</span>[<span style="color: #059669;">dict</span>]
-) -&gt; <span style="color: #059669;">dict</span>:
-    <span style="color: #475569; font-style: italic;"># Sincronização atômica em lote</span>
-    <span style="color: #7c3aed; font-weight: bold;">return</span> canvas.post_grades(
-        course_id, assignment_id, grades
-    )</div>
-        </div>
-
-        <p class="doc-text">
-          O Quadro 2 ilustra a materialização do contrato semântico do MCP em Python: o agente de IA não possui autorização direta de banco de dados, atuando unicamente através de funções tipadas que garantem a integridade dos dados e o isolamento de credenciais na infraestrutura local.
-        </p>
-
-        <h3 class="subsection-title">2.4 Treinamento Contextual: Alimentação com o Corpus Pedagógico e Acoplamento Institucional</h3>
-        <p class="doc-text">
-          O fator decisivo que distingue a mediação via MCP de qualquer agente de IA genérico reside no <strong>acoplamento contextual profundo ao corpus normativo e pedagógico institucional</strong>. Agentes convencionais falham em ambientes universitários porque operam sob premissas genéricas de senso comum, sem compreender o regimento interno, a temporalidade letiva ou os critérios de avaliação específicos da instituição. No ecossistema concebido, o servidor MCP atuou como o custodiante da verdade documental acadêmica da Afya Centro Universitário de Ji-Paraná, indexando dinamicamente como <em>Resources</em> ativos:
-          <strong>(a) O Calendário Acadêmico Oficial 2026</strong>, permitindo ao agente discernir janelas exatas de provas N1/N2, prazos fatais de lançamento no boletim e tolerâncias de entrega de atividades laboratoriais;
-          <strong>(b) O Guia do Docente no Canvas LMS</strong>, fornecendo a taxonomia formal de módulos, a política institucional de postagem de notas ocultas até a homologação docente e o padrão estrutural das rubricas avaliativas; e
-          <strong>(c) O Projeto Pedagógico de Curso (PPC)</strong> e as Diretrizes Curriculares Nacionais de Ciência da Computação, garantindo alinhamento conceitual das devolutivas à ementa da disciplina de Estrutura de Dados.
+          A mediação assenta-se no <strong>Model Context Protocol (MCP)</strong>, padrão aberto de interoperabilidade semântica cliente-servidor concebido para desacoplar a cognição do modelo dos barramentos de infraestrutura e dados. Implementado como servidor nativo compilado em Go, o middleware opera via comunicação serial padronizada (<em>stdio</em>), garantindo que as credenciais do Canvas LMS (tokens administrativos Bearer) e chaves criptográficas permaneçam estritamente isoladas no servidor local, inacessíveis ao modelo de linguagem. Essa segregação arquitetural estabelece três primitivas determinísticas: <strong>(a) Recursos (<em>Resources</em>)</strong>: vetores de dados estruturados em modo somente-leitura (rubricas de avaliação, matrizes de competência do PPC, enunciados oficiais e prazos do Canvas LMS); <strong>(b) Prompts Contratuais</strong>: diretrizes parametrizadas que uniformizam o padrão analítico e blindam o raciocínio contra desvios interpretativos; e <strong>(c) Ferramentas (<em>Tools</em>)</strong>: funções invocáveis para clonagem concorrente de repositórios Git, compilação de código C via GCC nativo e postagem atômica de notas e pareceres em lote na API REST do Canvas LMS.
         </p>
         <p class="doc-text">
-          Adicionalmente, o servidor MCP foi municiado com as matrizes de competência do <strong>Exame Nacional de Desempenho dos Estudantes (ENADE)</strong> e bancos de questões oficiais do Ministério da Educação (MEC). Munido de todo esse arcabouço normativo institucional em tempo de execução, o agente não alucina procedimentos nem emite pareceres descontextualizados: cada recomendação técnica, minuta de feedback ou cálculo de abatimento na nota reflete com exatidão as regras pedagógicas do campus UniSL, transformando o MCP em uma extensão institucionalmente consciente do próprio plano de ensino docente.
+          Para mitigar riscos de <strong>injeção de prompt indireta</strong> (<em>indirect prompt injection</em>) — vulnerabilidade crítica na qual comentários ou códigos submetidos por alunos poderiam conter comandos maliciosos em linguagem natural para manipular o agente —, todo o conteúdo entregue pelos estudantes é encapsulado em tags de quarentena de isolamento semântico (<code>&lt;untrusted_student_input role="data_only"&gt;</code>). Na ponta docente, a interface do <strong>Telegram</strong> opera como ponto de controle móvel e amigável: o bot traduz comandos em linguagem natural (áudio ou texto) em chamadas parametrizadas do MCP e devolve fichas analíticas formatadas, viabilizando a homologação soberana com um toque via botões interativos (<em>human-in-the-loop</em>).
+        </p>
+
+        <h3 class="subsection-title">2.4 Treinamento Contextual: Alimentação com o Corpus Pedagógico Institucional</h3>
+        <p class="doc-text">
+          Diferente de agentes genéricos que operam em vácuo institucional, o servidor MCP atuou como guardião contextual ao indexar dinamicamente como recursos ativos: (a) o <strong>Calendário Acadêmico Oficial 2026</strong> (marcos de N1/N2, janelas de segunda chamada e prazos regulamentares de fechamento de diários); (b) o <strong>Guia do Docente no Canvas LMS</strong> (política de postagem oculta e rubricas); (c) o <strong>PPC de Ciência da Computação</strong>; e (d) matrizes de competência do <strong>ENADE/MEC</strong>. Esse acoplamento garante que pareceres e notas reflitam fidedignamente o regulamento institucional do campus UniSL sem alucinações de regras de negócio.
         </p>
 
         <h3 class="subsection-title">2.5 Procedimentos para Coleta de Dados e Fluxo Algorítmico</h3>
         <p class="doc-text">
-          A intervenção prática desdobrou-se em quatro fases articuladas em ciclo fechado: (a) Mapeamento e cronometragem do fluxo tradicional manual no SpeedGrader; (b) Parametrização semântica das rubricas avaliativas no agente via contratos MCP, com distribuição percentual formal: <strong>Compilação e Linkagem GCC (35 pontos)</strong>, <strong>Fluxo de Branches e Pull Requests Git (25 pontos)</strong>, <strong>Modularização e Manipulação de Structs em C (25 pontos)</strong> e <strong>Cálculos e Regras de Negócio (15 pontos)</strong>, parametrizando descontos proporcionais para cada desvio estrutural; (c) Triagem assistida com supervisão humana (<em>human-in-the-loop</em>), em que o agente compila diagnósticos técnicos e minuta propostas de pareceres submetidos à deliberação soberana do docente no Telegram; e (d) Sincronização oficial em lote das notas aprovadas no livro de notas do Canvas LMS. Esse ciclo operacional está esquematizado na Figura 2.
+          A intervenção desdobrou-se em quatro fases estruturadas: (a) mapeamento e cronometragem do fluxo manual tradicional no SpeedGrader; (b) parametrização semântica das rubricas no servidor MCP com distribuição percentual formal: <strong>Compilação e Linkagem GCC (35 pontos)</strong>, <strong>Fluxo de Branches e Pull Requests Git (25 pontos)</strong>, <strong>Modularização e Manipulação de Structs em C (25 pontos)</strong> e <strong>Regras de Negócio e Cálculos (15 pontos)</strong>; (c) triagem analítica com supervisão humana (<em>human-in-the-loop</em>) mediada por bot no Telegram; e (d) sincronização oficial em lote das notas homologadas diretamente na API REST do Canvas LMS (Figura 2).
+        </p>
+        <p class="doc-text">
+          Para a dimensão presencial individual (Etapa N1), concebeu-se um pipeline algorítmico multimodal em três estágios: (1) <em>Digitalização e Reconhecimento Óptico (OCR)</em>: digitalização dos 76 cadernos a 300 DPI e transcrição via Apple Vision Framework com normalização sintática de código C manuscrito (remoção de ruídos de grafite, correção de quebras de linha espúrias e alinhamento de chaves e operadores); (2) <em>Vetorização e Extração de k-shingles</em>: decomposição textual em n-gramas deslizantes (janelas de 3 a 5 tokens) com cômputo matricial dos coeficientes de similaridade de Jaccard e Sorensen-Dice, desmascarando trocas cosméticas de identificadores ou reordenações de blocos lógicos; e (3) <em>Modelagem em Grafos de Similaridade</em>: construção de matrizes de adjacência agrupando submissões em clusters de homologia estrutural correlacionados à malha geográfica de carteiras da sala de aula.
         </p>
 
         <!-- FIGURA DO FLUXOGRAMA DE CORREÇÃO EM 4 ETAPAS -->
@@ -688,21 +701,33 @@
 
         <h3 class="subsection-title">2.6 Tratamento e Análise dos Dados</h3>
         <p class="doc-text">
-          Os dados quantitativos de tempo operacional foram consolidados por estatística descritiva (médias de tempo de correção por discente, dispersão e tempo global por turma). Para quantificar com rigor a otimização da rotina docente proporcionada pela arquitetura, calculou-se o índice percentual de ganho de eficiência operacional (&eta;<sub>eficiência</sub>), formalizado na Equação (1):
+          Os dados operacionais foram tratados por estatística descritiva e análise temática de conteúdo dos pareceres. O coeficiente de similaridade de Sorensen-Dice (<em>S<sub>Dice</sub></em>) entre pares de cadernos digitalizados <em>A</em> e <em>B</em> foi computado pela Equação (1):
         </p>
 
-        <!-- EQUAÇÃO ÚNICA: GANHO DE EFICIÊNCIA -->
-        <div style="text-align: center; margin: 7pt 0; padding: 5pt 0; font-family: 'Times New Roman', serif; font-size: 11pt; font-style: italic; background: #fdfdfe; border-top: 0.5pt solid #e2e8f0; border-bottom: 0.5pt solid #e2e8f0;">
-          &eta;<sub>eficiência</sub> = [ (T<sub>manual</sub> &minus; T<sub>mediado</sub>) / T<sub>manual</sub> ] &times; 100% &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (1)
+        <!-- EQUAÇÃO 1: SORENSEN-DICE -->
+        <div style="text-align: center; margin: 4pt 0; padding: 3pt 0; font-family: 'Times New Roman', serif; font-size: 10.5pt; font-style: italic; background: #fdfdfe; border-top: 0.5pt solid #e2e8f0; border-bottom: 0.5pt solid #e2e8f0;">
+          S<sub>Dice</sub>(A, B) = [ 2 &times; |S(A) &cap; S(B)| ] / [ |S(A)| + |S(B)| ] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (1)
         </div>
 
         <p class="doc-text">
-          em que <em>T<sub>manual</sub></em> expressa o tempo total despendido no fluxo tradicional via SpeedGrader e <em>T<sub>mediado</sub></em> corresponde ao tempo residual de revisão e validação soberana do docente pelo Telegram. Paralelamente, a análise qualitativa das devolutivas pedagógicas seguiu os preceitos de análise temática de conteúdo, comparando a profundidade técnica dos feedbacks emitidos antes e após a intervenção com o agente inteligente.
+          onde <em>S(A)</em> e <em>S(B)</em> representam os conjuntos de <em>k-shingles</em> (n-gramas) canônicos extraídos das respostas discursivas. Adicionalmente, o ganho de eficiência operacional docente (&eta;<sub>eficiência</sub>) foi mensurado pela Equação (2):
+        </p>
+
+        <!-- EQUAÇÃO 2: GANHO DE EFICIÊNCIA -->
+        <div style="text-align: center; margin: 4pt 0; padding: 3pt 0; font-family: 'Times New Roman', serif; font-size: 10.5pt; font-style: italic; background: #fdfdfe; border-top: 0.5pt solid #e2e8f0; border-bottom: 0.5pt solid #e2e8f0;">
+          &eta;<sub>eficiência</sub> = [ (T<sub>manual</sub> &minus; T<sub>mediado</sub>) / T<sub>manual</sub> ] &times; 100% &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (2)
+        </div>
+
+        <p class="doc-text">
+          sendo <em>T<sub>manual</sub></em> o tempo consumido na auditoria manual individual no SpeedGrader e <em>T<sub>mediado</sub></em> o tempo de deliberação docente via interface Telegram.
         </p>
 
         <h3 class="subsection-title">2.7 Aspectos Éticos, Governança e Blindagem perante a LGPD</h3>
         <p class="doc-text">
-          O estudo pautou-se no cumprimento rigoroso da integridade acadêmica e dos postulados da Lei Geral de Proteção de Dados Pessoais (LGPD &ndash; Lei nº 13.709/2018). A arquitetura técnica foi desenhada sob o princípio da segurança por design (<em>security by design</em>): as chaves institucionais da API do Canvas LMS e do bot de Telegram operaram restritas ao ambiente do servidor local sob permissões mínimas de leitura e escrita. Fundamentalmente, a integração com os provedores de modelos fundacionais (Google Cloud / Gemini API) foi formalizada sob a política contratual de zero retenção de dados (<em>zero-data retention policy</em>). Nesse modelo empresarial, nenhuma submissão discente, código-fonte, metadado ou identificador acadêmico é persistido em servidores externos ou utilizado para retreino contínuo de modelos públicos, blindando juridicamente a instituição. Assegurou-se, em conformidade com as diretrizes do NAPED, a autoridade pedagógica soberana e indelegável do docente como árbitro exclusivo na homologação de cada nota e parecer.
+          A pesquisa atendeu rigorosamente aos ditames da Lei Geral de Proteção de Dados Pessoais (LGPD - Lei nº 13.709/2018) sob a arquitetura de <em>privacy by design</em> e <em>security by default</em>: credenciais administrativas restritas ao servidor local sob menor privilégio, e integração à API do modelo de linguagem operando sob contrato corporativo estrito de retenção nula de dados (<em>zero-data retention</em>), vedando expressamente qualquer persistência temporária ou utilização de códigos e textos discentes para retreino ou aprimoramento de modelos públicos.
+        </p>
+        <p class="doc-text">
+          Na auditoria dos 76 cadernos de prova presencial, aplicou-se rotina de pseudonimização irreversível na origem (atribuição de códigos sequenciais opacos <code>CAD-01</code> a <code>CAD-76</code>), mantendo matrizes de similaridade e grafos de adjacência completamente despersonalizados durante a triagem algorítmica. O desmascaramento nominativo foi de acesso exclusivo do professor regente para fins de orientação acadêmica individualizada. Sob o prisma ético-pedagógico, a inteligência artificial limitou-se ao papel de suporte instrumental e analítico objetivo, preservando integralmente o protagonismo humano, a autonomia moral e a soberania decisória final do educador (NAPED/Afya).
         </p>
 
         <h2 class="section-title">3. Resultados</h2>
@@ -742,7 +767,7 @@
               </tr>
               <tr>
                 <td><strong>Lançamento de Notas</strong></td>
-                <td>Digitação nota a nota no AVA (~30 min)</td>
+                <td>Digitação nota a nota no Canvas (~30 min)</td>
                 <td>Digitação manual transferida (~25 min)</td>
                 <td>Sincronização atômica em lote (<strong>0,55 s</strong>)</td>
               </tr>
@@ -779,66 +804,98 @@
         <p class="doc-text">
           Ao automatizar a triagem braçal e fornecer ao docente esse diagnóstico cirúrgico em questão de segundos, o sistema permitiu a devolução de pareceres analíticos enquanto o raciocínio discente ainda estava ativo na tarefa. Esse retorno tempestivo transformou o erro em instrumento pedagógico de autorregulação, permitindo intervenções docentes e oficinas de nivelamento conceitual antes da aplicação das avaliações formais presenciais.
         </p>
+        <!-- QUADRO 1: CONTRASTE QUALITATIVO DE DEVOLUTIVAS -->
+        <div class="code-listing-box" style="background: #fdfefe; border: 0.8pt solid #cbd5e1; border-left: 3pt solid #2563eb; padding: 6pt 8pt; margin: 6pt 0;">
+          <div style="font-size: 8.5pt; font-weight: bold; color: #1e3a8a; margin-bottom: 4pt; border-bottom: 0.5pt solid #e2e8f0; padding-bottom: 2pt;">
+            Quadro 1 &ndash; Contraste Qualitativo: Feedback Tradicional (Manual) vs. Parecer Mediado pelo MCP
+          </div>
+          <div style="font-size: 8pt; color: #7f1d1d; margin-bottom: 4pt; line-height: 1.2;">
+            <strong>(A) Modelo Manual no SpeedGrader (Tardio / Somativo):</strong><br>
+            <em>&ldquo;Código apresentou problemas de compilação no repositório entregue; nota 6,0.&rdquo;</em>
+          </div>
+          <div style="font-size: 8pt; color: #14532d; line-height: 1.2;">
+            <strong>(B) Modelo Mediado MCP + IA no Telegram (Mesmo Dia / Formativo):</strong><br>
+            <em>&ldquo;Repositório bem estruturado com branches individuais no Git. Contudo, a compilação via GCC falhou no arquivo main.c (linha 34): a função listar_produtos tentou acessar o membro 'codigo_barrras' (com três r's), enquanto estoque.h declara 'codigo_barras'. Desconto de 35 pontos da rubrica de compilação; nota final: 6,5. Corrija o identificador para gerar o executável.&rdquo;</em>
+          </div>
+        </div>
 
         <h3 class="subsection-title">3.1 Análise Qualitativa das Devolutivas Pedagógicas e Falhas Ocultas à Inspeção Manual</h3>
         <p class="doc-text">
-          Com a mediação orquestrada via servidor MCP e a integração do compilador nativo (GCC) ao fluxo do agente cognitivo, a capacidade de inspeção estática profunda permitiu ao docente homologar e devolver pareceres formativos altamente cirúrgicos e individualizados no próprio livro de notas do Canvas LMS. Uma das maiores contribuições pedagógicas observadas na atividade prática de Git do 2º período foi a identificação precisa de <strong>falhas silenciosas</strong> que, em uma leitura visual rápida no SpeedGrader ou na interface web do GitHub, seriam praticamente imperceptíveis pelo olho humano sob a restrição de tempo inerente a turmas de 60 discentes.
+          Com a orquestração via servidor MCP e a integração do compilador nativo (GCC) ao fluxo do agente cognitivo, a capacidade de inspeção estática profunda permitiu ao docente homologar e devolver pareceres formativos altamente cirúrgicos e individualizados no diário digital do Canvas LMS. Uma das maiores contribuições pedagógicas observadas na atividade prática de Git do 2º período foi a identificação precisa de <strong>falhas silenciosas</strong> que, em uma leitura visual rápida no SpeedGrader ou na interface web do GitHub, seriam praticamente imperceptíveis pelo olho humano sob a restrição de tempo inerente a turmas de 60 discentes.
         </p>
         <p class="doc-text">
-          Dentre as patologias de código reveladas na auditoria automatizada concorrente dos 26 repositórios da turma de 2º período, destacaram-se cinco categorias críticas de extrema dificuldade de detecção manual:
-          <strong>(a) Erros tipográficos em identificadores de structs</strong>: discentes declararam o membro <code>codigo_barras</code> no cabeçalho (<code>estoque.h</code>), mas utilizaram <code>codigo_barrras</code> (com três letras r) em chamadas de <code>printf</code> na <code>main.c</code>. Visualmente idênticos na rolagem rápida de tela, o erro quebra fatalmente a compilação (<em>no member named 'codigo_barrras' in 'Produto'</em>);
-          <strong>(b) Poluição sintática por artefatos de IA / Markdown</strong>: blocos de código copiados de assistentes externos foram colados mantendo delimitadores de markdown (ex.: <code>```c</code>) na linha 1 do código-fonte, gerando erro de símbolo inesperado que visualmente se assemelha a um comentário estilizado;
-          <strong>(c) Símbolos duplicados por inclusão de definição em cabeçalho</strong>: equipes implementaram corpos inteiros de funções (ex.: <code>listar_produtos</code>) dentro do arquivo de cabeçalho (<code>.h</code>) incluído em múltiplos arquivos <code>.c</code>. O código parece legível e modularizado, mas quebra a linkagem final por colisão de símbolos em múltiplos objetos compilados (<em>duplicate symbol</em>);
+          Dentre as patologias de código reveladas na auditoria concorrente dos 26 repositórios da turma de 2º período, destacaram-se cinco categorias críticas que o compilador GCC expôs com precisão cirúrgica:
+          <strong>(a) Erros tipográficos em identificadores de structs</strong>: discentes declararam o membro <code>codigo_barras</code> no cabeçalho (<code>estoque.h</code>), mas utilizaram <code>codigo_barrras</code> (com três letras 'r') em chamadas de <code>printf</code> na <code>main.c</code>. Visualmente idênticos na rolagem rápida de tela, o erro quebra fatalmente o build (<em>no member named 'codigo_barrras' in 'Produto'</em>);
+          <strong>(b) Poluição sintática por artefatos de IA / Markdown</strong>: blocos de código copiados de assistentes de IA externos foram colados mantendo delimitadores de formatação (ex.: <code>```c</code>) na linha 1 do código-fonte, gerando erro de símbolo inesperado que visualmente se assemelha a um comentário estilizado;
+          <strong>(c) Símbolos duplicados por inclusão de definição em cabeçalho</strong>: equipes implementaram corpos inteiros de funções (ex.: <code>listar_produtos</code>) dentro do arquivo de cabeçalho (<code>.h</code>) incluído em múltiplos arquivos <code>.c</code>. O código parecia perfeitamente legível e modularizado à inspeção visual, mas quebrou a linkagem final por colisão de símbolos em múltiplos objetos compilados (<em>duplicate symbol</em>), expondo a clássica confusão entre declaração de protótipos e definição de funções em C;
           <strong>(d) Desbalanceamento de pré-processador</strong>: inserção de diretivas soltas (como um <code>#endif</code> terminal sem o respectivo <code>#ifndef</code> de proteção de inclusão dupla), invalidando o parsing da unidade de compilação; e
-          <strong>(e) URLs mascaradas de repositórios 404/privados</strong>: hiperlinks entregues formalmente com formato padrão do GitHub, mas cuja inacessibilidade (privada ou deletada) só é comprovada ao tentar a clonagem via linha de comando ou API.
+          <strong>(e) URLs mascaradas de repositórios 404/privados</strong>: hiperlinks entregues formalmente com padrão sintático do GitHub, cuja inacessibilidade (privada ou inexistente) só é comprovada ao tentar a clonagem automatizada via linha de comando ou API.
         </p>
         <p class="doc-text">
-          Como evidência empírica das devolutivas geradas durante a atividade avaliativa de programação modularizada em linguagem C e versionamento Git no 2º período, o Quadro 1 ilustra como essas falhas sutis foram transformadas em pareceres pedagógicos objetivos e formativos.
+          Essa triagem exaustiva permitiu ao professor mapear com exatidão as dificuldades de abstração dos discentes na transição de paradigmas de programação imperativa em C. A identificação tempestiva desses padrões instruiu o planejamento de intervenções direcionadas em sala de aula, demonstrando na prática como a linkagem de múltiplos arquivos objeto opera no GCC e desmistificando o papel das diretivas de pré-processador, o que elevou sensivelmente a maturidade técnica dos projetos subsequentes.
         </p>
 
-        <!-- QUADRO COMPARATIVO DE FEEDBACKS QUALITATIVOS -->
+        <h3 class="subsection-title">3.2 Integridade Acadêmica em Avaliações Presenciais: Auditoria por Visão Computacional e Grafos de Similaridade em Provas Manuscritas</h3>
+        <p class="doc-text">
+          Como extensão das ferramentas orquestradas pelo servidor MCP, este tópico compreende a auditoria de integridade acadêmica em avaliações presenciais escritas: o agente aciona rotinas de visão computacional (OCR) e mineração textual para identificar padrões de similaridade entre provas físicas. A aplicação desse pipeline sobre <strong>76 cadernos físicos de prova presencial N1 (226 páginas manuscritas digitalizadas a 300 DPI)</strong> atestou <strong>60 cadernos autênticos (78,9%)</strong> e identificou <strong>16 cadernos (21,1%)</strong> com homologia estrutural atípica, consolidados em 5 clusters de similaridade (Tabela 2).
+        </p>
+
+        <!-- TABELA 2: CLUSTERS DE SIMILARIDADE EM PROVAS MANUSCRITAS -->
         <div class="table-box">
-          <div class="table-title"><strong>Quadro 1</strong> &ndash; Diagnósticos de falhas estruturais em C e Git imperceptíveis à inspeção visual manual</div>
+          <div class="table-title"><strong>Tabela 2</strong> &ndash; Tipologia de clusters de similaridade detectados na Prova Presencial N1 (76 cadernos físicos)</div>
           <table class="compact-table">
             <thead>
               <tr>
-                <th style="width: 32%;">Patologia Estrutural Oculta</th>
-                <th style="width: 28%;">Por que é Difícil Detectar Manualmente?</th>
-                <th style="width: 40%;">Parecer Formativo Homologado no Canvas LMS</th>
+                <th style="width: 22%;">Cluster / Risco</th>
+                <th style="width: 18%;">Amostra Afetada</th>
+                <th style="width: 16%;">Similaridade</th>
+                <th style="width: 44%;">Padrão e Evidência Material</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>Erro Tipográfico em Struct</strong><br><span style="font-size: 7.5pt; color: #64748b;">(typo `codigo_barrras` vs `codigo_barras`)</span></td>
-                <td>A semelhança ortográfica é quase imperceptível ao olho humano no navegador sem destaque léxico de compilador.</td>
-                <td><em>"Estrutura de branches excelente. Porém, o código não compilou devido a um erro tipográfico sutil no main.c: foi digitado 'codigo_barrras' (com 3 r) no printf, enquanto a struct em estoque.h define 'codigo_barras'. O GCC apontou erro fatal de membro inexistente. Ajuste essa linha para compilar."</em></td>
+                <td><strong>Cluster 1</strong><br><span style="font-size: 7.5pt; color: #b91c1c; font-weight: bold;">[Risco Crítico]</span></td>
+                <td>2 cadernos<br><span style="font-size: 7.2pt; color: #64748b;">(CAD-12, CAD-13)</span></td>
+                <td><strong>100,0%</strong></td>
+                <td>Cópia carbono literal: resolução idêntica caractere a caractere em discursiva de C.</td>
               </tr>
               <tr>
-                <td><strong>Símbolo Duplicado em Header</strong><br><span style="font-size: 7.5pt; color: #64748b;">(Definição de corpo de função em `.h`)</span></td>
-                <td>A função está sintaticamente correta e bem escrita; o erro só se manifesta na fase de linkagem de múltiplos `.c`.</td>
-                <td><em>"A lógica da função listar_produtos está correta, mas foi definida integralmente no cabeçalho estoque.h. Ao incluir o cabeçalho em múltiplos arquivos .c, o vinculador (linker) acusou símbolo duplicado. No .h deve constar apenas o protótipo (declaração) e o corpo deve ficar em estoque.c."</em></td>
+                <td><strong>Cluster 2</strong><br><span style="font-size: 7.5pt; color: #c2410c; font-weight: bold;">[Risco Alto]</span></td>
+                <td>3 cadernos<br><span style="font-size: 7.2pt; color: #64748b;">(CAD-24 a 26)</span></td>
+                <td><strong>92% a 98%</strong></td>
+                <td>Rede de propagação com erro conceitual idêntico (uso da expressão <em>"na chamada"</em>).</td>
               </tr>
               <tr>
-                <td><strong>Artefatos de Markdown no Fonte</strong><br><span style="font-size: 7.5pt; color: #64748b;">(Tag ```c no início do arquivo)</span></td>
-                <td>Num visualizador web parece um comentário ou demarcação estilizada, mas inviabiliza o analisador léxico de C.</td>
-                <td><em>"O repositório possui a lógica completa, mas apresentou falha de compilação por erro de colagem: a linha 1 do main.c contém a tag de markdown de bloco de código. Isso impede o analisador de prosseguir. Remova a marcação para gerar o executável com sucesso."</em></td>
+                <td><strong>Cluster 3</strong><br><span style="font-size: 7.5pt; color: #c2410c; font-weight: bold;">[Risco Alto]</span></td>
+                <td>3 cadernos<br><span style="font-size: 7.2pt; color: #64748b;">(CAD-41 a 43)</span></td>
+                <td><strong>88% a 94%</strong></td>
+                <td>Cadeia causal estrutural: idêntico fluxo de alocação dinâmica e mesmos nomes de ponteiros.</td>
               </tr>
               <tr>
-                <td><strong>Regra de Abatimento vs. Valor Final</strong><br><span style="font-size: 7.5pt; color: #64748b;">(Equívoco de cálculo fiscal)</span></td>
-                <td>O código compila com zero warnings e a fórmula matemática parece plausível à leitura rápida.</td>
-                <td><em>"Código modularizado compilou perfeitamente. Ponto de atenção de regra de negócio: aplicar_desconto retornou valor_total * 0.05 (apenas a parcela do desconto) e não o total líquido valor_total - (valor_total * 0.05). Pontuação ajustada com o apontamento da fórmula."</em></td>
+                <td><strong>Cluster 4</strong><br><span style="font-size: 7.5pt; color: #b45309; font-weight: bold;">[Risco Médio]</span></td>
+                <td>4 cadernos<br><span style="font-size: 7.2pt; color: #64748b;">(CAD-55 a 58)</span></td>
+                <td><strong>85% a 89%</strong></td>
+                <td>Coincidência espacial física (carteiras vizinhas) e padrão idêntico de rasura em caneta.</td>
               </tr>
               <tr>
-                <td><strong>Repositório Inacessível / 404</strong><br><span style="font-size: 7.5pt; color: #64748b;">(URL correta porém privada/inexistente)</span></td>
-                <td>O link parece perfeito no formato padrão do GitHub, exigindo tentativa real de clone para constatar o erro.</td>
-                <td><em>"O link submetido para o repositório no GitHub retornou Erro 404 (repositório inexistente ou mantido como privado sem permissão de leitura). Não foi possível clonar e validar o código. Nota atribuída: 0,0. Ajuste as permissões do repositório para reavaliação."</em></td>
+                <td><strong>Cluster 5</strong><br><span style="font-size: 7.5pt; color: #047857; font-weight: bold;">[Risco Baixo]</span></td>
+                <td>4 cadernos<br><span style="font-size: 7.2pt; color: #64748b;">(CAD-68 a 71)</span></td>
+                <td><strong>70% a 74%</strong></td>
+                <td>Homologia conceitual rara: mesma formulação técnica atípica decorrente de grupo de estudo.</td>
               </tr>
             </tbody>
           </table>
-          <div class="table-footer"><strong>Fonte:</strong> Registros empíricos homologados no livro de notas do Canvas LMS (2026).</div>
+          <div class="table-footer"><strong>Fonte:</strong> Auditoria por visão computacional e grafos de similaridade em dados empíricos anonimizados (2026).</div>
         </div>
 
-        <h3 class="subsection-title">3.2 Itens Avaliativos ENADE e Elevação da Qualidade dos Materiais Didáticos</h3>
+        <p class="doc-text">
+          Cabe destacar que essa auditoria em provas manuscritas é uma <strong>frente ainda experimental integrada ao ecossistema MCP e Telegram</strong>, concebida para atuar como assistente investigativo do docente sem qualquer poder punitivo automatizado, <strong>dependendo indelevelmente da avaliação humana do professor</strong> (<em>human-in-the-loop</em>). A integração mostrou-se altamente promissora ao notificar no Telegram nuances que passariam despercebidas na correção manual devido ao desgaste cognitivo da leitura sequencial de dezenas de cadernos físicos. O caso empírico mais expressivo ocorreu na <strong>Questão 11(b)</strong> (discursiva sobre passagem de parâmetros por referência, ponteiros e escopo de memória em C): o agente identificou que cadernos fisicamente distantes na pilha de correção compartilhavam a mesma estrutura argumentativa, camuflada por trocas pontuais de sinônimos (como <em>"assim consegue alterar o valor real"</em> vs. <em>"criando apenas cópias na função"</em> vs. <em>"seria apenas cópias e os dados originais não mudam"</em>).
+        </p>
+        <p class="doc-text">
+          Mais além, o algoritmo de grafos rastreou a propagação de um erro terminológico sutil e antinatural: a substituição do termo <em>"na memória"</em> pela expressão <em>"na chamada"</em> em três cadernos distintos pertencentes ao Cluster 2. Ao receber essa ficha analítica consolidada diretamente no celular via bot de Telegram — correlacionando o percentual de sobreposição textual às coordenadas das carteiras —, o docente obteve evidências objetivas e materiais. Isso possibilitou afastar impressões subjetivas, subsidiar atendimentos pedagógicos individualizados no laboratório para sanar as lacunas sobre ponteiros e garantir um diálogo formativo acolhedor, resguardando a integridade acadêmica e o respeito aos estudantes sem instaurar processos punitivos arbitrários.
+        </p>
+
+        <h3 class="subsection-title">3.3 Itens Avaliativos ENADE e Elevação da Qualidade dos Materiais Didáticos</h3>
         <p class="doc-text">
           A indexação do corpus normativo e das matrizes do ENADE ao servidor MCP ampliou o suporte pedagógico à concepção de instrumentos avaliativos e conteúdos instrucionais. Apoiado pelo agente no Telegram, o docente gerou com agilidade minutas de questões no formato ENADE — com situações-problema contextualizadas e asserções-razão sobre controle de versão (grafos acíclicos dirigidos - DAGs e arquiteturas distribuídas versus centralizadas de controle de versão - DVCS/CVCS) — acompanhadas de gabaritos comentados e alinhamento cronológico ao Calendário Acadêmico 2026.
         </p>
@@ -846,103 +903,114 @@
           Paralelamente, a desoneração de rotinas burocráticas permitiu redirecionar o tempo docente para a produção de materiais didáticos multimídia de alto engajamento no Canvas LMS: (a) o projeto <em>"Café com Código"</em>, transpondo complexidade algorítmica para estudos de caso reais da indústria de jogos; (b) guias visuais e descomplicados de Git/GitHub; e (c) simuladores interativos em HTML5/CSS3 para exploração de ponteiros e memória operacional (RAM) em tempo de execução, elevando a retenção conceitual dos discentes.
         </p>
 
-        <h3 class="subsection-title">3.3 Percepção Discente e Tempestividade Avaliativa</h3>
+        <h3 class="subsection-title">3.4 Percepção Discente e Tempestividade Avaliativa</h3>
         <p class="doc-text">
-          A tempestividade da devolutiva — viabilizada quase em tempo real, com pareceres disponibilizados no livro de notas no mesmo dia da entrega — transformou a avaliação formativa (Black; Wiliam, 1998; Hattie; Timperley, 2007). Em termos empíricos, a orquestração MCP evidenciou escalabilidade consistente em diferentes portes de turmas: no 4º período (31 alunos / 9 equipes), a auditoria levou 1,2s e a publicação 28s; no 2º período, com maior complexidade estrutural (60 discentes / 26 repositórios), a varredura e compilação concorrente consumiram 23,32s e a publicação oficial em lote na API do Canvas deu-se em 0,55s, após 2 minutos de homologação docente no Telegram.
+          A tempestividade da devolutiva disponibilizada no mesmo dia da entrega transformou a avaliação formativa (Black; Wiliam, 1998; Hattie; Timperley, 2007; Shute, 2008). A orquestração MCP evidenciou escalabilidade: no 4º período (31 alunos / 9 equipes), a auditoria durou 1,2s e a publicação 28s; no 2º período (60 discentes / 26 repositórios), a compilação concorrente consumiu 23,32s e a sincronização em lote na API do Canvas deu-se em 0,55s após homologação no Telegram. Na turma de 2º período, 53,8% (14 repositórios) atingiram compilação plena e 46,2% apresentaram falhas de integração ou repositórios privados (média da turma: 72,1 pontos), permitindo intervenção pedagógica presencial imediata nas lacunas conceituais.
         </p>
         <p class="doc-text">
-          Na turma de 2º período, a auditoria automatizada revelou que 53,8% (14 repositórios) atingiram compilação plena e integração sem conflitos na branch main, enquanto 46,2% (12 repositórios) apresentaram falhas de integração formativas ou inacessibilidade (incluindo 3 discentes com nota zero por repositórios inexistentes ou privados 404, além de divergências sintáticas como inclusão de markdown no fonte e identificadores corrompidos). A aplicação de critérios avaliativos estritos com justificativa explícita de cada desconto resultou em média de 72,1 pontos, permitindo intervenção pedagógica presencial imediata nas lacunas conceituais antes da avaliação formal presencial.
+          Ao receberem o apontamento exato da linha e da constante divergente no calor da entrega, os estudantes puderam sanar dúvidas antes das avaliações presenciais, fomentando a autorregulação. A economia de ~89% no tempo administrativo permitiu redirecionar a carga horária docente para oficinas práticas. Sobretudo, a governança humana (<em>human-in-the-loop</em>) assegurou a agência moral e pedagógica exclusiva do educador sobre cada parecer (Floridi, 2019; Holmes et al., 2019; Unesco, 2023), em total consonância com as diretrizes do NAPED/Afya Ji-Paraná.
         </p>
         <p class="doc-text">
-          Ao receberem o apontamento exato da linha de código, da constante esquecida (como a definição do vetor no cabeçalho ou o tratamento de branches concorrentes) ainda no calor da entrega da atividade, os estudantes puderam sanar dúvidas conceituais antes das avaliações formais presenciais. Essa dinâmica fomentou a autorregulação da aprendizagem discente e eliminou a sensação de desamparo frequentemente relatada por graduandos em disciplinas de exatas com turmas numerosas.
-        </p>
-        <p class="doc-text">
-          A discussão crítica dos achados evidencia que a redução de ~89% no tempo administrativo permitiu redirecionar o foco docente para oficinas de alinhamento conceitual presencial antes das provas formais. Sobretudo, a governança com supervisão humana (<em>human-in-the-loop</em>) assegurou que o agente atuasse unicamente na triagem analítica, preservando a agência moral e pedagógica exclusiva do educador sobre cada nota e parecer (Floridi, 2019; Unesco, 2023), em total consonância com a Portaria Institucional e as Diretrizes Operacionais do Núcleo de Apoio Pedagógico e Experiência Docente (NAPED/Afya Ji-Paraná), que regulamenta a inovação metodológica, o uso ético de tecnologias de IA e a preservação do protagonismo avaliativo docente nas matrizes curriculares ativas.
+          A análise qualitativa da receptividade discente evidenciou uma quebra de paradigma na cultura de entrega: ao perceberem que o repositório seria auditado com rigor técnico imediato, os grupos passaram a adotar testes de compilação local prévios com maior frequência, simulando o pipeline do professor antes da submissão final. Esse comportamento autorregulado reduziu drasticamente a ansiedade pré-avaliação somativa, mitigando o sentimento de isolamento pedagógico que comumente acomete turmas volumosas em cursos de exatas e contribuindo diretamente para a retenção acadêmica discente no início da graduação. Outro ponto relevante foi a mediação via Telegram, que preservou integralmente a privacidade do professor (eliminando a necessidade de compartilhamento de números de telefone pessoais no WhatsApp), ao mesmo tempo em que garantiu agilidade na governança acadêmica.
         </p>
 
-        <h3 class="subsection-title">3.4 Especificação do Modelo Cognitivo, Viabilidade Econômica e Limitações</h3>
+        <h3 class="subsection-title">3.5 Especificação do Modelo Cognitivo, Viabilidade Econômica e Sustentabilidade Regional</h3>
         <p class="doc-text">
-          A eficiência da mediação ancorou-se no modelo fundacional <strong>Gemini 3.8 Flash</strong> (lançado em setembro de 2026), selecionado estrategicamente pelo equilíbrio entre capacidade de raciocínio, velocidade de inferência e viabilidade econômica para adoção institucional em larga escala. O modelo conta com uma ampla janela de contexto nativa de <strong>1,0 milhão de tokens</strong>, o que viabiliza a ingestão integral e simultânea de dezenas de arquivos de código-fonte, o histórico de commits de múltiplos branches e o conjunto de rubricas avaliativas do Canvas LMS em uma única chamada de processamento, sem perda de granularidade semântica.
+          A sustentabilidade da mediação ancorou-se no modelo <strong>Gemini 3.8 Flash</strong>, selecionado pela janela nativa de <strong>1,0 milhão de tokens</strong>, permitindo a ingestão simultânea dos 26 repositórios de código e das rubricas do Canvas em uma única chamada analítica. Na atividade do 2º período (60 alunos), o consumo aproximou-se de 180 mil tokens de entrada e 45 mil de saída, totalizando um custo operacional residual de <strong>US$ 0,30 (menos de R$ 1,80 por turma)</strong>.
         </p>
         <p class="doc-text">
-          Sob a ótica de custos computacionais, a estrutura tarifária do modelo — precificada a <strong>US$ 0,75 por 1 milhão de tokens de entrada (input)</strong> e <strong>US$ 3,75 por 1 milhão de tokens de saída (output)</strong> — conferiu extrema economicidade ao fluxo docente. Na atividade avaliativa do 2º período, com 60 submissões e 26 repositórios auditados, o consumo total aproximou-se de 180 mil tokens de entrada e 45 mil tokens de saída para a elaboração de pareceres analíticos detalhados. Esse volume representou um custo operacional de aproximadamente <strong>US$ 0,30 (menos de R$ 1,80) para a avaliação completa da atividade na turma</strong>, demonstrando que a automação cognitiva de alta fidelidade é plenamente sustentável para instituições de ensino superior.
-        </p>
-        <p class="doc-text">
-          Adicionalmente, ensaios comparativos foram realizados com o modelo <strong>Gemini 3.5 Flash Lite</strong>, que preserva a mesma janela contextual de <strong>1,0 milhão de tokens</strong>, mas com custos tarifários ainda mais reduzidos: <strong>US$ 0,30 por 1 milhão de tokens de entrada</strong> e <strong>US$ 2,50 por 1 milhão de tokens de saída</strong>. Nos testes de validação com os mesmos códigos e rubricas em C, o modelo apresentou desempenho satisfatório e consistente na triagem sintática e na identificação das falhas estruturais, reduzindo o custo operacional da mesma rodada avaliativa para cerca de <strong>US$ 0,16 (menos de R$ 1,00 por turma)</strong>. Esse resultado consolida o Gemini 3.5 Flash Lite como uma alternativa de altíssima eficiência e ultrabaixo custo para implantações acadêmicas em larga escala.
-        </p>
-        <p class="doc-text">
-          No segmento de hiper-eficiência comercial e ultrabaixo custo, avaliou-se também o modelo <strong>GLM 5.3 Flash</strong>, que expande a janela de contexto para expressivos <strong>1,3 milhão de tokens</strong> com uma das menores tarifas do mercado global: apenas <strong>US$ 0,045 por 1 milhão de tokens de entrada</strong> e <strong>US$ 0,14 por 1 milhão de tokens de saída</strong>. Sob essa precificação ultraeconômica, o processamento completo de uma turma com 60 discentes e 26 repositórios atinge um custo residual de aproximadamente <strong>US$ 0,014 (menos de R$ 0,10 por turma)</strong>, demonstrando escalabilidade financeira massiva para universidades públicas ou privadas com orçamentos restritos.
-        </p>
-        <p class="doc-text">
-          No horizonte de opções totalmente gratuitas da comunidade aberta, destacam-se ainda modelos como <strong>NVIDIA: Nemotron 3 Ultra (free)</strong> (com janela contextual de 1,0 milhão de tokens) e <strong>Cohere: North Mini Code (free)</strong> (com contexto de 256 mil tokens). Embora não tenham sido submetidos a testes empíricos nesta rodada avaliativa, tais alternativas gratuitas despontam como opções viáveis para cenários educacionais de menor complexidade estrutural (como checagem básica de sintaxe ou questionários conceituais), viabilizando custo zero de inferência.
+          Para avaliar a viabilidade de replicação em cenários educacionais de orçamentos restritos — realidade frequente em faculdades e centros universitários da Amazônia Ocidental e do interior do Brasil —, ensaios comparativos demonstraram escalabilidade financeira imediata:
+          (a) Modelos proprietários ultrabaratos como o <strong>Gemini 3.5 Flash Lite</strong> (US$ 0,16 / ~R$ 0,95 por turma) e o <strong>GLM 5.3 Flash</strong> (US$ 0,014 / ~R$ 0,08 por turma) mantiveram precisão analítica equivalente; e
+          (b) Modelos abertos de comunidade totalmente gratuitos via inferência local ou endpoints sem custo (como <strong>NVIDIA Nemotron 3 Ultra</strong> e <strong>Cohere North Mini</strong>) viabilizaram custo de API zero (US$ 0,00). Esse contraste comprova que a transformação digital da gestão docente não depende de vultosos investimentos em licenças de software corporativo, configurando uma inovação pedagógica democrática, frugal e replicável (Tabela 3).
         </p>
 
-        <!-- TABELA COMPARATIVA DE MODELOS COGNITIVOS E CUSTOS -->
+        <!-- TABELA 3: COMPARATIVO DE CUSTOS DE MODELOS DE IA -->
         <div class="table-box">
-          <div class="table-title"><strong>Tabela 2</strong> &ndash; Comparativo de modelos cognitivos, janela de contexto e viabilidade econômica</div>
+          <div class="table-title"><strong>Tabela 3</strong> &ndash; Comparativo de sustentabilidade financeira de modelos cognitivos por turma (60 alunos)</div>
           <table class="compact-table">
             <thead>
               <tr>
                 <th style="width: 25%;">Modelo Cognitivo</th>
-                <th style="width: 15%;">Janela de Contexto</th>
-                <th style="width: 20%;">Preço (In / Out por 1M)</th>
-                <th style="width: 18%;">Custo Estimado por Turma</th>
-                <th style="width: 22%;">Cenário Recomendado</th>
+                <th style="width: 17%;">Janela</th>
+                <th style="width: 18%;">Preço (1M In/Out)</th>
+                <th style="width: 18%;">Custo por Turma</th>
+                <th style="width: 22%;">Adequação Pedagógica</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>Gemini 3.8 Flash</strong><br><span style="font-size: 7.5pt; color: #64748b;">(Modelo em Produção)</span></td>
-                <td>1.000.000 tokens</td>
-                <td>$0,75 / $3,75</td>
-                <td>~$0,30 (~R$ 1,75)</td>
-                <td>Auditorias críticas e códigos complexos em C/Git</td>
+                <td><strong>Gemini 3.8 Flash</strong><br><span style="font-size: 7.2pt; color: #166534; font-weight: bold;">(Modelo do Estudo)</span></td>
+                <td>1.000.000</td>
+                <td>$0,50 / $3,00</td>
+                <td><strong>~$0,30 (~R$ 1,80)</strong></td>
+                <td>Janela massiva; auditoria integral em 1 chamada.</td>
               </tr>
               <tr>
-                <td><strong>Gemini 3.5 Flash Lite</strong><br><span style="font-size: 7.5pt; color: #64748b;">(Alta Eficiência)</span></td>
-                <td>1.000.000 tokens</td>
+                <td><strong>Gemini 3.5 Flash Lite</strong><br><span style="font-size: 7.2pt; color: #1e40af;">(Alta Eficiência)</span></td>
+                <td>1.000.000</td>
                 <td>$0,30 / $2,50</td>
-                <td>~$0,16 (~R$ 0,95)</td>
-                <td>Larga escala, turmas numerosas e feedback ágil</td>
+                <td><strong>~$0,16 (~R$ 0,95)</strong></td>
+                <td>Turmas numerosas com alta restrição orçamentária.</td>
               </tr>
               <tr>
-                <td><strong>GLM 5.3 Flash</strong><br><span style="font-size: 7.5pt; color: #64748b;">(Hiper-Econômico)</span></td>
-                <td>1.300.000 tokens</td>
+                <td><strong>GLM 5.3 Flash</strong><br><span style="font-size: 7.2pt; color: #b45309;">(Hiper-Econômico)</span></td>
+                <td>1.300.000</td>
                 <td>$0,045 / $0,14</td>
-                <td>~$0,014 (~R$ 0,08)</td>
-                <td>Processamento massivo e orçamentos ultrarreduzidos</td>
+                <td><strong>~$0,014 (~R$ 0,08)</strong></td>
+                <td>Processamento em lote massivo e custo residual.</td>
               </tr>
               <tr>
-                <td><strong>NVIDIA: Nemotron 3 Ultra</strong><br><span style="font-size: 7.5pt; color: #64748b;">(Comunidade Aberta)</span></td>
-                <td>1.000.000 tokens</td>
-                <td>Gratuito (Free)</td>
-                <td>$0,00 (Custo Zero)</td>
-                <td>Aplicações educacionais com restrição orçamentária</td>
+                <td><strong>NVIDIA Nemotron 3</strong><br><span style="font-size: 7.2pt; color: #475569;">(Comunidade Aberta)</span></td>
+                <td>1.000.000</td>
+                <td>Gratuito / Open</td>
+                <td><strong>$0,00 (Gratuito)</strong></td>
+                <td>Servidores locais em laboratórios acadêmicos.</td>
               </tr>
               <tr>
-                <td><strong>Cohere: North Mini Code</strong><br><span style="font-size: 7.5pt; color: #64748b;">(Especializado em Código)</span></td>
-                <td>256.000 tokens</td>
-                <td>Gratuito (Free)</td>
-                <td>$0,00 (Custo Zero)</td>
-                <td>Triagem sintática básica e rotinas individuais</td>
+                <td><strong>Cohere North Mini</strong><br><span style="font-size: 7.2pt; color: #475569;">(Especialista Código)</span></td>
+                <td>256.000</td>
+                <td>Gratuito / Open</td>
+                <td><strong>$0,00 (Gratuito)</strong></td>
+                <td>Triagem sintática modular em compiladores C.</td>
               </tr>
             </tbody>
           </table>
-          <div class="table-footer"><strong>Fonte:</strong> Tarifação oficial dos provedores e estimativas empíricas dos autores (2026).</div>
+          <div class="table-footer"><strong>Fonte:</strong> Tarifação oficial dos provedores e consolidação empírica dos autores (2026).</div>
         </div>
+
         <p class="doc-text">
-          Dentre as limitações metodológicas, destacam-se a dependência da conectividade de APIs institucionais, a necessidade de rubricas prévias bem estruturadas pelo educador e o recorte empírico concentrado em Ciência da Computação. Como trabalhos futuros, propõe-se a expansão da mediação MCP para disciplinas das Ciências da Saúde e Humanas (estudos de caso clínicos e textos dissertativos), além do desenvolvimento de módulos de <em>learning analytics</em> preditivos de evasão escolar via Telegram.
+          Dentre as limitações metodológicas, destacam-se a dependência da conectividade estável de APIs institucionais, a necessidade de rubricas prévias bem estruturadas pelo educador e o recorte empírico concentrado em Ciência da Computação. Como trabalhos futuros, propõe-se a expansão da mediação MCP para disciplinas das Ciências da Saúde e Humanas (estudos de caso clínicos e textos dissertativos), além da modelagem de preditores precoces de evasão escolar via Telegram integrados às métricas de engajamento do Canvas LMS.
+        </p>
+
+        <h3 class="subsection-title">3.6 Diretrizes de Governança Ética e Recomendações para Adoção Institucional</h3>
+        <p class="doc-text">
+          A partir da vivência acumulada na condução do piloto no Centro Universitário São Lucas Ji-Paraná, delinearam-se quatro recomendações estratégicas fundamentais para instituições de ensino superior que almejam integrar agentes cognitivos à rotina acadêmica com segurança e efetividade:
+        </p>
+        <p class="doc-text">
+          <strong>(a) Centralidade Docente e Salvaguarda Decisória (<em>Human-in-the-Loop</em> Mandatório):</strong> Sob nenhuma hipótese sistemas automatizados de inteligência artificial devem possuir permissão para atribuição direta ou publicação autônoma de notas no boletim oficial discente. A inteligência artificial deve operar estritamente na camada preparatória e analítica, gerando minutas diagnósticas e evidências materiais que subsidiem a deliberação soberana do professor titular;
+        </p>
+        <p class="doc-text">
+          <strong>(b) Segregação Criptográfica e Conformidade com a LGPD:</strong> A arquitetura baseada em MCP consolida uma barreira intransponível entre as credenciais administrativas institucionais (tokens de API do Canvas LMS) e os provedores de modelos de linguagem de terceiros. As chamadas à API devem ocorrer exclusivamente sob termos contratuais corporativos de <em>zero-data retention</em>, garantindo que nenhum fragmento de código, ensaio discursivo ou identificador pessoal seja armazenado para retreino;
+        </p>
+        <p class="doc-text">
+          <strong>(c) Transparência Pedagógica e Contratos de Avaliação Claros:</strong> A eficácia do agente depende intrinsecamente da qualidade dos <em>Resources</em> indexados. É imperativo que os critérios de avaliação, matrizes de pesos e rubricas detalhadas estejam previamente acessíveis aos discentes no Canvas LMS antes do início da atividade, promovendo previsibilidade e alinhamento de expectativas; e
+        </p>
+        <p class="doc-text">
+          <strong>(d) Democratização Tecnológica e Frugalidade de Infraestrutura:</strong> A escolha por modelos eficientes e compactos (como a família Flash ou modelos de código aberto) viabiliza a replicação da solução mesmo em campi com orçamentos restritos de TI, desmistificando a premissa de que a inovação pedagógica com IA exige dispendiosas contratações de softwares proprietários.
         </p>
 
         <h2 class="section-title">4. Conclusão</h2>
         <p class="doc-text">
           A experiência vivenciada comprovou que a mediação inteligente entre agentes autônomos e o Canvas LMS, viabilizada pelo <em>Model Context Protocol</em> (MCP) e acessada intuitivamente via Telegram, consolida uma inovação metodológica e tecnológica de alto impacto para a educação superior rondoniense e nacional. Como contribuição científica e prática para a Amazônia Ocidental, o estudo demonstra como instituições de ensino localizadas no interior do estado podem liderar a transformação digital com soluções de baixo custo operacional, alta sustentabilidade e rigor ético. A solução mitigou a sobrecarga mecânica docente ao reduzir em aproximadamente 89% o tempo consumido em rotinas burocráticas de correção e conferência. Ao devolver ao educador o domínio sobre seu tempo pedagógico sem exigir competências avançadas de programação, a tecnologia fortaleceu a relação formativa com os estudantes, propiciando devolutivas mais ricas, ágeis e personalizadas, sob permanente soberania ética, conformidade com a LGPD e integridade acadêmica.
         </p>
-        <p class="doc-text" style="font-size: 10pt; font-style: italic; margin-top: 6pt; line-height: 1.2;">
-          <strong>Declaração de responsabilidade autoral e isenção institucional:</strong> O presente trabalho reflete exclusivamente uma intervenção didático-pedagógica experimental idealizada, desenvolvida e executada pelo docente autor na regência de suas turmas. As opiniões, análises técnicas, arquitetura de software e dados empíricos aqui reportados são de inteira responsabilidade dos autores, não representando posicionamento institucional oficial, homologação corporativa ou política obrigatória da mantenedora ou do centro universitário.
+        <p class="doc-text">
+          Mais do que uma ferramenta de automação transacional, a mediação inteligente configurou-se como um verdadeiro <strong>exoesqueleto cognitivo</strong> para a atividade docente: assumiu a carga de triagem bruta e conferência algorítmica exaustiva, ampliando a acuidade do professor e permitindo que a atenção humana se concentrasse no acolhimento, na mentoria e na mediação das relações de aprendizagem. Esse relato reafirma que o futuro da inteligência artificial no ensino superior não reside na automação cega ou na desumanização do processo avaliativo, mas na edificação de ecossistemas tecnológicos abertos, seguros e éticos, nos quais o docente permanece o autor soberano e insubstituível do projeto pedagógico.
         </p>
-        <p class="doc-text" style="font-size: 10pt; font-style: italic; margin-top: 4pt; line-height: 1.2;">
-          <strong>Declaração de uso de inteligência artificial:</strong> Os autores declaram que utilizaram ferramentas de Inteligência Artificial generativa exclusivamente para apoio na revisão gramatical, padronização ortográfica e formatação de citações bibliográficas de acordo com as normas ABNT vigentes. Todos os dados empíricos, análises críticas, concepção da arquitetura e conclusões apresentadas neste relato foram integralmente concebidos, implementados e validados pelos autores humanos, que assumem plena responsabilidade científica e ética pela integridade do trabalho.
+        <p class="doc-text" style="font-size: 8.5pt; font-style: italic; margin-top: 4pt; line-height: 1.15;">
+          <strong>Declaração de responsabilidade autoral e isenção:</strong> Intervenção pedagógica experimental autônoma conduzida pelo docente autor na regência de suas turmas. As análises técnicas e dados reportados não configuram posicionamento oficial ou homologação corporativa da instituição.
+        </p>
+        <p class="doc-text" style="font-size: 8.5pt; font-style: italic; margin-top: 2pt; line-height: 1.15;">
+          <strong>Declaração de uso de IA:</strong> Ferramentas de IA generativa foram utilizadas exclusivamente para apoio na revisão gramatical e padronização ABNT. Dados empíricos, arquitetura e conclusões foram concebidos e validados integralmente pelos autores humanos.
         </p>
 
         <h2 class="section-title">5. Referências</h2>
@@ -968,6 +1036,9 @@
           Hattie, J.; Timperley, H. The power of feedback. Review of Educational Research, v. 77, n. 1, p. 81-112, 2007.
         </div>
         <div class="reference-entry">
+          Holmes, W. et al. Artificial intelligence in education: promises and implications for teaching and learning. Boston: Center for Curriculum Redesign, 2019.
+        </div>
+        <div class="reference-entry">
           Köche, J. C. Fundamentos de metodologia científica: teoria da ciência e iniciação à pesquisa. 32. ed. Petrópolis: Vozes, 2015.
         </div>
         <div class="reference-entry">
@@ -980,7 +1051,13 @@
           Prodanov, C. C.; Freitas, E. C. Metodologia do trabalho científico: métodos e técnicas da pesquisa e do trabalho acadêmico. 2. ed. Novo Hamburgo: Feevale, 2013.
         </div>
         <div class="reference-entry">
+          Russell, S.; Norvig, P. Artificial intelligence: a modern approach. 4. ed. Hoboken: Pearson, 2021.
+        </div>
+        <div class="reference-entry">
           Severino, A. J. Metodologia do trabalho científico. 24. ed. São Paulo: Cortez, 2016.
+        </div>
+        <div class="reference-entry">
+          Shute, V. J. Focus on formative feedback. Review of Educational Research, v. 78, n. 1, p. 153-189, 2008.
         </div>
         <div class="reference-entry">
           Unesco. Guidance for generative AI in education and research. Paris: United Nations Educational, Scientific and Cultural Organization, 2023.

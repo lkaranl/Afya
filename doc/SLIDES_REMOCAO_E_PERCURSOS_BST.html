@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slides Interativos: Remoção em BST & Percursos • Prof. Karan</title>
+  <style>
+:root {
+  --bg: #070b14;
+  --card-bg: #0f172a;
+  --card-border: #1e293b;
+  --primary: #10b981;
+  --accent: #38bdf8;
+  --warning: #fbbf24;
+  --danger: #f43f5e;
+  --purple: #c084fc;
+  --text: #f8fafc;
+  --text-muted: #94a3b8;
+  --font-code: ui-monospace, 'SF Mono', Menlo, Monaco, 'Cascadia Code', Consolas, monospace;
+  --font-ui: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  width: 100%;
+}
+
+/* TOP BAR SLIDE DECK */
+header {
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom: 1px solid var(--card-border);
+  padding: 10px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  z-index: 10;
+  position: relative;
+  width: 100%;
+}
+
+.brand-title {
+  font-weight: 700;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: 0.3px;
+}
+
+.slide-progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #10b981, #38bdf8, #818cf8);
+  width: 7%;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* STAGE */
+.stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 2vh, 28px);
+  position: relative;
+  width: 100%;
+}
+
+.slide {
+  display: none;
+  width: 100%;
+  max-width: 1440px;
+  height: 96%;
+  max-height: 860px;
+  background: radial-gradient(circle at 50% 0%, #172554 0%, #0b1120 75%);
+  border: 1px solid #1e293b;
+  border-radius: 24px;
+  padding: clamp(20px, 3.5vh, 42px) clamp(24px, 3.5vw, 52px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+  animation: fadeIn 0.25s ease;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.slide.active {
+  display: flex;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.99); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* TYPOGRAPHY */
+.badge {
+  display: inline-block;
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  color: #7dd3fc;
+  padding: 5px 16px;
+  border-radius: 20px;
+  font-size: clamp(12px, 1.05vw, 14px);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: clamp(6px, 1.2vh, 12px);
+  width: fit-content;
+}
+
+.badge-danger { background: rgba(244, 63, 94, 0.18); border-color: rgba(244, 63, 94, 0.45); color: #fda4af; }
+.badge-warning { background: rgba(251, 191, 36, 0.18); border-color: rgba(251, 191, 36, 0.45); color: #fde68a; }
+.badge-success { background: rgba(16, 185, 129, 0.18); border-color: rgba(16, 185, 129, 0.45); color: #a7f3d0; }
+.badge-purple { background: rgba(192, 132, 252, 0.18); border-color: rgba(192, 132, 252, 0.45); color: #e9d5ff; }
+
+h1.slide-title {
+  font-size: clamp(28px, 2.9vw, 44px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: clamp(6px, 1vh, 12px);
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+h2.slide-subtitle {
+  font-size: clamp(15px, 1.4vw, 20px);
+  color: #94a3b8;
+  font-weight: 400;
+  margin-bottom: clamp(14px, 2vh, 22px);
+  line-height: 1.4;
+}
+
+/* GRID & CARDS */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(14px, 2vw, 28px);
+  align-items: stretch;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(12px, 1.6vw, 20px);
+}
+
+.card {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: clamp(14px, 2vh, 22px) clamp(16px, 1.8vw, 24px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card.highlight-green { border-left: 4px solid var(--primary); }
+.card.highlight-blue { border-left: 4px solid var(--accent); }
+.card.highlight-yellow { border-left: 4px solid var(--warning); }
+.card.highlight-red { border-left: 4px solid var(--danger); }
+.card.highlight-purple { border-left: 4px solid var(--purple); }
+
+.card h3 {
+  font-size: clamp(16px, 1.5vw, 21px);
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #f8fafc;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card p, .card ul, .card li {
+  font-size: clamp(13.5px, 1.2vw, 16px);
+  color: #cbd5e1;
+  line-height: 1.55;
+}
+
+.card ul { padding-left: 18px; }
+.card li { margin-bottom: 6px; }
+
+/* TREE SVG VIEWPORT */
+.tree-viewport {
+  background: #060913;
+  border: 1px solid #1e293b;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+  width: 100%;
+}
+
+svg.tree-svg {
+  width: 100%;
+  max-width: 490px;
+  height: 230px;
+  overflow: visible;
+}
+
+.node-circle {
+  fill: #1e293b;
+  stroke: #38bdf8;
+  stroke-width: 2.5px;
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+
+.node-text {
+  fill: #ffffff;
+  font-family: var(--font-code);
+  font-size: 15px;
+  font-weight: 800;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.tree-edge {
+  stroke: #334155;
+  stroke-width: 2.5px;
+  stroke-linecap: round;
+  transition: all 0.4s ease;
+}
+
+svg g {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+
+/* NODE STATES (INTERATIVIDADE) */
+.node-target .node-circle {
+  fill: #e11d48 !important;
+  stroke: #f43f5e !important;
+  filter: drop-shadow(0 0 10px #f43f5e);
+}
+.node-target text { fill: #ffffff !important; }
+
+.node-successor .node-circle {
+  fill: #059669 !important;
+  stroke: #34d399 !important;
+  filter: drop-shadow(0 0 12px #34d399);
+  animation: pulse 1s infinite alternate;
+}
+
+.node-adopted .node-circle {
+  fill: #d97706 !important;
+  stroke: #fbbf24 !important;
+  filter: drop-shadow(0 0 10px #fbbf24);
+}
+
+.node-dim {
+  opacity: 0.25;
+  transition: opacity 0.4s ease;
+}
+
+.node-active-visit .node-circle {
+  fill: #f59e0b !important;
+  stroke: #fef08a !important;
+  filter: drop-shadow(0 0 14px #fbbf24);
+  transform: scale(1.1);
+  transform-origin: center;
+}
+
+@keyframes pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+
+/* CODE BOXES */
+.code-box {
+  background: #050811;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: clamp(12px, 1.8vh, 18px) clamp(16px, 1.8vw, 22px);
+  font-family: var(--font-code);
+  font-size: clamp(12.5px, 1.1vw, 15px);
+  line-height: 1.6;
+  color: #f8fafc;
+  overflow-x: auto;
+  white-space: pre;
+  tab-size: 4;
+}
+
+.c-kw { color: #f43f5e; font-weight: 700; }
+.c-type { color: #38bdf8; font-weight: 700; }
+.c-fn { color: #4ade80; font-weight: 700; }
+.c-num { color: #f472b6; }
+.c-str { color: #fb923c; }
+.c-cm { color: #94a3b8; font-style: italic; }
+.c-lib { color: #fbbf24; font-weight: 700; }
+
+/* INTERACTIVE TOOLBAR & BUTTONS */
+.interactive-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-action {
+  background: #1e293b;
+  border: 1px solid #38bdf8;
+  color: #e0f2fe;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-action:hover {
+  background: #0284c7;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);
+}
+
+.btn-action.btn-danger {
+  border-color: #f43f5e;
+  color: #ffe4e6;
+}
+.btn-action.btn-danger:hover {
+  background: #e11d48;
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.4);
+}
+
+.btn-action.btn-success {
+  border-color: #10b981;
+  color: #d1fae5;
+}
+.btn-action.btn-success:hover {
+  background: #059669;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.4);
+}
+
+.btn-action.btn-purple {
+  border-color: #c084fc;
+  color: #f3e8ff;
+}
+.btn-action.btn-purple:hover {
+  background: #9333ea;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);
+}
+
+.step-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: var(--accent);
+  color: #070b14;
+  font-weight: 800;
+  border-radius: 50%;
+  font-size: 13px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.status-box {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin-top: 14px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #cbd5e1;
+  text-align: center;
+  width: 100%;
+  display: block; /* NUNCA usar flex para parágrafos com nós de texto e tags inline */
+  box-sizing: border-box;
+  min-height: 48px;
+}
+
+.status-box code {
+  background: #060913;
+  border: 1px solid #1e293b;
+  color: #38bdf8;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-family: var(--font-code);
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-block;
+  vertical-align: baseline;
+  margin: 0 3px;
+}
+
+.status-box strong {
+  display: inline;
+  font-weight: 700;
+}
+
+
+/* TABELA DE COMPLEXIDADE */
+.complexity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.complexity-table th {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 2px solid #334155;
+  font-weight: 700;
+}
+
+.complexity-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #1e293b;
+  color: #cbd5e1;
+}
+
+.complexity-table tr:hover td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.badge-complexity-good {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid #059669;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: var(--font-code);
+  font-weight: 700;
+}
+
+.badge-complexity-bad {
+  background: rgba(244, 63, 94, 0.2);
+  color: #f87171;
+  border: 1px solid #dc2626;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: var(--font-code);
+  font-weight: 700;
+}
+
+/* FOOTER & CONTROLS */
+footer {
+  background: rgba(15, 23, 42, 0.95);
+  border-top: 1px solid var(--card-border);
+  padding: 10px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.shortcuts-hint {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.shortcuts-hint kbd {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--font-code);
+  font-size: 11px;
+}
+
+.nav-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.btn-nav {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #f8fafc;
+  padding: 7px 15px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-nav:hover {
+  background: #334155;
+  border-color: #475569;
+}
+
+.btn-nav.primary {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+.btn-nav.primary:hover {
+  background: linear-gradient(135deg, #0369a1, #075985);
+}
+
+.slide-counter {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 65px;
+  text-align: center;
+}
+
+</style>
+</head>
+<body>
+
+  <div class="slide-progress-bar" id="progress-bar"></div>
+
+  <header>
+    <div class="brand-title">
+      <span>🌳</span> AFYA • CIÊNCIA DA COMPUTAÇÃO • ESTRUTURA DE DADOS
+    </div>
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <a href="sandbox_bst/index.html" class="btn-action" style="padding: 4px 12px; font-size: 12px; border-color: #38bdf8; text-decoration: none;" target="_blank">
+        🧪 Abrir C-Sandbox
+      </a>
+      <div>Prof. Karan • AULA PRÁTICA INTERATIVA (4º PERÍODO)</div>
+    </div>
+  </header>
+
+  <main class="stage">
+
+    <!-- SLIDE 1: CAPA -->
+    <section class="slide active">
+      <div class="badge">MÓDULO 5 • AULA 2 DE ÁRVORES</div>
+      <h1 class="slide-title">Remoção de Nós em BST &<br>Percursos em Profundidade</h1>
+      <h2 class="slide-subtitle">
+        Compreendendo com rigor visual os 3 casos de exclusão, análise de complexidade, notação polonesa e desalocação segura de memória RAM.
+      </h2>
+      
+      <div class="grid-3">
+        <div class="card highlight-blue">
+          <h3>✂️ 3 Casos de Remoção</h3>
+          <p>Da remoção atômica de um nó folha à sucessão ao trono de um nó com 2 filhos através do sucessor imediato.</p>
+        </div>
+        <div class="card highlight-green">
+          <h3>🧭 3 Percursos Clássicos</h3>
+          <p>Simulador animado passo a passo de Pré-Ordem (Cópia), Em-Ordem (Ordenação) e Pós-Ordem (Limpeza e RPN).</p>
+        </div>
+        <div class="card highlight-yellow">
+          <h3>🧹 Memória & Complexidade</h3>
+          <p>Eliminando vazamentos com <code>destruirArvore()</code> e entendendo o trade-off entre $O(\log n)$ e $O(n)$.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: O PONTO DE PARTIDA -->
+    <section class="slide">
+      <div class="badge badge-warning">REVISÃO VS NOVO DESAFIO</div>
+      <h1 class="slide-title">O Que Sabemos vs O Que Falta?</h1>
+      <h2 class="slide-subtitle">
+        Na aula anterior construímos a árvore. Hoje aprenderemos a manipulá-la e limpá-la por completo.
+      </h2>
+
+      <div class="grid-2">
+        <div class="card highlight-green">
+          <h3>✅ O Que Você Já Domina</h3>
+          <ul>
+            <li>Criar nó na Heap com <code>malloc(sizeof(No))</code>.</li>
+            <li>Inserir chaves: menores à esquerda e maiores à direita.</li>
+            <li>Busca binária com tempo médio <code>O(log n)</code>.</li>
+            <li>Contar nós pares e percorrer a árvore.</li>
+          </ul>
+        </div>
+
+        <div class="card highlight-red">
+          <h3>⚠️ O Grande Risco da Exclusão</h3>
+          <p style="margin-bottom: 12px;">
+            E se um registro precisar ser removido da árvore? (Ex.: cancelamento de matrícula, venda de produto).
+          </p>
+          <div style="background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.3); border-radius: 10px; padding: 12px 16px; font-size: 14px; color: #fecdd3;">
+            ❌ <strong>NUNCA faça apenas <code>free(no)</code>!</strong> Se o nó tiver filhos ou subárvores abaixo dele, seus ramos inteiros ficarão perdidos no limbo da RAM, gerando lixo de memória e quebrando os ponteiros da árvore.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: A REGRA SAGRADA -->
+    <section class="slide">
+      <div class="badge">CONCEITO FUNDAMENTAL</div>
+      <h1 class="slide-title">A Regra de Ouro da BST</h1>
+      <h2 class="slide-subtitle">
+        Toda e qualquer remoção deve preservar esta regra sagrada 100% íntegra.
+      </h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="card highlight-blue" style="margin-bottom: 14px;">
+            <h3 style="color: #38bdf8;">📌 Invariante de Busca</h3>
+            <p style="font-size: 15.5px; color: #f8fafc; font-weight: 600;">
+              Para QUALQUER nó com chave X:
+            </p>
+            <ul style="margin-top: 8px;">
+              <li>Todos os nós à <strong>ESQUERDA</strong> são estritamente <strong>MENORES</strong> que X.</li>
+              <li>Todos os nós à <strong>DIREITA</strong> são estritamente <strong>MAIORES</strong> que X.</li>
+            </ul>
+          </div>
+          <div class="card highlight-yellow">
+            <p style="font-size: 14.5px; margin: 0;">
+              💡 <strong>Regra de ouro:</strong> Ao remover um nó, a árvore precisa ser "remendada" de forma que a busca binária continue funcionando para todos os elementos restantes.
+            </p>
+          </div>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <!-- Arestas -->
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="300" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="420" y2="175" class="tree-edge"/>
+
+            <!-- Nós Nível 0 -->
+            <g class="tree-node" transform="translate(250, 40)">
+              <circle r="20" class="node-circle" style="stroke: #38bdf8;"/>
+              <text class="node-text">50</text>
+            </g>
+            <!-- Nós Nível 1 -->
+            <g class="tree-node" transform="translate(140, 105)">
+              <circle r="19" class="node-circle"/>
+              <text class="node-text">30</text>
+            </g>
+            <g class="tree-node" transform="translate(360, 105)">
+              <circle r="19" class="node-circle"/>
+              <text class="node-text">70</text>
+            </g>
+            <!-- Nós Nível 2 -->
+            <g class="tree-node" transform="translate(80, 175)">
+              <circle r="18" class="node-circle"/>
+              <text class="node-text">20</text>
+            </g>
+            <g class="tree-node" transform="translate(200, 175)">
+              <circle r="18" class="node-circle"/>
+              <text class="node-text">40</text>
+            </g>
+            <g class="tree-node" transform="translate(300, 175)">
+              <circle r="18" class="node-circle"/>
+              <text class="node-text">60</text>
+            </g>
+            <g class="tree-node" transform="translate(420, 175)">
+              <circle r="18" class="node-circle"/>
+              <text class="node-text">80</text>
+            </g>
+          </svg>
+          <div style="font-size: 13px; color: #94a3b8; margin-top: 6px;">
+            Árvore Modelo Perfeita: &lt; 50 à esquerda | &gt; 50 à direita
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: CASO 1 - FOLHA -->
+    <section class="slide">
+      <div class="badge badge-success">CASO 1 • O MAIS TRANQUILO</div>
+      <h1 class="slide-title">Remover Nó Folha (Zero Filhos)</h1>
+      <h2 class="slide-subtitle">
+        Analogia: podar uma folha na ponta do galho. Nada abaixo cai ou se quebra.
+      </h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="card highlight-green" style="margin-bottom: 12px;">
+            <h3>🌱 Cenário</h3>
+            <p>O nó que queremos excluir não tem nenhum filho: <code>raiz-&gt;esq == NULL &amp;&amp; raiz-&gt;dir == NULL</code>.</p>
+          </div>
+
+          <div class="card highlight-blue" style="margin-bottom: 12px;">
+            <h3>📝 Passo a Passo Cirúrgico</h3>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span class="step-pill">1</span> Localize o nó folha via busca binária.
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span class="step-pill">2</span> Desaloque a memória com <code>free(raiz)</code>.
+            </div>
+            <div style="display: flex; align-items: center;">
+              <span class="step-pill">3</span> Retorne <code>NULL</code> para que o ponteiro do pai aponte para o vazio.
+            </div>
+          </div>
+
+          <div class="code-box"><span class="c-cm">// Caso 1 em C:</span>
+<span class="c-kw">if</span> (raiz->esq == <span class="c-num">NULL</span> &amp;&amp; raiz->dir == <span class="c-num">NULL</span>) {
+    <span class="c-lib">free</span>(raiz);
+    <span class="c-kw">return</span> <span class="c-num">NULL</span>; <span class="c-cm">// Pai recebe NULL</span>
+}</div>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge" id="edge-case1" stroke-dasharray="4"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+
+            <g transform="translate(250, 40)"><circle r="20" class="node-circle"/><text class="node-text">50</text></g>
+            <g transform="translate(140, 105)"><circle r="19" class="node-circle"/><text class="node-text">30</text></g>
+            <g transform="translate(360, 105)"><circle r="19" class="node-circle"/><text class="node-text">70</text></g>
+            
+            <!-- Nó 20 é folha (Alvo) -->
+            <g transform="translate(80, 175)" class="node-target" id="node-case1">
+              <circle r="19" class="node-circle"/>
+              <text class="node-text">20</text>
+            </g>
+            <g transform="translate(200, 175)"><circle r="18" class="node-circle"/><text class="node-text">40</text></g>
+          </svg>
+          <div class="interactive-toolbar">
+            <button class="btn-action btn-danger" onclick="animarCaso1()">✂️ Simular Exclusão do 20</button>
+            <button class="btn-action" onclick="resetarCaso1()">🔄 Restaurar</button>
+          </div>
+          <div class="status-box" id="status-case1">
+            Clique no botão acima para ver o nó folha ser liberado e o ponteiro virar NULL.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: CASO 2 - 1 FILHO -->
+    <section class="slide">
+      <div class="badge badge-warning">CASO 2 • ADOÇÃO DO NETO</div>
+      <h1 class="slide-title">Remover Nó com 1 Único Filho</h1>
+      <h2 class="slide-subtitle">
+        Analogia de Família: Quando o pai se ausenta, o avô adota o neto diretamente!
+      </h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="card highlight-yellow" style="margin-bottom: 12px;">
+            <h3>👪 Cenário</h3>
+            <p>O nó possui apenas o filho da esquerda <strong>OU</strong> apenas o da direita.</p>
+          </div>
+
+          <div class="card highlight-blue" style="margin-bottom: 12px;">
+            <h3>📝 Mecânica dos Ponteiros</h3>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span class="step-pill">1</span> Salve o endereço do neto num ponteiro temporário: <code>temp = raiz-&gt;dir</code>.
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span class="step-pill">2</span> Desaloque o pai com <code>free(raiz)</code>.
+            </div>
+            <div style="display: flex; align-items: center;">
+              <span class="step-pill">3</span> Retorne o neto para que o avô aponte diretamente para ele!
+            </div>
+          </div>
+
+          <div class="code-box"><span class="c-cm">// Caso 2 em C (só tem filho direito):</span>
+<span class="c-kw">if</span> (raiz->esq == <span class="c-num">NULL</span>) {
+    <span class="c-type">No*</span> temp = raiz->dir; <span class="c-cm">// Salva o neto</span>
+    <span class="c-lib">free</span>(raiz);            <span class="c-cm">// Libera o pai</span>
+    <span class="c-kw">return</span> temp;           <span class="c-cm">// Avô adota o neto!</span>
+}</div>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge" id="edge-case2-avo"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="190" y2="175" class="tree-edge" id="edge-case2-pai"/>
+
+            <!-- Avô -->
+            <g transform="translate(250, 40)"><circle r="20" class="node-circle"/><text class="node-text">50</text></g>
+            <g transform="translate(360, 105)"><circle r="19" class="node-circle"/><text class="node-text">70</text></g>
+            
+            <!-- Pai (Nó 30 a ser removido) -->
+            <g transform="translate(140, 105)" class="node-target" id="node-case2-pai">
+              <circle r="19" class="node-circle"/>
+              <text class="node-text">30</text>
+            </g>
+
+            <!-- Neto (Nó 40 a ser adotado) -->
+            <g transform="translate(190, 175)" id="node-case2-neto" class="node-adopted">
+              <circle r="19" class="node-circle"/>
+              <text class="node-text">40</text>
+            </g>
+          </svg>
+          <div class="interactive-toolbar">
+            <button class="btn-action btn-warning" onclick="animarCaso2()">👪 Simular Adoção do 40</button>
+            <button class="btn-action" onclick="resetarCaso2()">🔄 Restaurar</button>
+          </div>
+          <div class="status-box" id="status-case2">
+            O nó 30 tem apenas o filho 40. Clique para ver a ponte de adoção direta.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: CASO 3 - O DILEMA DOS 2 FILHOS -->
+    <section class="slide">
+      <div class="badge badge-danger">CASO 3 • O CASO NOBRE</div>
+      <h1 class="slide-title">Remover Nó com 2 Filhos</h1>
+      <h2 class="slide-subtitle">
+        O dilema: Existem 2 subárvores inteiras abaixo dele. Quem tem direito de assumir o lugar?
+      </h2>
+
+      <div class="grid-2">
+        <div class="card highlight-red">
+          <h3>👑 A Sucessão ao Trono Real</h3>
+          <p style="margin-bottom: 12px;">
+            Imagine que o rei faleceu. Quem pode sentar no trono sem violar a lei do reino?
+          </p>
+          <p style="font-size: 15px; color: #f8fafc; font-weight: 700; margin-bottom: 10px;">
+            👉 O SUCESSOR IMEDIATO: O menor elemento que ainda é maior que ele!
+          </p>
+          <div style="background: rgba(56, 189, 248, 0.12); border-left: 3px solid #38bdf8; padding: 12px 16px; border-radius: 8px;">
+            🔍 <strong>A Bússola do Sucessor:</strong><br>
+            1. Dê <strong>1 passo para a DIREITA</strong> (vai para os maiores);<br>
+            2. Vá <strong>TUDO para a ESQUERDA</strong> até o final da linha!
+          </div>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge" style="stroke: #38bdf8; stroke-width: 3.5px;"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="300" y2="175" class="tree-edge" style="stroke: #34d399; stroke-width: 3.5px;"/>
+            <line x1="360" y1="105" x2="420" y2="175" class="tree-edge"/>
+
+            <!-- Raiz Alvo -->
+            <g transform="translate(250, 40)" class="node-target">
+              <circle r="21" class="node-circle"/>
+              <text class="node-text">50</text>
+            </g>
+            <g transform="translate(140, 105)"><circle r="19" class="node-circle"/><text class="node-text">30</text></g>
+            <g transform="translate(360, 105)"><circle r="19" class="node-circle"/><text class="node-text">70</text></g>
+            
+            <g transform="translate(80, 175)"><circle r="18" class="node-circle"/><text class="node-text">20</text></g>
+            <g transform="translate(200, 175)"><circle r="18" class="node-circle"/><text class="node-text">40</text></g>
+
+            <!-- Sucessor 60 -->
+            <g transform="translate(300, 175)" class="node-successor">
+              <circle r="20" class="node-circle"/>
+              <text class="node-text">60</text>
+            </g>
+            <g transform="translate(420, 175)"><circle r="18" class="node-circle"/><text class="node-text">80</text></g>
+          </svg>
+          <div class="status-box" style="color: #a7f3d0;">
+            ✨ O nó 60 é o sucessor: maior que 30, 20, 40 e menor que 70, 80!
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 7: CASO 3 INTERATIVO (O TRUQUE DA TROCA) -->
+    <section class="slide">
+      <div class="badge badge-danger">SIMULADOR DO CASO 3</div>
+      <h1 class="slide-title">O Truque da Substituição</h1>
+      <h2 class="slide-subtitle">
+        Não desconectamos a árvore. Apenas copiamos o valor do sucessor e apagamos a folha lá embaixo!
+      </h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="card highlight-blue" style="margin-bottom: 12px;">
+            <h3>🪄 Os 3 Passos da Mágica</h3>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span class="step-pill">1</span> Encontre o sucessor: <code>No* temp = menorNo(raiz->dir);</code>
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <span class="step-pill">2</span> Copie o valor dele para a raiz: <code>raiz->conteudo = temp->conteudo;</code>
+            </div>
+            <div style="display: flex; align-items: center;">
+              <span class="step-pill">3</span> Mande remover o sucessor na direita (ele é folha ou caso 2!).
+            </div>
+          </div>
+
+          <div class="code-box"><span class="c-cm">// Caso 3 em C:</span>
+<span class="c-type">No*</span> temp = <span class="c-fn">menorNo</span>(raiz->dir);     <span class="c-cm">// Acha o 60</span>
+raiz->conteudo = temp->conteudo;    <span class="c-cm">// Raiz vira 60</span>
+raiz->dir = <span class="c-fn">remover</span>(raiz->dir, temp->conteudo); <span class="c-cm">// Apaga o 60 antigo</span></div>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="300" y2="175" class="tree-edge" id="edge-case3-suc"/>
+            <line x1="360" y1="105" x2="420" y2="175" class="tree-edge"/>
+
+            <!-- Raiz (Muda de 50 para 60) -->
+            <g transform="translate(250, 40)" id="node-case3-raiz">
+              <circle r="21" class="node-circle" id="circle-case3-raiz"/>
+              <text class="node-text" id="text-case3-raiz">50</text>
+            </g>
+            <g transform="translate(140, 105)"><circle r="19" class="node-circle"/><text class="node-text">30</text></g>
+            <g transform="translate(360, 105)"><circle r="19" class="node-circle"/><text class="node-text">70</text></g>
+            <g transform="translate(80, 175)"><circle r="18" class="node-circle"/><text class="node-text">20</text></g>
+            <g transform="translate(200, 175)"><circle r="18" class="node-circle"/><text class="node-text">40</text></g>
+
+            <!-- Sucessor original 60 -->
+            <g transform="translate(300, 175)" id="node-case3-suc" class="node-successor">
+              <circle r="19" class="node-circle"/>
+              <text class="node-text">60</text>
+            </g>
+            <g transform="translate(420, 175)"><circle r="18" class="node-circle"/><text class="node-text">80</text></g>
+          </svg>
+          <div class="interactive-toolbar">
+            <button class="btn-action btn-success" onclick="animarCaso3()">👑 Simular Remoção da Raiz (50)</button>
+            <button class="btn-action" onclick="resetarCaso3()">🔄 Restaurar</button>
+          </div>
+          <div class="status-box" id="status-case3">
+            Clique no botão acima para ver o 60 assumir a raiz e sua cópia na base ser liberada.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 8: CÓDIGO COMPLETO EM C -->
+    <section class="slide">
+      <div class="badge">CÓDIGO COMPLETO DISSECADO</div>
+      <h1 class="slide-title">A Função remover() em C</h1>
+      <h2 class="slide-subtitle">
+        Observe como as atribuições <code>raiz-&gt;esq = remover(...)</code> remendam a árvore no retorno.
+      </h2>
+
+      <div class="code-box"><span class="c-type">No*</span> <span class="c-fn">remover</span>(<span class="c-type">No*</span> raiz, <span class="c-type">int</span> valor) {
+    <span class="c-kw">if</span> (raiz == <span class="c-num">NULL</span>) <span class="c-kw">return</span> <span class="c-num">NULL</span>; <span class="c-cm">// Chave não encontrada ou árvore vazia</span>
+
+    <span class="c-cm">// 1. NAVEGAÇÃO RECURSIVA ATÉ LOCALIZAR O VALOR</span>
+    <span class="c-kw">if</span> (valor &lt; raiz->conteudo)
+        raiz->esq = <span class="c-fn">remover</span>(raiz->esq, valor);
+    <span class="c-kw">else</span> <span class="c-kw">if</span> (valor > raiz->conteudo)
+        raiz->dir = <span class="c-fn">remover</span>(raiz->dir, valor);
+    <span class="c-kw">else</span> {
+        <span class="c-cm">// 2. NÓ ENCONTRADO! QUAL É O CASO?</span>
+        <span class="c-kw">if</span> (raiz->esq == <span class="c-num">NULL</span>) {        <span class="c-cm">// Caso 1 (folha) ou Caso 2 (só filho dir)</span>
+            <span class="c-type">No*</span> temp = raiz->dir;
+            <span class="c-lib">free</span>(raiz);
+            <span class="c-kw">return</span> temp;
+        } <span class="c-kw">else</span> <span class="c-kw">if</span> (raiz->dir == <span class="c-num">NULL</span>) { <span class="c-cm">// Caso 2 (só filho esq)</span>
+            <span class="c-type">No*</span> temp = raiz->esq;
+            <span class="c-lib">free</span>(raiz);
+            <span class="c-kw">return</span> temp;
+        }
+
+        <span class="c-cm">// Caso 3: Tem DOIS filhos! Busca o menor da subárvore direita</span>
+        <span class="c-type">No*</span> temp = <span class="c-fn">menorNo</span>(raiz->dir);
+        raiz->conteudo = temp->conteudo;                 <span class="c-cm">// Copia valor do sucessor</span>
+        raiz->dir = <span class="c-fn">remover</span>(raiz->dir, temp->conteudo); <span class="c-cm">// Remove a duplicata folha</span>
+    }
+    <span class="c-kw">return</span> raiz;
+}</div>
+    </section>
+
+    <!-- SLIDE 9: PERCURSOS INTERATIVOS -->
+    <section class="slide">
+      <div class="badge badge-purple">SIMULADOR VISUAL DE PERCURSOS</div>
+      <h1 class="slide-title">Os 3 Caminhamentos em Profundidade</h1>
+      <h2 class="slide-subtitle">
+        Clique nos botões abaixo e veja a ordem exata em que o ponteiro visita cada nó!
+      </h2>
+
+      <div class="grid-2">
+        <div class="tree-viewport">
+          <svg class="tree-svg" id="percursos-svg" viewBox="0 0 500 240">
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="300" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="420" y2="175" class="tree-edge"/>
+
+            <g transform="translate(250, 40)" id="pnode-50"><circle r="20" class="node-circle"/><text class="node-text">50</text></g>
+            <g transform="translate(140, 105)" id="pnode-30"><circle r="19" class="node-circle"/><text class="node-text">30</text></g>
+            <g transform="translate(360, 105)" id="pnode-70"><circle r="19" class="node-circle"/><text class="node-text">70</text></g>
+            <g transform="translate(80, 175)" id="pnode-20"><circle r="18" class="node-circle"/><text class="node-text">20</text></g>
+            <g transform="translate(200, 175)" id="pnode-40"><circle r="18" class="node-circle"/><text class="node-text">40</text></g>
+            <g transform="translate(300, 175)" id="pnode-60"><circle r="18" class="node-circle"/><text class="node-text">60</text></g>
+            <g transform="translate(420, 175)" id="pnode-80"><circle r="18" class="node-circle"/><text class="node-text">80</text></g>
+          </svg>
+          <div class="status-box" id="status-percursos" style="font-family: var(--font-code); font-size: 15px; font-weight: 700; color: #facc15;">
+            Escolha um percurso ao lado para animar
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div class="card highlight-blue" style="padding: 12px 18px; cursor: pointer;" onclick="animarPercurso('pre')">
+            <h3 style="color: #38bdf8; margin-bottom: 4px;">1. Pré-Ordem (Raiz ➔ Esq ➔ Dir)</h3>
+            <p style="font-size: 13.5px; margin: 0;"><strong>Aplicação Real:</strong> Serialização e cópia idêntica da árvore para arquivo ou banco.</p>
+            <button class="btn-action" style="margin-top: 8px; width: fit-content;">▶ Animar Pré-Ordem</button>
+          </div>
+
+          <div class="card highlight-green" style="padding: 12px 18px; cursor: pointer;" onclick="animarPercurso('em')">
+            <h3 style="color: #4ade80; margin-bottom: 4px;">2. Em-Ordem (Esq ➔ Raiz ➔ Dir)</h3>
+            <p style="font-size: 13.5px; margin: 0;"><strong>Aplicação Real:</strong> Imprime todos os nós em <strong>ordem estritamente crescente</strong> $O(n)$!</p>
+            <button class="btn-action btn-success" style="margin-top: 8px; width: fit-content;">▶ Animar Em-Ordem</button>
+          </div>
+
+          <div class="card highlight-purple" style="padding: 12px 18px; cursor: pointer;" onclick="animarPercurso('pos')">
+            <h3 style="color: #c084fc; margin-bottom: 4px;">3. Pós-Ordem (Esq ➔ Dir ➔ Raiz)</h3>
+            <p style="font-size: 13.5px; margin: 0;"><strong>Aplicação Real:</strong> Limpeza segura de memória RAM com <code>free()</code> e Notação Polonesa Reversa.</p>
+            <button class="btn-action btn-purple" style="margin-top: 8px; width: fit-content;">▶ Animar Pós-Ordem</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 10: O PERIGO DO FREE E A PÓS-ORDEM -->
+    <section class="slide">
+      <div class="badge badge-danger">SEGURANÇA DA MEMÓRIA RAM</div>
+      <h1 class="slide-title">Por que a Pós-Ordem Salva a Vida?</h1>
+      <h2 class="slide-subtitle">
+        Veja por que a Pós-Ordem é a ÚNICA maneira correta de dar <code>free()</code> sem quebrar o programa.
+      </h2>
+
+      <div class="grid-2">
+        <div class="card highlight-red">
+          <h3 style="color: #f43f5e;">❌ O Erro Clássico de Quem Começa</h3>
+          <p style="margin-bottom: 8px;">
+            Muitos alunos escrevem a destruição na ordem errada:
+          </p>
+          <div class="code-box" style="margin-bottom: 8px;"><span class="c-lib">free</span>(raiz);               <span class="c-cm">// 💀 ERRO GRAVE!</span>
+<span class="c-fn">destruir</span>(raiz->esq);      <span class="c-cm">// raiz já foi apagada da RAM!</span>
+<span class="c-fn">destruir</span>(raiz->dir);      <span class="c-cm">// Segmentation Fault / Travamento!</span></div>
+          <p style="font-size: 13.5px; color: #fda4af;">
+            Se você apaga o pai primeiro, os ponteiros para os filhos viram ponteiros fantasmas (<em>Dangling Pointers</em>).
+          </p>
+        </div>
+
+        <div class="card highlight-green">
+          <h3 style="color: #4ade80;">✅ A Solução em Pós-Ordem</h3>
+          <p style="margin-bottom: 8px;">
+            Primeiro liberamos as subárvores inteiras, e por último a raiz:
+          </p>
+          <div class="code-box"><span class="c-type">void</span> <span class="c-fn">destruirArvore</span>(<span class="c-type">No*</span> raiz) {
+    <span class="c-kw">if</span> (raiz == <span class="c-num">NULL</span>) <span class="c-kw">return</span>;
+
+    <span class="c-fn">destruirArvore</span>(raiz->esq); <span class="c-cm">// 1. Limpa filho esquerdo</span>
+    <span class="c-fn">destruirArvore</span>(raiz->dir); <span class="c-cm">// 2. Limpa filho direito</span>
+    <span class="c-lib">free</span>(raiz);                 <span class="c-cm">// 3. Só agora libera a si mesmo!</span>
+}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOVO SLIDE 11: ÁRVORES DE EXPRESSÃO E COMPILADORES -->
+    <section class="slide">
+      <div class="badge badge-purple">APLICAÇÃO NA INDÚSTRIA & COMPILADORES</div>
+      <h1 class="slide-title">Árvores de Expressão: Como Compiladores Calculam?</h1>
+      <h2 class="slide-subtitle">
+        Como a relação entre Pré, Em e Pós-Ordem dá vida às calculadoras e compiladores de linguagens de programação.
+      </h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="card highlight-blue" style="margin-bottom: 12px;">
+            <h3 style="color: #38bdf8;">🧮 Expressão: <code>(3 + 5) * (10 - 2)</code></h3>
+            <ul style="margin-top: 6px; font-size: 14px;">
+              <li><strong>Em-Ordem (Infixa):</strong> <code>3 + 5 * 10 - 2</code><br>
+                <span style="color: #94a3b8; font-size: 12.5px;">Formato humano natural. Exige parênteses para não ambíguo.</span>
+              </li>
+              <li style="margin-top: 8px;"><strong>Pré-Ordem (Prefixada / Notação Polonesa):</strong> <code>* + 3 5 - 10 2</code><br>
+                <span style="color: #94a3b8; font-size: 12.5px;">Usada em linguagens funcionais como Lisp e Scheme. O operador vem antes dos operandos.</span>
+              </li>
+              <li style="margin-top: 8px;"><strong>Pós-Ordem (Posfixada / Notação Polonesa Reversa - RPN):</strong> <code>3 5 + 10 2 - *</code><br>
+                <span style="color: #4ade80; font-size: 12.5px; font-weight: 600;">Usada em calculadoras HP, Bytecode Java (JVM) e WebAssembly com Pilha! Zero parênteses!</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="card highlight-yellow">
+            <p style="font-size: 13.5px; margin: 0;">
+              💡 <strong>Insight para o Desenvolvedor:</strong> Ao caminhar em <em>Pós-Ordem</em>, empilhe números. Ao encontrar um operador, desempilhe dois e calcule. Não há parênteses e a execução é instantânea!
+            </p>
+          </div>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <!-- Arestas Expressao -->
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="300" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="420" y2="175" class="tree-edge"/>
+
+            <!-- Operador Raiz '*' -->
+            <g transform="translate(250, 40)">
+              <circle r="21" class="node-circle" style="fill: #7c3aed; stroke: #c084fc;"/>
+              <text class="node-text" style="font-size: 18px;">*</text>
+            </g>
+            <!-- Operador '+' -->
+            <g transform="translate(140, 105)">
+              <circle r="20" class="node-circle" style="fill: #2563eb; stroke: #60a5fa;"/>
+              <text class="node-text" style="font-size: 18px;">+</text>
+            </g>
+            <!-- Operador '-' -->
+            <g transform="translate(360, 105)">
+              <circle r="20" class="node-circle" style="fill: #2563eb; stroke: #60a5fa;"/>
+              <text class="node-text" style="font-size: 18px;">-</text>
+            </g>
+            <!-- Folhas (Operandos) -->
+            <g transform="translate(80, 175)"><circle r="18" class="node-circle"/><text class="node-text">3</text></g>
+            <g transform="translate(200, 175)"><circle r="18" class="node-circle"/><text class="node-text">5</text></g>
+            <g transform="translate(300, 175)"><circle r="18" class="node-circle"/><text class="node-text">10</text></g>
+            <g transform="translate(420, 175)"><circle r="18" class="node-circle"/><text class="node-text">2</text></g>
+          </svg>
+          <div style="font-size: 13px; color: #a7f3d0; margin-top: 6px;">
+            Árvore Sintática da Expressão: (3 + 5) * (10 - 2) = 64
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOVO SLIDE 12: COMPLEXIDADE ASSINTÓTICA E DEGENERAÇÃO -->
+    <section class="slide">
+      <div class="badge badge-danger">ANÁLISE DE ALGORITMOS & EFICIÊNCIA</div>
+      <h1 class="slide-title">Complexidade: Do O(log n) ao Pesadelo O(n)</h1>
+      <h2 class="slide-subtitle">
+        O que acontece quando os dados chegam já ordenados em uma Árvore Binária de Busca ingênua?
+      </h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="card highlight-red" style="margin-bottom: 12px;">
+            <h3 style="color: #f87171;">⚠️ A Árvore Degenerada ("Vara de Pescar")</h3>
+            <p style="font-size: 14px; margin-bottom: 8px;">
+              Se você inserir na BST as chaves em ordem crescente: <code>10, 20, 30, 40, 50</code>, cada nó será sempre maior que o anterior e cairá na <strong>subárvore direita</strong>.
+            </p>
+            <p style="font-size: 13.5px; color: #fecdd3;">
+              Resultado: A árvore vira uma <strong>Lista Simplesmente Encadeada</strong> disfarçada, perdendo todo o benefício da busca binária!
+            </p>
+          </div>
+
+          <table class="complexity-table">
+            <thead>
+              <tr>
+                <th>Operação</th>
+                <th>Árvore Balanceada</th>
+                <th>Pior Caso (Degenerada)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Busca</strong></td>
+                <td><span class="badge-complexity-good">O(log n)</span></td>
+                <td><span class="badge-complexity-bad">O(n)</span></td>
+              </tr>
+              <tr>
+                <td><strong>Inserção</strong></td>
+                <td><span class="badge-complexity-good">O(log n)</span></td>
+                <td><span class="badge-complexity-bad">O(n)</span></td>
+              </tr>
+              <tr>
+                <td><strong>Remoção</strong></td>
+                <td><span class="badge-complexity-good">O(log n)</span></td>
+                <td><span class="badge-complexity-bad">O(n)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <!-- Árvore Degenerada (Vara de Pescar) -->
+            <line x1="80" y1="30" x2="140" y2="70" class="tree-edge" style="stroke: #f43f5e;"/>
+            <line x1="140" y1="70" x2="200" y2="110" class="tree-edge" style="stroke: #f43f5e;"/>
+            <line x1="200" y1="110" x2="260" y2="150" class="tree-edge" style="stroke: #f43f5e;"/>
+            <line x1="260" y1="150" x2="320" y2="190" class="tree-edge" style="stroke: #f43f5e;"/>
+
+            <g transform="translate(80, 30)"><circle r="17" class="node-circle" style="stroke: #f43f5e;"/><text class="node-text">10</text></g>
+            <g transform="translate(140, 70)"><circle r="17" class="node-circle" style="stroke: #f43f5e;"/><text class="node-text">20</text></g>
+            <g transform="translate(200, 110)"><circle r="17" class="node-circle" style="stroke: #f43f5e;"/><text class="node-text">30</text></g>
+            <g transform="translate(260, 150)"><circle r="17" class="node-circle" style="stroke: #f43f5e;"/><text class="node-text">40</text></g>
+            <g transform="translate(320, 190)"><circle r="17" class="node-circle" style="stroke: #f43f5e;"/><text class="node-text">50</text></g>
+          </svg>
+          <div style="font-size: 13.5px; color: #fca5a5; margin-top: 6px; text-align: center;">
+            Degeneração: Altura h = n. Buscar o 50 exige 5 saltos em vez de 2!
+          </div>
+          <div style="font-size: 13px; color: #38bdf8; margin-top: 6px; font-weight: 600;">
+            🚀 A Solução da Engenharia: Árvores AVL com Rotações Automáticas!
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 13: DESAFIO DE FIXAÇÃO -->
+    <section class="slide">
+      <div class="badge badge-warning">DESAFIO DE FIXAÇÃO</div>
+      <h1 class="slide-title">Desafio Prático: Teste seu Raciocínio</h1>
+      <h2 class="slide-subtitle">
+        Analise a estrutura da árvore abaixo e identifique qual nó deve assumir a vaga.
+      </h2>
+
+      <div class="grid-2">
+        <div class="tree-viewport">
+          <svg class="tree-svg" viewBox="0 0 500 240">
+            <line x1="250" y1="40" x2="140" y2="105" class="tree-edge"/>
+            <line x1="250" y1="40" x2="360" y2="105" class="tree-edge"/>
+            <line x1="140" y1="105" x2="80" y2="175" class="tree-edge"/>
+            <line x1="140" y1="105" x2="200" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="300" y2="175" class="tree-edge"/>
+            <line x1="360" y1="105" x2="420" y2="175" class="tree-edge"/>
+
+            <g transform="translate(250, 40)"><circle r="20" class="node-circle"/><text class="node-text">50</text></g>
+            <g transform="translate(140, 105)"><circle r="19" class="node-circle"/><text class="node-text">30</text></g>
+            <!-- Nó 70 em destaque de pergunta -->
+            <g transform="translate(360, 105)" class="node-target">
+              <circle r="21" class="node-circle"/>
+              <text class="node-text">70</text>
+            </g>
+            <g transform="translate(80, 175)"><circle r="18" class="node-circle"/><text class="node-text">20</text></g>
+            <g transform="translate(200, 175)"><circle r="18" class="node-circle"/><text class="node-text">40</text></g>
+            <g transform="translate(300, 175)"><circle r="18" class="node-circle"/><text class="node-text">60</text></g>
+            <g transform="translate(420, 175)"><circle r="18" class="node-circle"/><text class="node-text">80</text></g>
+          </svg>
+          <div style="font-size: 13.5px; color: #cbd5e1; margin-top: 8px; text-align: center;">
+            🎯 <strong>Pergunta:</strong> Se quisermos remover o <strong>nó 70</strong> (que tem 2 filhos: 60 e 80), qual nó será o seu sucessor imediato para substituí-lo?
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; justify-content: center;">
+          <button class="btn-action" style="padding: 14px; text-align: left; font-size: 15px;" onclick="responderQuiz(1)">
+            A) O nó 80 (maior elemento da subárvore direita)
+          </button>
+          <button class="btn-action" style="padding: 14px; text-align: left; font-size: 15px;" onclick="responderQuiz(2)">
+            B) O nó 60 (menor elemento da subárvore direita)
+          </button>
+          <button class="btn-action" style="padding: 14px; text-align: left; font-size: 15px;" onclick="responderQuiz(3)">
+            C) O nó 50 (a raiz da árvore)
+          </button>
+          <div class="status-box" id="status-quiz" style="font-size: 15px; font-weight: 700;">
+            Selecione uma alternativa para validar o raciocínio.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 14: RESUMO FINAL -->
+    <section class="slide">
+      <div class="badge badge-purple">CHECKLIST MENTAL DO ESTUDANTE</div>
+      <h1 class="slide-title">As 3 Dicas de Ouro da Aula</h1>
+      <h2 class="slide-subtitle">
+        Grave isto para as avaliações e para a sua carreira como desenvolvedor de software:
+      </h2>
+
+      <div class="grid-3">
+        <div class="card highlight-green">
+          <h3>1. Folha é Simples</h3>
+          <p>Sem filhos? Dê <code>free(raiz)</code> e retorne <code>NULL</code> para o pai apontar para o nada.</p>
+        </div>
+
+        <div class="card highlight-yellow">
+          <h3>2. Um Filho é Adoção</h3>
+          <p>Salve o neto em <code>temp</code>, libere o pai com <code>free()</code> e retorne o neto diretamente para o avô.</p>
+        </div>
+
+        <div class="card highlight-red">
+          <h3>3. Dois Filhos é Troca</h3>
+          <p>Busque o menor da direita, copie o valor dele para a raiz e mande remover a folha duplicada!</p>
+        </div>
+      </div>
+
+      <div class="card highlight-blue" style="margin-top: 16px; text-align: center;">
+        <h3 style="justify-content: center; color: #38bdf8;">🚀 Parabéns! Você agora domina o ciclo completo de Árvores BST!</h3>
+        <p style="font-size: 14.5px; margin: 0;">
+          Próximo Encontro: Noções de Balanceamento e Rotações em <strong>Árvores AVL</strong>!
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="shortcuts-hint">
+      Atalhos: <kbd>◀</kbd> <kbd>▶</kbd> ou <kbd>Espaço</kbd> para navegar • <kbd>F</kbd> Tela cheia
+    </div>
+    <div class="nav-controls">
+      <button class="btn-nav" onclick="prevSlide()">◀ Anterior</button>
+      <span class="slide-counter" id="counter">1 / 14</span>
+      <button class="btn-nav primary" onclick="nextSlide()">Próximo ▶</button>
+      <button class="btn-nav" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+    </div>
+  </footer>
+
+  <script>
+// =============================================================
+// AFYA - ESTRUTURA DE DADOS • PROF. KARAN
+// CONTROLADOR INTERATIVO DOS SLIDES DE REMOÇÃO EM BST & PERCURSOS
+// =============================================================
+
+// 1. GESTÃO E NAVEGAÇÃO DOS SLIDES
+const slides = document.querySelectorAll('.slide');
+const counter = document.getElementById('counter');
+const progressBar = document.getElementById('progress-bar');
+let current = 0;
+
+function updateSlide() {
+  slides.forEach((s, idx) => s.classList.toggle('active', idx === current));
+  if (counter) counter.innerText = `${current + 1} / ${slides.length}`;
+  if (progressBar) progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
+}
+
+function nextSlide() {
+  if (current < slides.length - 1) {
+    current++;
+    updateSlide();
+  }
+}
+
+function prevSlide() {
+  if (current > 0) {
+    current--;
+    updateSlide();
+  }
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+    e.preventDefault();
+    nextSlide();
+  } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+    e.preventDefault();
+    prevSlide();
+  } else if (e.key === 'f' || e.key === 'F') {
+    toggleFullscreen();
+  }
+});
+
+updateSlide();
+
+// -------------------------------------------------------------
+// 2. INTERATIVIDADE: CASO 1 (NÓ FOLHA)
+// -------------------------------------------------------------
+function animarCaso1() {
+  const node = document.getElementById('node-case1');
+  const edge = document.getElementById('edge-case1');
+  const status = document.getElementById('status-case1');
+
+  if (node && edge && status) {
+    node.style.opacity = '0';
+    node.style.transform = 'scale(0.2)';
+    edge.style.opacity = '0';
+    status.innerHTML = '✅ <strong style="color:#a7f3d0">Sucesso!</strong> O nó folha 20 foi liberado com <code>free()</code> e o ponteiro <code>raiz->esq</code> do pai 30 agora é <code>NULL</code>.';
+  }
+}
+
+function resetarCaso1() {
+  const node = document.getElementById('node-case1');
+  const edge = document.getElementById('edge-case1');
+  const status = document.getElementById('status-case1');
+
+  if (node && edge && status) {
+    node.style.opacity = '1';
+    node.style.transform = 'none';
+    edge.style.opacity = '1';
+    status.innerText = 'Clique no botão acima para ver o nó folha ser liberado e o ponteiro virar NULL.';
+  }
+}
+
+// -------------------------------------------------------------
+// 3. INTERATIVIDADE: CASO 2 (1 FILHO - ADOÇÃO)
+// -------------------------------------------------------------
+function animarCaso2() {
+  const pai = document.getElementById('node-case2-pai');
+  const neto = document.getElementById('node-case2-neto');
+  const edgePai = document.getElementById('edge-case2-pai');
+  const status = document.getElementById('status-case2');
+
+  if (pai && neto && edgePai && status) {
+    pai.style.opacity = '0';
+    edgePai.style.opacity = '0';
+    // O nó 30 estava em (140, 105). O neto 40 se move para as coordenadas exatas do pai:
+    neto.setAttribute('transform', 'translate(140, 105)');
+    status.innerHTML = '👪 <strong style="color:#fbbf24">Adoção Concluída!</strong> O nó <strong>30</strong> foi liberado da memória e o neto <strong>40</strong> subiu exatamente para o lugar dele, conectado diretamente ao avô <strong>50</strong>!';
+  }
+}
+
+function resetarCaso2() {
+  const pai = document.getElementById('node-case2-pai');
+  const neto = document.getElementById('node-case2-neto');
+  const edgePai = document.getElementById('edge-case2-pai');
+  const status = document.getElementById('status-case2');
+
+  if (pai && neto && edgePai && status) {
+    pai.style.opacity = '1';
+    edgePai.style.opacity = '1';
+    // Retorna para a posição original de neto em (190, 175)
+    neto.setAttribute('transform', 'translate(190, 175)');
+    status.innerText = 'O nó 30 tem apenas o filho 40. Clique para ver a ponte de adoção direta.';
+  }
+}
+
+// -------------------------------------------------------------
+// 4. INTERATIVIDADE: CASO 3 (2 FILHOS - SUCESSÃO)
+// -------------------------------------------------------------
+function animarCaso3() {
+  const textRaiz = document.getElementById('text-case3-raiz');
+  const circleRaiz = document.getElementById('circle-case3-raiz');
+  const nodeSuc = document.getElementById('node-case3-suc');
+  const edgeSuc = document.getElementById('edge-case3-suc');
+  const status = document.getElementById('status-case3');
+
+  if (textRaiz && circleRaiz && nodeSuc && edgeSuc && status) {
+    circleRaiz.style.fill = '#059669';
+    circleRaiz.style.stroke = '#34d399';
+    textRaiz.innerText = '60';
+
+    nodeSuc.style.opacity = '0';
+    edgeSuc.style.opacity = '0';
+
+    status.innerHTML = '👑 <strong style="color:#a7f3d0">Sucessão ao Trono Concluída!</strong> O valor 60 assumiu a raiz e a folha original 60 foi liberada na base.';
+  }
+}
+
+function resetarCaso3() {
+  const textRaiz = document.getElementById('text-case3-raiz');
+  const circleRaiz = document.getElementById('circle-case3-raiz');
+  const nodeSuc = document.getElementById('node-case3-suc');
+  const edgeSuc = document.getElementById('edge-case3-suc');
+  const status = document.getElementById('status-case3');
+
+  if (textRaiz && circleRaiz && nodeSuc && edgeSuc && status) {
+    circleRaiz.style.fill = '#1e293b';
+    circleRaiz.style.stroke = '#38bdf8';
+    textRaiz.innerText = '50';
+
+    nodeSuc.style.opacity = '1';
+    edgeSuc.style.opacity = '1';
+    status.innerText = 'Clique no botão acima para ver o 60 assumir a raiz e sua cópia na base ser liberada.';
+  }
+}
+
+// -------------------------------------------------------------
+// 5. INTERATIVIDADE: PERCURSOS ANIMADOS EM PROFUNDIDADE (DFS)
+// -------------------------------------------------------------
+let animandoPercurso = false;
+
+function animarPercurso(tipo) {
+  if (animandoPercurso) return;
+  animandoPercurso = true;
+
+  const ids = ['pnode-50', 'pnode-30', 'pnode-70', 'pnode-20', 'pnode-40', 'pnode-60', 'pnode-80'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('node-active-visit', 'node-dim');
+  });
+
+  let ordem = [];
+  let nome = '';
+  if (tipo === 'pre') {
+    ordem = [50, 30, 20, 40, 70, 60, 80];
+    nome = 'Pré-Ordem (Raiz-Esq-Dir)';
+  } else if (tipo === 'em') {
+    ordem = [20, 30, 40, 50, 60, 70, 80];
+    nome = 'Em-Ordem (Esq-Raiz-Dir)';
+  } else if (tipo === 'pos') {
+    ordem = [20, 40, 30, 60, 80, 70, 50];
+    nome = 'Pós-Ordem (Esq-Dir-Raiz)';
+  }
+
+  const status = document.getElementById('status-percursos');
+  if (status) status.innerText = `${nome}: `;
+
+  let idx = 0;
+  function proximo() {
+    if (idx < ordem.length) {
+      const val = ordem[idx];
+      const node = document.getElementById(`pnode-${val}`);
+      if (node) node.classList.add('node-active-visit');
+
+      if (status) status.innerText += (idx === 0 ? '' : ' ➔ ') + val;
+
+      setTimeout(() => {
+        if (node) {
+          node.classList.remove('node-active-visit');
+          node.classList.add('node-dim');
+        }
+        idx++;
+        proximo();
+      }, 650);
+    } else {
+      animandoPercurso = false;
+      if (status) status.innerHTML += ' <span style="color:#4ade80; font-weight:800;">[CONCLUÍDO]</span>';
+      setTimeout(() => {
+        ids.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.remove('node-dim');
+        });
+      }, 1500);
+    }
+  }
+  proximo();
+}
+
+// -------------------------------------------------------------
+// 6. INTERATIVIDADE: QUIZ DE FIXAÇÃO
+// -------------------------------------------------------------
+function responderQuiz(opcao) {
+  const status = document.getElementById('status-quiz');
+  if (!status) return;
+
+  if (opcao === 2) {
+    status.innerHTML = '🎉 <span style="color: #4ade80;">RESPOSTA CORRETA! (B)</span> O 60 é o menor da subárvore direita (sucessor imediato)!';
+    status.style.borderColor = '#10b981';
+  } else if (opcao === 1) {
+    status.innerHTML = '❌ <span style="color: #f43f5e;">Incorreto:</span> O 80 é o maior da direita (não o menor). O sucessor é o 60!';
+    status.style.borderColor = '#f43f5e';
+  } else {
+    status.innerHTML = '❌ <span style="color: #f43f5e;">Incorreto:</span> O 50 é o pai ancestral, não pode ser sucessor do 70!';
+    status.style.borderColor = '#f43f5e';
+  }
+}
+
+</script>
+</body>
+</html>
