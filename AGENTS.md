@@ -33,6 +33,7 @@ Seu objetivo principal é automatizar o fluxo de **identificação, leitura, ava
 14. **Agendamento Mandatório de Visualização de Provas e Gabaritos:** Sempre que o professor solicitar a criação, diagramação ou publicação de provas, simulados ou gabaritos no Canvas LMS, o agente DEVE OBRIGATORIAMENTE questionar ou configurar a **data e o horário exatos em que os alunos poderão visualizar o conteúdo**. Por padrão pedagógico institucional de segurança, os cadernos de prova e gabaritos nunca devem ficar visíveis antes do encerramento do horário de aplicação da avaliação (bloqueio do módulo via `unlock_at` configurado para a noite do dia da prova, ex.: após as 23:00h no fuso de Rondônia).
 15. **Validação Prévia Obrigatória de Links Externos (Anti-Links Quebrados):** NUNCA inclua links externos em materiais, avisos, atividades ou fóruns sem antes validar tecnicamente o retorno da URL (verificar via requisição se responde com status 200 OK sem bloqueio ou redirecionamento para 404/403). É estritamente **proibido alucinar ou deduzir URLs de matérias ou notícias**. Na dúvida ou se o link não puder ser checado e validado com 100% de certeza, **NÃO insira o link**. Priorize apenas links canônicos verificados (como o repositório público no GitHub ou blog do autor testados previamente).
 16. **Largura Total Mandatória em Páginas e Fóruns (Zero `max-width` Restritivo):** NUNCA insira `max-width: 860px` ou limitadores artificiais estreitos de largura nos containers HTML de páginas, avisos, atividades ou fóruns no Canvas LMS. Utilize sempre largura total (`width: 100%`) para que o layout preencha fluidamente todo o espaço útil disponível na interface do Canvas.
+17. **Prioridade Mandatória para Consulta a Metadados Locais (Economia Extrema de Tokens e Latência):** Para obter IDs de cursos, turmas, módulos ou alunos do semestre letivo vigente (2026.2), o assistente DEVE OBRIGATORIAMENTE consultar primeiro o catálogo estruturado em `data/metadata/semestre_2026_2.json` ou as funções de busca em `scripts/metadata_lookup.py`. É ESTRITAMENTE PROIBIDO fazer chamadas redundantes a `canvas_list_courses` ou `canvas_list_students` apenas para descobrir IDs ou conferir nomes de estudantes já catalogados, evitando despejar listas massivas no contexto do modelo. Se novas turmas ou alunos precisarem ser sincronizados, utilize o script `scripts/sync_metadata.py`.
 
 
 ---
@@ -122,7 +123,16 @@ O MCP e os agentes determinam dinamicamente em tempo de execução quais discipl
 - `canvas_add_item_to_bank`: **ITENS CALIBRADOS NO MODELO ENADE.** Cadastra questões contextualizadas com texto-base, situação-problema, gabarito e distratores explicados pedagogicamente (justificativa do erro para cada alternativa incorreta).
 - `canvas_generate_mock_exam`: **GERADOR DE PROVAS E SIMULADOS ENADE.** Cria e publica testes oficiais no Canvas LMS sorteando aleatoriamente $N$ questões calibradas dos bancos de itens, injetando autocorreção e feedbacks instantâneos no SpeedGrader.
 
+### ⚡ Catálogo Local de Metadados (Economia Extrema de Tokens e Latência):
+Para eliminar desperdício de tokens, custos de contexto e latência de rede, os dados estruturais do semestre vigente estão armazenados e catalogados localmente:
+- **Arquivo de Metadados:** `data/metadata/semestre_2026_2.json` (contém IDs de cursos, períodos, módulos, tarefas e 134 alunos indexados com ID, matrícula e nome normalizado).
+- **Lookup Instantâneo:** Utilize as funções de `scripts/metadata_lookup.py` para resolver `course_id` por período (ex: `get_course_id("2º Período")` -> `160754`) e `student_id` por nome de aluno sem fazer chamadas à API.
+- **Sincronização:** Se novas turmas ou alunos precisarem ser atualizados no futuro, execute `scripts/sync_metadata.py`.
+- **REGRA DE OURO:** É proibido chamar `canvas_list_courses` ou `canvas_list_students` apenas para resolver IDs ou nomes já catalogados. Consulte SEMPRE primeiro o arquivo de metadados local.
+
 ### 🐍 Utilitários de Suporte (`scripts/`):
+- `scripts/metadata_lookup.py`: Consulta instantânea de turmas e alunos locais (zero custo de API e tokens).
+- `scripts/sync_metadata.py`: Sincronizador oficial dos metadados locais com a API do Canvas.
 - `scripts/canvas_cli.py`: Utilitário central de linha de comando para invocar as ferramentas MCP via terminal caso necessário.
 - `scripts/test_c_submissions.py`: Testador e compilador automatizado de código C dos alunos em `scratch/submissions_code/` (validação de sintaxe, tipos e harness).
 - `scripts/generate_review_table.py`: Formatador de tabela de revisão legado.

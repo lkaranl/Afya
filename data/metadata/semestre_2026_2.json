@@ -1,0 +1,2185 @@
+{
+  "semestre": "2026/2",
+  "gerado_em": "05/10/2026 às 20:44:14",
+  "ano": 2026,
+  "semestre_numero": 2,
+  "resumo": {
+    "total_turmas": 2,
+    "turmas_ativas": [
+      {
+        "chave": "4_periodo",
+        "periodo": "4º Período",
+        "course_id": "162263",
+        "total_alunos": 56
+      },
+      {
+        "chave": "2_periodo",
+        "periodo": "2º Período",
+        "course_id": "160754",
+        "total_alunos": 80
+      }
+    ]
+  },
+  "turmas": {
+    "4_periodo": {
+      "course_id": "162263",
+      "chave": "4_periodo",
+      "periodo": "4º Período",
+      "nome_oficial": "ESTRUTURA DE DADOS  - CDC.N.4.2026/2.A - 90802",
+      "nome_didatico": "ESTRUTURA DE DADOS",
+      "total_alunos": 56,
+      "alunos": [
+        {
+          "id": "310790",
+          "nome": "ALAN GERATH DA SILVA SCHEFFLER",
+          "nome_busca": "alan gerath da silva scheffler",
+          "email": "ALANGERATH@GMAIL.COM",
+          "matricula": "06750973205"
+        },
+        {
+          "id": "313910",
+          "nome": "ANA LÍGIA DE SOUZA VALE",
+          "nome_busca": "ana ligia de souza vale",
+          "email": "UMAPESSOAHAGADE@GMAIL.COM",
+          "matricula": "07397655238"
+        },
+        {
+          "id": "363018",
+          "nome": "BRENDA EMANUELLY DIAS BRUNEL",
+          "nome_busca": "brenda emanuelly dias brunel",
+          "email": "brendaemanuellyd.brunel@gmail.com",
+          "matricula": "04225577228"
+        },
+        {
+          "id": "122491",
+          "nome": "BRENO AMORIM DOS SANTOS SILVA",
+          "nome_busca": "breno amorim dos santos silva",
+          "email": "BRENOAMORIM1212@GMAIL.COM",
+          "matricula": "18445343750"
+        },
+        {
+          "id": "251846",
+          "nome": "BRUNA MICHELLY DIAS MARTINS",
+          "nome_busca": "bruna michelly dias martins",
+          "email": "brunadiasjipa13@gmail.com",
+          "matricula": "04779536200"
+        },
+        {
+          "id": "326476",
+          "nome": "CAMILA BROZEGUINE DERNEI",
+          "nome_busca": "camila brozeguine dernei",
+          "email": "camilabrozeguine@g.mail.com",
+          "matricula": "05706375208"
+        },
+        {
+          "id": "317335",
+          "nome": "CARLOS VICTOR ESTEVAM LENK",
+          "nome_busca": "carlos victor estevam lenk",
+          "email": "CARLOSESTEVAMLENK@GMAIL.COM",
+          "matricula": "03443921205"
+        },
+        {
+          "id": "301806",
+          "nome": "CHRYSTIAN MANUEL FERNANDEZ LEON",
+          "nome_busca": "chrystian manuel fernandez leon",
+          "email": "chrystianfrdz@gmail.com",
+          "matricula": "71090406231"
+        },
+        {
+          "id": "320096",
+          "nome": "DANIEL VITOR MACIEL DO CARMO",
+          "nome_busca": "daniel vitor maciel do carmo",
+          "email": "02678374297@gmail.com",
+          "matricula": "02678374297"
+        },
+        {
+          "id": "318445",
+          "nome": "DANILO CHAVES TIAGO JUNIOR",
+          "nome_busca": "danilo chaves tiago junior",
+          "email": "juniordanilo081@gmail.com",
+          "matricula": "04762067237"
+        },
+        {
+          "id": "115052",
+          "nome": "DAVID ALVES APCHU",
+          "nome_busca": "david alves apchu",
+          "email": null,
+          "matricula": "00849450284"
+        },
+        {
+          "id": "331089",
+          "nome": "DIEGO LUCAS RIOJA FERREIRA",
+          "nome_busca": "diego lucas rioja ferreira",
+          "email": "DIEGOLUCASRIOJA@GMAIL.COM",
+          "matricula": "02928135200"
+        },
+        {
+          "id": "316435",
+          "nome": "DIEGO VICTOR PEREIRA DE MELO",
+          "nome_busca": "diego victor pereira de melo",
+          "email": "DIEGOMELO6112006@GMAIL.COM",
+          "matricula": "06991484210"
+        },
+        {
+          "id": "322054",
+          "nome": "FELIPE HENRIQUE MORTARI ERCOLIN",
+          "nome_busca": "felipe henrique mortari ercolin",
+          "email": "FEHENRIQUEMORTARI@GMAIL.COM",
+          "matricula": "04116974200"
+        },
+        {
+          "id": "308416",
+          "nome": "FERNANDA SANTANA LEANDRO",
+          "nome_busca": "fernanda santana leandro",
+          "email": "FERNANDASL1010@GMAIL.COM",
+          "matricula": "06854739292"
+        },
+        {
+          "id": "105164",
+          "nome": "GABRIEL DO NASCIMENTO FIGUEIREDO",
+          "nome_busca": "gabriel do nascimento figueiredo",
+          "email": "gabnfigueiredo@gmail.com",
+          "matricula": "03666120261"
+        },
+        {
+          "id": "202620",
+          "nome": "GABRIELLA DA SILVA GODINHO",
+          "nome_busca": "gabriella da silva godinho",
+          "email": "godinhogabriella1105@gmail.com",
+          "matricula": "03213329207"
+        },
+        {
+          "id": "191664",
+          "nome": "GUILHERME BRAGA ARCAS",
+          "nome_busca": "guilherme braga arcas",
+          "email": null,
+          "matricula": "05423934257"
+        },
+        {
+          "id": "312802",
+          "nome": "GUILHERME PEREIRA GODINHO",
+          "nome_busca": "guilherme pereira godinho",
+          "email": "GUILHERMEPGODINHO2006@GMAIL.COM",
+          "matricula": "02873162201"
+        },
+        {
+          "id": "266834",
+          "nome": "GUSTAVO BENICIO FREITAS DA SILVA",
+          "nome_busca": "gustavo benicio freitas da silva",
+          "email": "BENICIOG700@GMAIL.COM",
+          "matricula": "05635711286"
+        },
+        {
+          "id": "328249",
+          "nome": "HAUAN LINS GONCALVES",
+          "nome_busca": "hauan lins goncalves",
+          "email": "tayler.study@gmail.com",
+          "matricula": "06067179270"
+        },
+        {
+          "id": "322055",
+          "nome": "HILION DE PAULA HERMSDORF",
+          "nome_busca": "hilion de paula hermsdorf",
+          "email": "HILIONHERMSDORF@GMAIL.COM",
+          "matricula": "04883514218"
+        },
+        {
+          "id": "392820",
+          "nome": "ICARO ONEZORG OVANI",
+          "nome_busca": "icaro onezorg ovani",
+          "email": "ICAROOVANI5@GMAIL.COM",
+          "matricula": "03693557250"
+        },
+        {
+          "id": "286007",
+          "nome": "JAINA KLITZKE",
+          "nome_busca": "jaina klitzke",
+          "email": "JAINAKLITZKE12@GMAIL.COM",
+          "matricula": "06543619244"
+        },
+        {
+          "id": "122365",
+          "nome": "JOÃO GUILHERME FERNANDES ROSA",
+          "nome_busca": "joao guilherme fernandes rosa",
+          "email": "JOAO_GFR@HOTMAIL.COM",
+          "matricula": "70404366201"
+        },
+        {
+          "id": "312804",
+          "nome": "JOÃO PEDRO SOUZA SANTOS",
+          "nome_busca": "joao pedro souza santos",
+          "email": "JKPEDRO016@GMAIL.COM",
+          "matricula": "04485832244"
+        },
+        {
+          "id": "408493",
+          "nome": "JOÃO RICARDO PEREIRA FALCÃO",
+          "nome_busca": "joao ricardo pereira falcao",
+          "email": "joaoricardop.falcao@gmail.com",
+          "matricula": "05629530275"
+        },
+        {
+          "id": "279457",
+          "nome": "JOÃO VITOR GAMBATI COIMBRA",
+          "nome_busca": "joao vitor gambati coimbra",
+          "email": "jvgccoimbra@gmail.com",
+          "matricula": "06294597200"
+        },
+        {
+          "id": "242601",
+          "nome": "JOSÉ RIAN PABLO TRINDADE DE OLIVEIRA",
+          "nome_busca": "jose rian pablo trindade de oliveira",
+          "email": "jose.ryn009@gmail.com",
+          "matricula": "04732442250"
+        },
+        {
+          "id": "312806",
+          "nome": "KAIQUE PANDOLFI FILGUEIRAS PEREIRA",
+          "nome_busca": "kaique pandolfi filgueiras pereira",
+          "email": "kaiquepandolfii@gmail.com",
+          "matricula": "00460381245"
+        },
+        {
+          "id": "122935",
+          "nome": "KAUAN HENRIQUE BARBOSA PERES",
+          "nome_busca": "kauan henrique barbosa peres",
+          "email": "kauanenriquebp@gmail.com",
+          "matricula": "03779751259"
+        },
+        {
+          "id": "312808",
+          "nome": "LORYAN DOS SANTOS PAULO",
+          "nome_busca": "loryan dos santos paulo",
+          "email": "LORYANSANTOSPAULO@GMAIL.COM",
+          "matricula": "04251499271"
+        },
+        {
+          "id": "310560",
+          "nome": "LUCAS CLAMEIRICH DA SILVEIRA",
+          "nome_busca": "lucas clameirich da silveira",
+          "email": "lucasclameirich@gmail.com",
+          "matricula": "02360662260"
+        },
+        {
+          "id": "325045",
+          "nome": "LUIZ GABRIEL ALVES DA SILVA",
+          "nome_busca": "luiz gabriel alves da silva",
+          "email": "LUIZBIEL2007@GMAIL.COM",
+          "matricula": "03295271267"
+        },
+        {
+          "id": "352858",
+          "nome": "MAIKE BARROS FERREIRA DE GOES",
+          "nome_busca": "maike barros ferreira de goes",
+          "email": "BRGMAIKE@GMAIL.COM",
+          "matricula": "02266152270"
+        },
+        {
+          "id": "121193",
+          "nome": "MARCOS VINICIUS CAETANO DA SILVA",
+          "nome_busca": "marcos vinicius caetano da silva",
+          "email": "hol14nger@gmail.com",
+          "matricula": "00832273260"
+        },
+        {
+          "id": "312805",
+          "nome": "MARIA EDUARDA STRELOW ANTÔNIO COSTA",
+          "nome_busca": "maria eduarda strelow antonio costa",
+          "email": "MARIASTRELOW03@GMAIL.COM",
+          "matricula": "02593359242"
+        },
+        {
+          "id": "330805",
+          "nome": "MATEUS EDUARDO COSTA BENDER",
+          "nome_busca": "mateus eduardo costa bender",
+          "email": "MATEUSCOSTABENDER22@GMAIL.COM",
+          "matricula": "06323557274"
+        },
+        {
+          "id": "327214",
+          "nome": "MATHEUS BARBOSA GASPAR",
+          "nome_busca": "matheus barbosa gaspar",
+          "email": "mbarbosagaspar@gmail.com",
+          "matricula": "70368412229"
+        },
+        {
+          "id": "310293",
+          "nome": "MATHEUS HENRIQUE MERELES OLIVEIRA",
+          "nome_busca": "matheus henrique mereles oliveira",
+          "email": "teusopo3@gmail.com",
+          "matricula": "05965521227"
+        },
+        {
+          "id": "293093",
+          "nome": "MURILLO OZORIO CARVALHO",
+          "nome_busca": "murillo ozorio carvalho",
+          "email": null,
+          "matricula": "06760124260"
+        },
+        {
+          "id": "185610",
+          "nome": "PABLO MARTINS MENDES",
+          "nome_busca": "pablo martins mendes",
+          "email": "pablmartinsmendes@gmail.com",
+          "matricula": "05867824276"
+        },
+        {
+          "id": "92085",
+          "nome": "PAULO JUSTUS IURK NETO",
+          "nome_busca": "paulo justus iurk neto",
+          "email": "xootingx@gmail.com",
+          "matricula": "04708257236"
+        },
+        {
+          "id": "123828",
+          "nome": "PEDRO HENRIQUE GUILHERME PEREIRA",
+          "nome_busca": "pedro henrique guilherme pereira",
+          "email": "PEDRO.GUI2014@HOTMAIL.COM",
+          "matricula": "04620237299"
+        },
+        {
+          "id": "329079",
+          "nome": "PEDRO HENRIQUE PEREIRA GUIMARÃES",
+          "nome_busca": "pedro henrique pereira guimaraes",
+          "email": "pedro.h9289@gmail.com",
+          "matricula": "00701315202"
+        },
+        {
+          "id": "320064",
+          "nome": "PEDRO HENRIQUE RODRIGUES DE SOUZA",
+          "nome_busca": "pedro henrique rodrigues de souza",
+          "email": "PHCELL350@GMAIL.COM",
+          "matricula": "01869811208"
+        },
+        {
+          "id": "339091",
+          "nome": "PEDRO HENRIQUE XAVIER DE PAULA AZEVEDO",
+          "nome_busca": "pedro henrique xavier de paula azevedo",
+          "email": "pedroazevedo@alunos.afya.com.br",
+          "matricula": "04666440275"
+        },
+        {
+          "id": "311867",
+          "nome": "PEDRO KAIKI SILVA GASPARINI",
+          "nome_busca": "pedro kaiki silva gasparini",
+          "email": "PEDROKAIKISILVA2557@GMAIL.COM",
+          "matricula": "06479722205"
+        },
+        {
+          "id": "313673",
+          "nome": "PEDRO MILHOMENS",
+          "nome_busca": "pedro milhomens",
+          "email": "pmilhomens1211@gmail.com",
+          "matricula": "70510595219"
+        },
+        {
+          "id": "306878",
+          "nome": "PEDRO PAULO SOARES",
+          "nome_busca": "pedro paulo soares",
+          "email": "pedrodwpaulo@gmail.com",
+          "matricula": "01370711247"
+        },
+        {
+          "id": "343620",
+          "nome": "RENAN DE LIMA SOUZA",
+          "nome_busca": "renan de lima souza",
+          "email": "RENAN.LIMA07@GMAIL.COM",
+          "matricula": "02584226294"
+        },
+        {
+          "id": "89497",
+          "nome": "RODRIGO VASCONCELOS DO CARMO",
+          "nome_busca": "rodrigo vasconcelos do carmo",
+          "email": "rodrigo.vasconcelos@saolucasjiparana.edu.br",
+          "matricula": "05162565210"
+        },
+        {
+          "id": "320091",
+          "nome": "RYAN FREITAS LIMA",
+          "nome_busca": "ryan freitas lima",
+          "email": "ryan.l@alunos.afya.com.br",
+          "matricula": "05475134294"
+        },
+        {
+          "id": "324578",
+          "nome": "THIAGO HENRIQUE FONSECA SILVEIRA",
+          "nome_busca": "thiago henrique fonseca silveira",
+          "email": "thiago.henrique@alunos.afya.com.br",
+          "matricula": "02753335230"
+        },
+        {
+          "id": "329076",
+          "nome": "VANDESSON FONSECA DO ESPIRITO SANTO",
+          "nome_busca": "vandesson fonseca do espirito santo",
+          "email": "VANDESSONFONSECA42@GMAIL.COM",
+          "matricula": "06404647265"
+        },
+        {
+          "id": "314053",
+          "nome": "WEVERTON HENRIQUE DA SILVA CORDEIRO",
+          "nome_busca": "weverton henrique da silva cordeiro",
+          "email": "wevertonheriquerik257@gmail.com",
+          "matricula": "05385179213"
+        }
+      ],
+      "mapa_alunos_id": {
+        "310790": "ALAN GERATH DA SILVA SCHEFFLER",
+        "313910": "ANA LÍGIA DE SOUZA VALE",
+        "363018": "BRENDA EMANUELLY DIAS BRUNEL",
+        "122491": "BRENO AMORIM DOS SANTOS SILVA",
+        "251846": "BRUNA MICHELLY DIAS MARTINS",
+        "326476": "CAMILA BROZEGUINE DERNEI",
+        "317335": "CARLOS VICTOR ESTEVAM LENK",
+        "301806": "CHRYSTIAN MANUEL FERNANDEZ LEON",
+        "320096": "DANIEL VITOR MACIEL DO CARMO",
+        "318445": "DANILO CHAVES TIAGO JUNIOR",
+        "115052": "DAVID ALVES APCHU",
+        "331089": "DIEGO LUCAS RIOJA FERREIRA",
+        "316435": "DIEGO VICTOR PEREIRA DE MELO",
+        "322054": "FELIPE HENRIQUE MORTARI ERCOLIN",
+        "308416": "FERNANDA SANTANA LEANDRO",
+        "105164": "GABRIEL DO NASCIMENTO FIGUEIREDO",
+        "202620": "GABRIELLA DA SILVA GODINHO",
+        "191664": "GUILHERME BRAGA ARCAS",
+        "312802": "GUILHERME PEREIRA GODINHO",
+        "266834": "GUSTAVO BENICIO FREITAS DA SILVA",
+        "328249": "HAUAN LINS GONCALVES",
+        "322055": "HILION DE PAULA HERMSDORF",
+        "392820": "ICARO ONEZORG OVANI",
+        "286007": "JAINA KLITZKE",
+        "122365": "JOÃO GUILHERME FERNANDES ROSA",
+        "312804": "JOÃO PEDRO SOUZA SANTOS",
+        "408493": "JOÃO RICARDO PEREIRA FALCÃO",
+        "279457": "JOÃO VITOR GAMBATI COIMBRA",
+        "242601": "JOSÉ RIAN PABLO TRINDADE DE OLIVEIRA",
+        "312806": "KAIQUE PANDOLFI FILGUEIRAS PEREIRA",
+        "122935": "KAUAN HENRIQUE BARBOSA PERES",
+        "312808": "LORYAN DOS SANTOS PAULO",
+        "310560": "LUCAS CLAMEIRICH DA SILVEIRA",
+        "325045": "LUIZ GABRIEL ALVES DA SILVA",
+        "352858": "MAIKE BARROS FERREIRA DE GOES",
+        "121193": "MARCOS VINICIUS CAETANO DA SILVA",
+        "312805": "MARIA EDUARDA STRELOW ANTÔNIO COSTA",
+        "330805": "MATEUS EDUARDO COSTA BENDER",
+        "327214": "MATHEUS BARBOSA GASPAR",
+        "310293": "MATHEUS HENRIQUE MERELES OLIVEIRA",
+        "293093": "MURILLO OZORIO CARVALHO",
+        "185610": "PABLO MARTINS MENDES",
+        "92085": "PAULO JUSTUS IURK NETO",
+        "123828": "PEDRO HENRIQUE GUILHERME PEREIRA",
+        "329079": "PEDRO HENRIQUE PEREIRA GUIMARÃES",
+        "320064": "PEDRO HENRIQUE RODRIGUES DE SOUZA",
+        "339091": "PEDRO HENRIQUE XAVIER DE PAULA AZEVEDO",
+        "311867": "PEDRO KAIKI SILVA GASPARINI",
+        "313673": "PEDRO MILHOMENS",
+        "306878": "PEDRO PAULO SOARES",
+        "343620": "RENAN DE LIMA SOUZA",
+        "89497": "RODRIGO VASCONCELOS DO CARMO",
+        "320091": "RYAN FREITAS LIMA",
+        "324578": "THIAGO HENRIQUE FONSECA SILVEIRA",
+        "329076": "VANDESSON FONSECA DO ESPIRITO SANTO",
+        "314053": "WEVERTON HENRIQUE DA SILVA CORDEIRO"
+      },
+      "modulos": [
+        {
+          "id": "999676",
+          "nome": "📌 Ementa e Diretrizes da Disciplina",
+          "posicao": 1,
+          "publicado": true,
+          "itens_count": 5
+        },
+        {
+          "id": "963055",
+          "nome": "🚀 Comece por Aqui: Ambientação e Contatos",
+          "posicao": 2,
+          "publicado": true,
+          "itens_count": 8
+        },
+        {
+          "id": "993512",
+          "nome": "💡 Bônus: Lógica Proposicional e Tabela Verdade",
+          "posicao": 3,
+          "publicado": true,
+          "itens_count": 3
+        },
+        {
+          "id": "991360",
+          "nome": "Módulo 1: Fundamentos de Ponteiros e Memória RAM",
+          "posicao": 4,
+          "publicado": true,
+          "itens_count": 7
+        },
+        {
+          "id": "963059",
+          "nome": "Módulo 2: Alocação Dinâmica e Nós de Dados",
+          "posicao": 5,
+          "publicado": true,
+          "itens_count": 7
+        },
+        {
+          "id": "991378",
+          "nome": "Módulo 3: Algoritmos e Técnicas de Busca",
+          "posicao": 6,
+          "publicado": true,
+          "itens_count": 5
+        },
+        {
+          "id": "993513",
+          "nome": "Módulo 4: Algoritmos de Ordenação e Eficiência",
+          "posicao": 7,
+          "publicado": true,
+          "itens_count": 10
+        },
+        {
+          "id": "993599",
+          "nome": "Módulo 4.1: Prática e Códigos de MergeSort",
+          "posicao": 8,
+          "publicado": true,
+          "itens_count": 3
+        },
+        {
+          "id": "995564",
+          "nome": "Módulo 4.2: Algoritmos de Ordenação Padrões",
+          "posicao": 9,
+          "publicado": true,
+          "itens_count": 3
+        },
+        {
+          "id": "999709",
+          "nome": "💡 Bônus: Controle de Versão Colaborativo (Git & GitHub)",
+          "posicao": 10,
+          "publicado": true,
+          "itens_count": 5
+        },
+        {
+          "id": "1000825",
+          "nome": "📝 Prova N1 e Gabarito",
+          "posicao": 11,
+          "publicado": true,
+          "itens_count": 4
+        },
+        {
+          "id": "1002054",
+          "nome": "🌳 Módulo 5: Árvores Binárias de Busca (BST) — Estruturas Hierárquicas e Eficiência",
+          "posicao": 12,
+          "publicado": true,
+          "itens_count": 8
+        }
+      ],
+      "tarefas": [
+        {
+          "id": "1386874",
+          "nome": null,
+          "pontos": 100,
+          "pendentes_correcao": 0
+        },
+        {
+          "id": "1380779",
+          "nome": null,
+          "pontos": 100,
+          "pendentes_correcao": 0
+        },
+        {
+          "id": "1374884",
+          "nome": null,
+          "pontos": 100,
+          "pendentes_correcao": 0
+        },
+        {
+          "id": "1383595",
+          "nome": null,
+          "pontos": 0,
+          "pendentes_correcao": 0
+        },
+        {
+          "id": "1377263",
+          "nome": null,
+          "pontos": 100,
+          "pendentes_correcao": 0
+        },
+        {
+          "id": "1390736",
+          "nome": null,
+          "pontos": 100,
+          "pendentes_correcao": 0
+        },
+        {
+          "id": "1388744",
+          "nome": null,
+          "pontos": 30,
+          "pendentes_correcao": 0
+        },
+        {
+          "id": "1392170",
+          "nome": null,
+          "pontos": 0.5,
+          "pendentes_correcao": 0
+        },
+        {
+          "id": "1387590",
+          "nome": null,
+          "pontos": 51,
+          "pendentes_correcao": 0
+        }
+      ]
+    },
+    "2_periodo": {
+      "course_id": "160754",
+      "chave": "2_periodo",
+      "periodo": "2º Período",
+      "nome_oficial": "ESTRUTURA DE DADOS - CDC.N.2.2026/2.A - 89011",
+      "nome_didatico": "ESTRUTURA DE DADOS",
+      "total_alunos": 80,
+      "alunos": [
+        {
+          "id": "414909",
+          "nome": "ALEHANDRO PUTTIN ARAUJO",
+          "nome_busca": "alehandro puttin araujo",
+          "email": "ALEHANDROMASTER12@GMAIL.COM",
+          "matricula": "02078305251"
+        },
+        {
+          "id": "376373",
+          "nome": "ALESSANDRO MONTESSI DA SILVA",
+          "nome_busca": "alessandro montessi da silva",
+          "email": "ALESSANDROMONTESSISILVA@GMAIL.COM",
+          "matricula": "04881882295"
+        },
+        {
+          "id": "415046",
+          "nome": "LUCAS OTÁVIO DE OLIVEIRA ANDRADE",
+          "nome_busca": "lucas otavio de oliveira andrade",
+          "email": "LUCASDEOLIVEIRA011@ICLOUD.COM",
+          "matricula": "05651992260"
+        },
+        {
+          "id": "259659",
+          "nome": "ANDRE MATHEUS LIMA JASSET",
+          "nome_busca": "andre matheus lima jasset",
+          "email": "andrejasset@gmail.com",
+          "matricula": "05102490273"
+        },
+        {
+          "id": "312375",
+          "nome": "BRENO BRESSIANI NOGUEIRA SILVA",
+          "nome_busca": "breno bressiani nogueira silva",
+          "email": "breno.bns2007@gmail.com",
+          "matricula": "06418475216"
+        },
+        {
+          "id": "389024",
+          "nome": "BRUNO DE PAULA HERMSDORF",
+          "nome_busca": "bruno de paula hermsdorf",
+          "email": "BRUNOHERMSDORF@GMAIL.COM",
+          "matricula": "04883523209"
+        },
+        {
+          "id": "376863",
+          "nome": "BRUNO IGNACIO DIAS CASULA",
+          "nome_busca": "bruno ignacio dias casula",
+          "email": "BRUNOIDCASULA123@GMAIL.COM",
+          "matricula": "08295349201"
+        },
+        {
+          "id": "374647",
+          "nome": "CAMILA BARRETO MITTANG",
+          "nome_busca": "camila barreto mittang",
+          "email": "CAMILABMITTANG@GMAIL.COM",
+          "matricula": "01133182275"
+        },
+        {
+          "id": "380994",
+          "nome": "DANIEL HERCULANO DE SOUZA",
+          "nome_busca": "daniel herculano de souza",
+          "email": "dhsherculano@gmail.com",
+          "matricula": "05460895260"
+        },
+        {
+          "id": "389113",
+          "nome": "DIEGO SOTT COIMBRA",
+          "nome_busca": "diego sott coimbra",
+          "email": "IAMJOHNBRITAINMAN@HOTMAIL.COM",
+          "matricula": "02145442227"
+        },
+        {
+          "id": "380978",
+          "nome": "EDUARDO ANTÔNIO DE MOURA SANTOS",
+          "nome_busca": "eduardo antonio de moura santos",
+          "email": "henriqueleonardo101@gmail.com",
+          "matricula": "04403328261"
+        },
+        {
+          "id": "391958",
+          "nome": "EDUARDO DOS SANTOS PULQUERI",
+          "nome_busca": "eduardo dos santos pulqueri",
+          "email": "EPULQUERI@GMAIL.COM",
+          "matricula": "05811615213"
+        },
+        {
+          "id": "392207",
+          "nome": "EDUARDO DOURADO GOMES MOURO DE ANGELO",
+          "nome_busca": "eduardo dourado gomes mouro de angelo",
+          "email": "ANGELOEDUARDO445@GMAIL.COM",
+          "matricula": "04311318219"
+        },
+        {
+          "id": "387137",
+          "nome": "EDUARDO TEIXEIRA RIBEIRO",
+          "nome_busca": "eduardo teixeira ribeiro",
+          "email": "EDUL82387@GMAIL.COM",
+          "matricula": "01123577250"
+        },
+        {
+          "id": "389627",
+          "nome": "EMANUEL PORFIRIO DE JESUS",
+          "nome_busca": "emanuel porfirio de jesus",
+          "email": "EMANUELPORFRIO@ICLOUD.COM",
+          "matricula": "05828094289"
+        },
+        {
+          "id": "386112",
+          "nome": "EVERTON GOMES DA CRUZ",
+          "nome_busca": "everton gomes da cruz",
+          "email": "EVERTONGC709@GMAIL.COM",
+          "matricula": "06424249265"
+        },
+        {
+          "id": "415845",
+          "nome": "FELIPE FALQUETO VICENTE",
+          "nome_busca": "felipe falqueto vicente",
+          "email": "FELIPEFALQUETOO@GMAIL.COM",
+          "matricula": "06145120266"
+        },
+        {
+          "id": "411981",
+          "nome": "ARIEL LEONEL DA SILVA FERREIRA",
+          "nome_busca": "ariel leonel da silva ferreira",
+          "email": "ARIELLEONELPVH@GMAIL.COM",
+          "matricula": "06545968246"
+        },
+        {
+          "id": "392419",
+          "nome": "FILLIPE REIS TOMAZELLI",
+          "nome_busca": "fillipe reis tomazelli",
+          "email": "FILLIPAODOFUTEBOL@GMAIL.COM",
+          "matricula": "01324104279"
+        },
+        {
+          "id": "390317",
+          "nome": "GUSTAVO MENDES MONTEIRO",
+          "nome_busca": "gustavo mendes monteiro",
+          "email": "GUSTAVOMENDESMONTEIRO109@GMAIL.COM",
+          "matricula": "24021819827"
+        },
+        {
+          "id": "392820",
+          "nome": "ICARO ONEZORG OVANI",
+          "nome_busca": "icaro onezorg ovani",
+          "email": "ICAROOVANI5@GMAIL.COM",
+          "matricula": "03693557250"
+        },
+        {
+          "id": "398945",
+          "nome": "IGOR DAYAN DA SILVA MARTINS",
+          "nome_busca": "igor dayan da silva martins",
+          "email": "IGORDAYAN35@GMAIL.COM",
+          "matricula": "06620708285"
+        },
+        {
+          "id": "375951",
+          "nome": "JAÍNE MARQUES",
+          "nome_busca": "jaine marques",
+          "email": "JAJAMARQUESJIPA@GMAIL.COM",
+          "matricula": "07037321290"
+        },
+        {
+          "id": "399933",
+          "nome": "JAYANE LIMA FERNANDES",
+          "nome_busca": "jayane lima fernandes",
+          "email": "JAYANELIMAFERNANDES1@GMAIL.COM",
+          "matricula": "04443224262"
+        },
+        {
+          "id": "384365",
+          "nome": "JEFFERSON MARQUES ROCHA",
+          "nome_busca": "jefferson marques rocha",
+          "email": "JEFFERSONMARQUESROCHA5@GMAIL.COM",
+          "matricula": "07148766230"
+        },
+        {
+          "id": "374641",
+          "nome": "JOÃO FRANCISCO CABRAL DE OLIVEIRA",
+          "nome_busca": "joao francisco cabral de oliveira",
+          "email": "JFC-JIPA@OUTLOOK.COM",
+          "matricula": "05140881250"
+        },
+        {
+          "id": "382825",
+          "nome": "JOÃO PAULO BRUSTOLOM OLIVEIRA",
+          "nome_busca": "joao paulo brustolom oliveira",
+          "email": "JOAOPAULOBRUSTOLOM@GMAIL.COM",
+          "matricula": "04991242274"
+        },
+        {
+          "id": "395888",
+          "nome": "JOÃO PAULO DE OLIVEIRA MORAIS",
+          "nome_busca": "joao paulo de oliveira morais",
+          "email": "MORAISEMAILL@GMAIL.COM",
+          "matricula": "05114415255"
+        },
+        {
+          "id": "408493",
+          "nome": "JOÃO RICARDO PEREIRA FALCÃO",
+          "nome_busca": "joao ricardo pereira falcao",
+          "email": "joaoricardop.falcao@gmail.com",
+          "matricula": "05629530275"
+        },
+        {
+          "id": "419715",
+          "nome": "JOÃO VICTOR FERRARI VENTURINI",
+          "nome_busca": "joao victor ferrari venturini",
+          "email": "JOAOVICTORFERRARI2007@GMAIL.COM",
+          "matricula": "02064676210"
+        },
+        {
+          "id": "379798",
+          "nome": "JOÃO VICTOR FUGIWARA UGOLINI",
+          "nome_busca": "joao victor fugiwara ugolini",
+          "email": "JOAOVICTORFUGIWARA@GMAIL.COM",
+          "matricula": "06396319241"
+        },
+        {
+          "id": "415248",
+          "nome": "JOÃO VICTOR SOARES DE SOUSA MAGNHAGO",
+          "nome_busca": "joao victor soares de sousa magnhago",
+          "email": "joaovictornagnhago69420@gmail.com",
+          "matricula": "04825281257"
+        },
+        {
+          "id": "388471",
+          "nome": "JOÃO VITOR SCABELO",
+          "nome_busca": "joao vitor scabelo",
+          "email": "JOAOVITORSCABELO@GMAIL.COM",
+          "matricula": "05863349204"
+        },
+        {
+          "id": "417096",
+          "nome": "JOAQUIM FERNANDES CARDOSO NETO",
+          "nome_busca": "joaquim fernandes cardoso neto",
+          "email": "JOAQUIMNETUU15@GMAIL.COM",
+          "matricula": "05892085279"
+        },
+        {
+          "id": "371698",
+          "nome": "JÔNATAS EDUARDO DE SOUZA FAGUNDES",
+          "nome_busca": "jonatas eduardo de souza fagundes",
+          "email": "JONATASEDUARDOJP2007@GMAIL.COM",
+          "matricula": "06879901220"
+        },
+        {
+          "id": "391986",
+          "nome": "JULIO CÉSAR DE PAULA FELIX",
+          "nome_busca": "julio cesar de paula felix",
+          "email": "JULIOCESAR.D.PAULA.FELIX@GMAIL.COM",
+          "matricula": "05106185297"
+        },
+        {
+          "id": "391978",
+          "nome": "KELVI EDUARDO MORAIS BERNARDI",
+          "nome_busca": "kelvi eduardo morais bernardi",
+          "email": "EM7838557@GMAIL.COM",
+          "matricula": "03713684219"
+        },
+        {
+          "id": "388186",
+          "nome": "KENIDY MARQUES DA SILVA",
+          "nome_busca": "kenidy marques da silva",
+          "email": "kenidymsilva@gmail.com",
+          "matricula": "01867486202"
+        },
+        {
+          "id": "380981",
+          "nome": "KENNEDY CORDEIRO EVANGELISTA DE JESUS SILVA",
+          "nome_busca": "kennedy cordeiro evangelista de jesus silva",
+          "email": "KENNEDY.CEJ@GMAIL.COM",
+          "matricula": "03620003289"
+        },
+        {
+          "id": "99691",
+          "nome": "LAERCIO GUIMARÃES MIRANDA",
+          "nome_busca": "laercio guimaraes miranda",
+          "email": "laercio_gm@hotmail.com",
+          "matricula": "88839184287"
+        },
+        {
+          "id": "396230",
+          "nome": "LAURA TEIXEIRA DE SOUZA",
+          "nome_busca": "laura teixeira de souza",
+          "email": "LAURATEIXEIRADESOUZA245@GMAIL.COM",
+          "matricula": "06617523210"
+        },
+        {
+          "id": "396538",
+          "nome": "LEONARDO DOS SANTOS LUNA",
+          "nome_busca": "leonardo dos santos luna",
+          "email": "LEONARDO_LUNA01@OUTLOOK.COM",
+          "matricula": "04484661209"
+        },
+        {
+          "id": "391805",
+          "nome": "LEONARDO ORNELES DE MORAIS",
+          "nome_busca": "leonardo orneles de morais",
+          "email": "LEONARDOORNELESCONTATO@GMAIL.COM",
+          "matricula": "08116801260"
+        },
+        {
+          "id": "371339",
+          "nome": "LETÍCYA STHÉFANY DE JESUS PEREIRA DA COSTA",
+          "nome_busca": "leticya sthefany de jesus pereira da costa",
+          "email": "LETICYASTHEFANYJESUS@GMAIL.COM",
+          "matricula": "06014406255"
+        },
+        {
+          "id": "382705",
+          "nome": "LUCAS EDUARDO DA SILVA NASCIMENTO",
+          "nome_busca": "lucas eduardo da silva nascimento",
+          "email": "lucaseduardosilvanascimento429@gmail.com",
+          "matricula": "06065318230"
+        },
+        {
+          "id": "378629",
+          "nome": "LUCAS GABRIEL OLIVEIRA DE JESUS",
+          "nome_busca": "lucas gabriel oliveira de jesus",
+          "email": "BIBILUCAS7@GMAIL.COM",
+          "matricula": "05097367260"
+        },
+        {
+          "id": "390876",
+          "nome": "LUIS MIGUEL SILVA MACEDO",
+          "nome_busca": "luis miguel silva macedo",
+          "email": "YOUDIME2017@GMAIL.COM",
+          "matricula": "03766905260"
+        },
+        {
+          "id": "388383",
+          "nome": "LUIZ FERNANDO BALTAZAR RODRIGUES",
+          "nome_busca": "luiz fernando baltazar rodrigues",
+          "email": "LUIZFERNANDO.OFC2@GMAIL.COM",
+          "matricula": "05603573201"
+        },
+        {
+          "id": "389657",
+          "nome": "LUIZ FERNANDO ROPELATTO DE OLIVEIRA",
+          "nome_busca": "luiz fernando ropelatto de oliveira",
+          "email": "LUIZLFROPELATTO@GMAIL.COM",
+          "matricula": "05260770269"
+        },
+        {
+          "id": "367584",
+          "nome": "LUIZ HENRYQUE ALVES MELO",
+          "nome_busca": "luiz henryque alves melo",
+          "email": "luizhenryjp12@gmail.com",
+          "matricula": "00851028225"
+        },
+        {
+          "id": "381001",
+          "nome": "LUIZ RICARDO ADRIEN RAMIREZ MOREIRA",
+          "nome_busca": "luiz ricardo adrien ramirez moreira",
+          "email": "luizricardoramirez@gmail.com",
+          "matricula": "01004300239"
+        },
+        {
+          "id": "398566",
+          "nome": "MAÍRA SOUSA BERGUERAND",
+          "nome_busca": "maira sousa berguerand",
+          "email": "MAIRABERGUERAND@GMAIL.COM",
+          "matricula": "00734710208"
+        },
+        {
+          "id": "420408",
+          "nome": "MARCILENE VITORIA TAVEIRA DE OLIVEIRA",
+          "nome_busca": "marcilene vitoria taveira de oliveira",
+          "email": "marcilenevitoria.ro@gmail.com",
+          "matricula": "02673416285"
+        },
+        {
+          "id": "421721",
+          "nome": "MARDEN RAFAEL DAL MAGRO GIMENEZ",
+          "nome_busca": "marden rafael dal magro gimenez",
+          "email": "MARDENRAFAELDALMAGRO.GIMENEZ@GMAIL.COM",
+          "matricula": "04494240222"
+        },
+        {
+          "id": "369180",
+          "nome": "MARIA EDUARDA DOS ANJELOS SANTOS",
+          "nome_busca": "maria eduarda dos anjelos santos",
+          "email": "eduardanjelos@gmail.com",
+          "matricula": "05824766231"
+        },
+        {
+          "id": "365360",
+          "nome": "MARIA EDUARDA DOS ANJOS BRITO",
+          "nome_busca": "maria eduarda dos anjos brito",
+          "email": "MARIABRITOCORP@GMAIL.COM",
+          "matricula": "04634716283"
+        },
+        {
+          "id": "380246",
+          "nome": "MATHEUS DE SOUZA FRANÇA",
+          "nome_busca": "matheus de souza franca",
+          "email": "MATHEUSFRASSA@OUTLOOK.COM",
+          "matricula": "11965927998"
+        },
+        {
+          "id": "388713",
+          "nome": "MATHEUS VELOSO DE LIMA",
+          "nome_busca": "matheus veloso de lima",
+          "email": "MTHSVELOSO62@GMAIL.COM",
+          "matricula": "02933175266"
+        },
+        {
+          "id": "387414",
+          "nome": "MIGUEL DO CARMO SILVA",
+          "nome_busca": "miguel do carmo silva",
+          "email": "MIGUELDOCARMOSILVA@GMAIL.COM",
+          "matricula": "07591889206"
+        },
+        {
+          "id": "365083",
+          "nome": "MILLENY PATRÍCIA MENEZES OLIVEIRA",
+          "nome_busca": "milleny patricia menezes oliveira",
+          "email": "milleny.patricia@gmail.com",
+          "matricula": "01264285221"
+        },
+        {
+          "id": "394755",
+          "nome": "NATHAN JONATHAN AMARAL MOREIRA",
+          "nome_busca": "nathan jonathan amaral moreira",
+          "email": "NATHANMOEIR@GMAIL.COM",
+          "matricula": "03021957269"
+        },
+        {
+          "id": "384209",
+          "nome": "NICOLLAS KEITY VENTURA SOBREIRA",
+          "nome_busca": "nicollas keity ventura sobreira",
+          "email": "nicollasmkt@gmail.com",
+          "matricula": "04857501201"
+        },
+        {
+          "id": "412000",
+          "nome": "GABRIEL HENRIQUE FERREIRA DE OLIVEIRA",
+          "nome_busca": "gabriel henrique ferreira de oliveira",
+          "email": "VALNETEOLIVEIRA86@GMAIL.COM",
+          "matricula": "05863745231"
+        },
+        {
+          "id": "412976",
+          "nome": "KEVIN SOARES DE OLIVEIRA",
+          "nome_busca": "kevin soares de oliveira",
+          "email": "kevinsoaresdeoliveira2006@gmail.com",
+          "matricula": "70514903201"
+        },
+        {
+          "id": "383783",
+          "nome": "PEDRO DALEPRANI",
+          "nome_busca": "pedro daleprani",
+          "email": "DALEPRANI@GMAIL.COM",
+          "matricula": "02596314266"
+        },
+        {
+          "id": "378367",
+          "nome": "PEDRO OZAWA BESSA MACANEIRO",
+          "nome_busca": "pedro ozawa bessa macaneiro",
+          "email": "PEDOCAOZAWA@GMAIL.COM",
+          "matricula": "04826782241"
+        },
+        {
+          "id": "399796",
+          "nome": "RENAN CARDOSO",
+          "nome_busca": "renan cardoso",
+          "email": "CARDOSORENAN540@ICLOUD.COM",
+          "matricula": "10750705973"
+        },
+        {
+          "id": "377866",
+          "nome": "RIAN ALENCAR RIBEIRO",
+          "nome_busca": "rian alencar ribeiro",
+          "email": "ALENCARRIAN2109@GMAIL.COM",
+          "matricula": "04835997271"
+        },
+        {
+          "id": "398383",
+          "nome": "RODRIGO BARRETO ANZILIERO",
+          "nome_busca": "rodrigo barreto anziliero",
+          "email": "rodrigo2007barreto@gmail.com",
+          "matricula": "00516808230"
+        },
+        {
+          "id": "396813",
+          "nome": "RUAN SILVA SANTOS",
+          "nome_busca": "ruan silva santos",
+          "email": "RUANSILVANANI@GMAIL.COM",
+          "matricula": "02484975295"
+        },
+        {
+          "id": "391534",
+          "nome": "SAMUEL VICTOR BUENO RIBEIRO",
+          "nome_busca": "samuel victor bueno ribeiro",
+          "email": "SAMUCAPRA1@GMAIL.COM",
+          "matricula": "06721324270"
+        },
+        {
+          "id": "378219",
+          "nome": "SOFIA BALDISSERA PEREIRA",
+          "nome_busca": "sofia baldissera pereira",
+          "email": "sofiabaldisserapereira@gmail.com",
+          "matricula": "03814301200"
+        },
+        {
+          "id": "421668",
+          "nome": "THIAGO ZIMERMANN FERRARI",
+          "nome_busca": "thiago zimermann ferrari",
+          "email": "THIAGOFERRARIPLAY7@GMAIL.COM",
+          "matricula": "00643964282"
+        },
+        {
+          "id": "390955",
+          "nome": "TIAGO FRANCISCO MOREIRA DE OLIVEIRA",
+          "nome_busca": "tiago francisco moreira de oliveira",
+          "email": "TIAGOOJIPA@GMAIL.COM",
+          "matricula": "05304783239"
+        },
+        {
+          "id": "385527",
+          "nome": "VICTOR CARVALHO BARBOSA FONTOURA",
+          "nome_busca": "victor carvalho barbosa fontoura",
+          "email": "VICTORCBFONTOURA048@GMAIL.COM",
+          "matricula": "02830332237"
+        },
+        {
+          "id": "419035",
+          "nome": "VICTOR HUGO MOTA ALCANTARA",
+          "nome_busca": "victor hugo mota alcantara",
+          "email": "HUGO03607@GMAIL.COM",
+          "matricula": "01232341231"
+        },
+        {
+          "id": "390510",
+          "nome": "VINICIUS BALDO DA SILVA",
+          "nome_busca": "vinicius baldo da silva",
+          "email": "viniciusbaldosilva28@gmail.com",
+          "matricula": "06350086295"
+        },
+        {
+          "id": "397903",
+          "nome": "VINÍCIUS PEREIRA BURG",
+          "nome_busca": "vinicius pereira burg",
+          "email": "VINICIUS.BURG8@GMAIL.COM",
+          "matricula": "04775468200"
+        },
+        {
+          "id": "403921",
+          "nome": "VITOR EMANOEL ESPÍNDOLA ALVES",
+          "nome_busca": "vitor emanoel espindola alves",
+          "email": "VICTOREMANUELVASCO@GMAIL.COM",
+          "matricula": "04587412210"
+        },
+        {
+          "id": "327223",
+          "nome": "WESLEY MARQUES DA SILVA BOTELHO",
+          "nome_busca": "wesley marques da silva botelho",
+          "email": "WESLEYBOTELHO374@GMAIL.COM",
+          "matricula": "05442387290"
+        }
+      ],
+      "mapa_alunos_id": {
+        "414909": "ALEHANDRO PUTTIN ARAUJO",
+        "376373": "ALESSANDRO MONTESSI DA SILVA",
+        "415046": "LUCAS OTÁVIO DE OLIVEIRA ANDRADE",
+        "259659": "ANDRE MATHEUS LIMA JASSET",
+        "312375": "BRENO BRESSIANI NOGUEIRA SILVA",
+        "389024": "BRUNO DE PAULA HERMSDORF",
+        "376863": "BRUNO IGNACIO DIAS CASULA",
+        "374647": "CAMILA BARRETO MITTANG",
+        "380994": "DANIEL HERCULANO DE SOUZA",
+        "389113": "DIEGO SOTT COIMBRA",
+        "380978": "EDUARDO ANTÔNIO DE MOURA SANTOS",
+        "391958": "EDUARDO DOS SANTOS PULQUERI",
+        "392207": "EDUARDO DOURADO GOMES MOURO DE ANGELO",
+        "387137": "EDUARDO TEIXEIRA RIBEIRO",
+        "389627": "EMANUEL PORFIRIO DE JESUS",
+        "386112": "EVERTON GOMES DA CRUZ",
+        "415845": "FELIPE FALQUETO VICENTE",
+        "411981": "ARIEL LEONEL DA SILVA FERREIRA",
+        "392419": "FILLIPE REIS TOMAZELLI",
+        "390317": "GUSTAVO MENDES MONTEIRO",
+        "392820": "ICARO ONEZORG OVANI",
+        "398945": "IGOR DAYAN DA SILVA MARTINS",
+        "375951": "JAÍNE MARQUES",
+        "399933": "JAYANE LIMA FERNANDES",
+        "384365": "JEFFERSON MARQUES ROCHA",
+        "374641": "JOÃO FRANCISCO CABRAL DE OLIVEIRA",
+        "382825": "JOÃO PAULO BRUSTOLOM OLIVEIRA",
+        "395888": "JOÃO PAULO DE OLIVEIRA MORAIS",
+        "408493": "JOÃO RICARDO PEREIRA FALCÃO",
+        "419715": "JOÃO VICTOR FERRARI VENTURINI",
+        "379798": "JOÃO VICTOR FUGIWARA UGOLINI",
+        "415248": "JOÃO VICTOR SOARES DE SOUSA MAGNHAGO",
+        "388471": "JOÃO VITOR SCABELO",
+        "417096": "JOAQUIM FERNANDES CARDOSO NETO",
+        "371698": "JÔNATAS EDUARDO DE SOUZA FAGUNDES",
+        "391986": "JULIO CÉSAR DE PAULA FELIX",
+        "391978": "KELVI EDUARDO MORAIS BERNARDI",
+        "388186": "KENIDY MARQUES DA SILVA",
+        "380981": "KENNEDY CORDEIRO EVANGELISTA DE JESUS SILVA",
+        "99691": "LAERCIO GUIMARÃES MIRANDA",
+        "396230": "LAURA TEIXEIRA DE SOUZA",
+        "396538": "LEONARDO DOS SANTOS LUNA",
+        "391805": "LEONARDO ORNELES DE MORAIS",
+        "371339": "LETÍCYA STHÉFANY DE JESUS PEREIRA DA COSTA",
+        "382705": "LUCAS EDUARDO DA SILVA NASCIMENTO",
+        "378629": "LUCAS GABRIEL OLIVEIRA DE JESUS",
+        "390876": "LUIS MIGUEL SILVA MACEDO",
+        "388383": "LUIZ FERNANDO BALTAZAR RODRIGUES",
+        "389657": "LUIZ FERNANDO ROPELATTO DE OLIVEIRA",
+        "367584": "LUIZ HENRYQUE ALVES MELO",
+        "381001": "LUIZ RICARDO ADRIEN RAMIREZ MOREIRA",
+        "398566": "MAÍRA SOUSA BERGUERAND",
+        "420408": "MARCILENE VITORIA TAVEIRA DE OLIVEIRA",
+        "421721": "MARDEN RAFAEL DAL MAGRO GIMENEZ",
+        "369180": "MARIA EDUARDA DOS ANJELOS SANTOS",
+        "365360": "MARIA EDUARDA DOS ANJOS BRITO",
+        "380246": "MATHEUS DE SOUZA FRANÇA",
+        "388713": "MATHEUS VELOSO DE LIMA",
+        "387414": "MIGUEL DO CARMO SILVA",
+        "365083": "MILLENY PATRÍCIA MENEZES OLIVEIRA",
+        "394755": "NATHAN JONATHAN AMARAL MOREIRA",
+        "384209": "NICOLLAS KEITY VENTURA SOBREIRA",
+        "412000": "GABRIEL HENRIQUE FERREIRA DE OLIVEIRA",
+        "412976": "KEVIN SOARES DE OLIVEIRA",
+        "383783": "PEDRO DALEPRANI",
+        "378367": "PEDRO OZAWA BESSA MACANEIRO",
+        "399796": "RENAN CARDOSO",
+        "377866": "RIAN ALENCAR RIBEIRO",
+        "398383": "RODRIGO BARRETO ANZILIERO",
+        "396813": "RUAN SILVA SANTOS",
+        "391534": "SAMUEL VICTOR BUENO RIBEIRO",
+        "378219": "SOFIA BALDISSERA PEREIRA",
+        "421668": "THIAGO ZIMERMANN FERRARI",
+        "390955": "TIAGO FRANCISCO MOREIRA DE OLIVEIRA",
+        "385527": "VICTOR CARVALHO BARBOSA FONTOURA",
+        "419035": "VICTOR HUGO MOTA ALCANTARA",
+        "390510": "VINICIUS BALDO DA SILVA",
+        "397903": "VINÍCIUS PEREIRA BURG",
+        "403921": "VITOR EMANOEL ESPÍNDOLA ALVES",
+        "327223": "WESLEY MARQUES DA SILVA BOTELHO"
+      },
+      "modulos": [
+        {
+          "id": "999677",
+          "nome": "📌 Ementa e Diretrizes da Disciplina",
+          "posicao": 1,
+          "publicado": true,
+          "itens_count": 5
+        },
+        {
+          "id": "960029",
+          "nome": "🚀 Comece por Aqui: Ambientação e Contatos",
+          "posicao": 2,
+          "publicado": true,
+          "itens_count": 8
+        },
+        {
+          "id": "999693",
+          "nome": "Módulo 1: Fundamentos de Ponteiros e Memória RAM",
+          "posicao": 3,
+          "publicado": true,
+          "itens_count": 6
+        },
+        {
+          "id": "999692",
+          "nome": "Módulo 2: Algoritmos de Ordenação e Eficiência",
+          "posicao": 4,
+          "publicado": false,
+          "itens_count": 2
+        },
+        {
+          "id": "960034",
+          "nome": "💡 Bônus: Lógica Proposicional e Tabela Verdade",
+          "posicao": 5,
+          "publicado": true,
+          "itens_count": 3
+        },
+        {
+          "id": "999596",
+          "nome": "💡 Bônus: Controle de Versão Colaborativo (Git & GitHub)",
+          "posicao": 6,
+          "publicado": true,
+          "itens_count": 6
+        },
+        {
+          "id": "1000467",
+          "nome": "🎯 Guia de Estudo da N1",
+          "posicao": 7,
+          "publicado": true,
+          "itens_count": 8
+        },
+        {
+          "id": "1000826",
+          "nome": "📝 Prova N1 e Gabarito",
+          "posicao": 8,
+          "publicado": true,
+          "itens_count": 4
+        }
+      ],
+      "tarefas": [
+        {
+          "id": "1386647",
+          "nome": null,
+          "pontos": 100,
+          "pendentes_correcao": 0
+        },
+        {
+          "id": "1382406",
+          "nome": null,
+          "pontos": 0,
+          "pendentes_correcao": 0
+        },
+        {
+          "id": "1386880",
+          "nome": null,
+          "pontos": 57,
+          "pendentes_correcao": 0
+        },
+        {
+          "id": "1391444",
+          "nome": null,
+          "pontos": 5,
+          "pendentes_correcao": 0
+        },
+        {
+          "id": "1388745",
+          "nome": null,
+          "pontos": 30,
+          "pendentes_correcao": 0
+        }
+      ]
+    }
+  },
+  "indice_rapido": {
+    "por_periodo": {
+      "4º Período": "162263",
+      "2º Período": "160754"
+    },
+    "por_curso_id": {
+      "162263": "4_periodo",
+      "160754": "2_periodo"
+    },
+    "alunos_para_curso": {
+      "alan gerath da silva scheffler": {
+        "id": "310790",
+        "nome": "ALAN GERATH DA SILVA SCHEFFLER",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "ana ligia de souza vale": {
+        "id": "313910",
+        "nome": "ANA LÍGIA DE SOUZA VALE",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "brenda emanuelly dias brunel": {
+        "id": "363018",
+        "nome": "BRENDA EMANUELLY DIAS BRUNEL",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "breno amorim dos santos silva": {
+        "id": "122491",
+        "nome": "BRENO AMORIM DOS SANTOS SILVA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "bruna michelly dias martins": {
+        "id": "251846",
+        "nome": "BRUNA MICHELLY DIAS MARTINS",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "camila brozeguine dernei": {
+        "id": "326476",
+        "nome": "CAMILA BROZEGUINE DERNEI",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "carlos victor estevam lenk": {
+        "id": "317335",
+        "nome": "CARLOS VICTOR ESTEVAM LENK",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "chrystian manuel fernandez leon": {
+        "id": "301806",
+        "nome": "CHRYSTIAN MANUEL FERNANDEZ LEON",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "daniel vitor maciel do carmo": {
+        "id": "320096",
+        "nome": "DANIEL VITOR MACIEL DO CARMO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "danilo chaves tiago junior": {
+        "id": "318445",
+        "nome": "DANILO CHAVES TIAGO JUNIOR",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "david alves apchu": {
+        "id": "115052",
+        "nome": "DAVID ALVES APCHU",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "diego lucas rioja ferreira": {
+        "id": "331089",
+        "nome": "DIEGO LUCAS RIOJA FERREIRA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "diego victor pereira de melo": {
+        "id": "316435",
+        "nome": "DIEGO VICTOR PEREIRA DE MELO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "felipe henrique mortari ercolin": {
+        "id": "322054",
+        "nome": "FELIPE HENRIQUE MORTARI ERCOLIN",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "fernanda santana leandro": {
+        "id": "308416",
+        "nome": "FERNANDA SANTANA LEANDRO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "gabriel do nascimento figueiredo": {
+        "id": "105164",
+        "nome": "GABRIEL DO NASCIMENTO FIGUEIREDO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "gabriella da silva godinho": {
+        "id": "202620",
+        "nome": "GABRIELLA DA SILVA GODINHO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "guilherme braga arcas": {
+        "id": "191664",
+        "nome": "GUILHERME BRAGA ARCAS",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "guilherme pereira godinho": {
+        "id": "312802",
+        "nome": "GUILHERME PEREIRA GODINHO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "gustavo benicio freitas da silva": {
+        "id": "266834",
+        "nome": "GUSTAVO BENICIO FREITAS DA SILVA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "hauan lins goncalves": {
+        "id": "328249",
+        "nome": "HAUAN LINS GONCALVES",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "hilion de paula hermsdorf": {
+        "id": "322055",
+        "nome": "HILION DE PAULA HERMSDORF",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "icaro onezorg ovani": {
+        "id": "392820",
+        "nome": "ICARO ONEZORG OVANI",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "jaina klitzke": {
+        "id": "286007",
+        "nome": "JAINA KLITZKE",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "joao guilherme fernandes rosa": {
+        "id": "122365",
+        "nome": "JOÃO GUILHERME FERNANDES ROSA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "joao pedro souza santos": {
+        "id": "312804",
+        "nome": "JOÃO PEDRO SOUZA SANTOS",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "joao ricardo pereira falcao": {
+        "id": "408493",
+        "nome": "JOÃO RICARDO PEREIRA FALCÃO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "joao vitor gambati coimbra": {
+        "id": "279457",
+        "nome": "JOÃO VITOR GAMBATI COIMBRA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "jose rian pablo trindade de oliveira": {
+        "id": "242601",
+        "nome": "JOSÉ RIAN PABLO TRINDADE DE OLIVEIRA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "kaique pandolfi filgueiras pereira": {
+        "id": "312806",
+        "nome": "KAIQUE PANDOLFI FILGUEIRAS PEREIRA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "kauan henrique barbosa peres": {
+        "id": "122935",
+        "nome": "KAUAN HENRIQUE BARBOSA PERES",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "loryan dos santos paulo": {
+        "id": "312808",
+        "nome": "LORYAN DOS SANTOS PAULO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "lucas clameirich da silveira": {
+        "id": "310560",
+        "nome": "LUCAS CLAMEIRICH DA SILVEIRA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "luiz gabriel alves da silva": {
+        "id": "325045",
+        "nome": "LUIZ GABRIEL ALVES DA SILVA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "maike barros ferreira de goes": {
+        "id": "352858",
+        "nome": "MAIKE BARROS FERREIRA DE GOES",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "marcos vinicius caetano da silva": {
+        "id": "121193",
+        "nome": "MARCOS VINICIUS CAETANO DA SILVA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "maria eduarda strelow antonio costa": {
+        "id": "312805",
+        "nome": "MARIA EDUARDA STRELOW ANTÔNIO COSTA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "mateus eduardo costa bender": {
+        "id": "330805",
+        "nome": "MATEUS EDUARDO COSTA BENDER",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "matheus barbosa gaspar": {
+        "id": "327214",
+        "nome": "MATHEUS BARBOSA GASPAR",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "matheus henrique mereles oliveira": {
+        "id": "310293",
+        "nome": "MATHEUS HENRIQUE MERELES OLIVEIRA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "murillo ozorio carvalho": {
+        "id": "293093",
+        "nome": "MURILLO OZORIO CARVALHO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "pablo martins mendes": {
+        "id": "185610",
+        "nome": "PABLO MARTINS MENDES",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "paulo justus iurk neto": {
+        "id": "92085",
+        "nome": "PAULO JUSTUS IURK NETO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "pedro henrique guilherme pereira": {
+        "id": "123828",
+        "nome": "PEDRO HENRIQUE GUILHERME PEREIRA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "pedro henrique pereira guimaraes": {
+        "id": "329079",
+        "nome": "PEDRO HENRIQUE PEREIRA GUIMARÃES",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "pedro henrique rodrigues de souza": {
+        "id": "320064",
+        "nome": "PEDRO HENRIQUE RODRIGUES DE SOUZA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "pedro henrique xavier de paula azevedo": {
+        "id": "339091",
+        "nome": "PEDRO HENRIQUE XAVIER DE PAULA AZEVEDO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "pedro kaiki silva gasparini": {
+        "id": "311867",
+        "nome": "PEDRO KAIKI SILVA GASPARINI",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "pedro milhomens": {
+        "id": "313673",
+        "nome": "PEDRO MILHOMENS",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "pedro paulo soares": {
+        "id": "306878",
+        "nome": "PEDRO PAULO SOARES",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "renan de lima souza": {
+        "id": "343620",
+        "nome": "RENAN DE LIMA SOUZA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "rodrigo vasconcelos do carmo": {
+        "id": "89497",
+        "nome": "RODRIGO VASCONCELOS DO CARMO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "ryan freitas lima": {
+        "id": "320091",
+        "nome": "RYAN FREITAS LIMA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "thiago henrique fonseca silveira": {
+        "id": "324578",
+        "nome": "THIAGO HENRIQUE FONSECA SILVEIRA",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "vandesson fonseca do espirito santo": {
+        "id": "329076",
+        "nome": "VANDESSON FONSECA DO ESPIRITO SANTO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "weverton henrique da silva cordeiro": {
+        "id": "314053",
+        "nome": "WEVERTON HENRIQUE DA SILVA CORDEIRO",
+        "curso_id": "162263",
+        "periodo": "4º Período"
+      },
+      "alehandro puttin araujo": {
+        "id": "414909",
+        "nome": "ALEHANDRO PUTTIN ARAUJO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "alessandro montessi da silva": {
+        "id": "376373",
+        "nome": "ALESSANDRO MONTESSI DA SILVA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "lucas otavio de oliveira andrade": {
+        "id": "415046",
+        "nome": "LUCAS OTÁVIO DE OLIVEIRA ANDRADE",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "andre matheus lima jasset": {
+        "id": "259659",
+        "nome": "ANDRE MATHEUS LIMA JASSET",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "breno bressiani nogueira silva": {
+        "id": "312375",
+        "nome": "BRENO BRESSIANI NOGUEIRA SILVA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "bruno de paula hermsdorf": {
+        "id": "389024",
+        "nome": "BRUNO DE PAULA HERMSDORF",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "bruno ignacio dias casula": {
+        "id": "376863",
+        "nome": "BRUNO IGNACIO DIAS CASULA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "camila barreto mittang": {
+        "id": "374647",
+        "nome": "CAMILA BARRETO MITTANG",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "daniel herculano de souza": {
+        "id": "380994",
+        "nome": "DANIEL HERCULANO DE SOUZA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "diego sott coimbra": {
+        "id": "389113",
+        "nome": "DIEGO SOTT COIMBRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "eduardo antonio de moura santos": {
+        "id": "380978",
+        "nome": "EDUARDO ANTÔNIO DE MOURA SANTOS",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "eduardo dos santos pulqueri": {
+        "id": "391958",
+        "nome": "EDUARDO DOS SANTOS PULQUERI",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "eduardo dourado gomes mouro de angelo": {
+        "id": "392207",
+        "nome": "EDUARDO DOURADO GOMES MOURO DE ANGELO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "eduardo teixeira ribeiro": {
+        "id": "387137",
+        "nome": "EDUARDO TEIXEIRA RIBEIRO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "emanuel porfirio de jesus": {
+        "id": "389627",
+        "nome": "EMANUEL PORFIRIO DE JESUS",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "everton gomes da cruz": {
+        "id": "386112",
+        "nome": "EVERTON GOMES DA CRUZ",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "felipe falqueto vicente": {
+        "id": "415845",
+        "nome": "FELIPE FALQUETO VICENTE",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "ariel leonel da silva ferreira": {
+        "id": "411981",
+        "nome": "ARIEL LEONEL DA SILVA FERREIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "fillipe reis tomazelli": {
+        "id": "392419",
+        "nome": "FILLIPE REIS TOMAZELLI",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "gustavo mendes monteiro": {
+        "id": "390317",
+        "nome": "GUSTAVO MENDES MONTEIRO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "igor dayan da silva martins": {
+        "id": "398945",
+        "nome": "IGOR DAYAN DA SILVA MARTINS",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "jaine marques": {
+        "id": "375951",
+        "nome": "JAÍNE MARQUES",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "jayane lima fernandes": {
+        "id": "399933",
+        "nome": "JAYANE LIMA FERNANDES",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "jefferson marques rocha": {
+        "id": "384365",
+        "nome": "JEFFERSON MARQUES ROCHA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "joao francisco cabral de oliveira": {
+        "id": "374641",
+        "nome": "JOÃO FRANCISCO CABRAL DE OLIVEIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "joao paulo brustolom oliveira": {
+        "id": "382825",
+        "nome": "JOÃO PAULO BRUSTOLOM OLIVEIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "joao paulo de oliveira morais": {
+        "id": "395888",
+        "nome": "JOÃO PAULO DE OLIVEIRA MORAIS",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "joao victor ferrari venturini": {
+        "id": "419715",
+        "nome": "JOÃO VICTOR FERRARI VENTURINI",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "joao victor fugiwara ugolini": {
+        "id": "379798",
+        "nome": "JOÃO VICTOR FUGIWARA UGOLINI",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "joao victor soares de sousa magnhago": {
+        "id": "415248",
+        "nome": "JOÃO VICTOR SOARES DE SOUSA MAGNHAGO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "joao vitor scabelo": {
+        "id": "388471",
+        "nome": "JOÃO VITOR SCABELO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "joaquim fernandes cardoso neto": {
+        "id": "417096",
+        "nome": "JOAQUIM FERNANDES CARDOSO NETO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "jonatas eduardo de souza fagundes": {
+        "id": "371698",
+        "nome": "JÔNATAS EDUARDO DE SOUZA FAGUNDES",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "julio cesar de paula felix": {
+        "id": "391986",
+        "nome": "JULIO CÉSAR DE PAULA FELIX",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "kelvi eduardo morais bernardi": {
+        "id": "391978",
+        "nome": "KELVI EDUARDO MORAIS BERNARDI",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "kenidy marques da silva": {
+        "id": "388186",
+        "nome": "KENIDY MARQUES DA SILVA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "kennedy cordeiro evangelista de jesus silva": {
+        "id": "380981",
+        "nome": "KENNEDY CORDEIRO EVANGELISTA DE JESUS SILVA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "laercio guimaraes miranda": {
+        "id": "99691",
+        "nome": "LAERCIO GUIMARÃES MIRANDA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "laura teixeira de souza": {
+        "id": "396230",
+        "nome": "LAURA TEIXEIRA DE SOUZA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "leonardo dos santos luna": {
+        "id": "396538",
+        "nome": "LEONARDO DOS SANTOS LUNA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "leonardo orneles de morais": {
+        "id": "391805",
+        "nome": "LEONARDO ORNELES DE MORAIS",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "leticya sthefany de jesus pereira da costa": {
+        "id": "371339",
+        "nome": "LETÍCYA STHÉFANY DE JESUS PEREIRA DA COSTA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "lucas eduardo da silva nascimento": {
+        "id": "382705",
+        "nome": "LUCAS EDUARDO DA SILVA NASCIMENTO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "lucas gabriel oliveira de jesus": {
+        "id": "378629",
+        "nome": "LUCAS GABRIEL OLIVEIRA DE JESUS",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "luis miguel silva macedo": {
+        "id": "390876",
+        "nome": "LUIS MIGUEL SILVA MACEDO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "luiz fernando baltazar rodrigues": {
+        "id": "388383",
+        "nome": "LUIZ FERNANDO BALTAZAR RODRIGUES",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "luiz fernando ropelatto de oliveira": {
+        "id": "389657",
+        "nome": "LUIZ FERNANDO ROPELATTO DE OLIVEIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "luiz henryque alves melo": {
+        "id": "367584",
+        "nome": "LUIZ HENRYQUE ALVES MELO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "luiz ricardo adrien ramirez moreira": {
+        "id": "381001",
+        "nome": "LUIZ RICARDO ADRIEN RAMIREZ MOREIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "maira sousa berguerand": {
+        "id": "398566",
+        "nome": "MAÍRA SOUSA BERGUERAND",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "marcilene vitoria taveira de oliveira": {
+        "id": "420408",
+        "nome": "MARCILENE VITORIA TAVEIRA DE OLIVEIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "marden rafael dal magro gimenez": {
+        "id": "421721",
+        "nome": "MARDEN RAFAEL DAL MAGRO GIMENEZ",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "maria eduarda dos anjelos santos": {
+        "id": "369180",
+        "nome": "MARIA EDUARDA DOS ANJELOS SANTOS",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "maria eduarda dos anjos brito": {
+        "id": "365360",
+        "nome": "MARIA EDUARDA DOS ANJOS BRITO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "matheus de souza franca": {
+        "id": "380246",
+        "nome": "MATHEUS DE SOUZA FRANÇA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "matheus veloso de lima": {
+        "id": "388713",
+        "nome": "MATHEUS VELOSO DE LIMA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "miguel do carmo silva": {
+        "id": "387414",
+        "nome": "MIGUEL DO CARMO SILVA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "milleny patricia menezes oliveira": {
+        "id": "365083",
+        "nome": "MILLENY PATRÍCIA MENEZES OLIVEIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "nathan jonathan amaral moreira": {
+        "id": "394755",
+        "nome": "NATHAN JONATHAN AMARAL MOREIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "nicollas keity ventura sobreira": {
+        "id": "384209",
+        "nome": "NICOLLAS KEITY VENTURA SOBREIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "gabriel henrique ferreira de oliveira": {
+        "id": "412000",
+        "nome": "GABRIEL HENRIQUE FERREIRA DE OLIVEIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "kevin soares de oliveira": {
+        "id": "412976",
+        "nome": "KEVIN SOARES DE OLIVEIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "pedro daleprani": {
+        "id": "383783",
+        "nome": "PEDRO DALEPRANI",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "pedro ozawa bessa macaneiro": {
+        "id": "378367",
+        "nome": "PEDRO OZAWA BESSA MACANEIRO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "renan cardoso": {
+        "id": "399796",
+        "nome": "RENAN CARDOSO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "rian alencar ribeiro": {
+        "id": "377866",
+        "nome": "RIAN ALENCAR RIBEIRO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "rodrigo barreto anziliero": {
+        "id": "398383",
+        "nome": "RODRIGO BARRETO ANZILIERO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "ruan silva santos": {
+        "id": "396813",
+        "nome": "RUAN SILVA SANTOS",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "samuel victor bueno ribeiro": {
+        "id": "391534",
+        "nome": "SAMUEL VICTOR BUENO RIBEIRO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "sofia baldissera pereira": {
+        "id": "378219",
+        "nome": "SOFIA BALDISSERA PEREIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "thiago zimermann ferrari": {
+        "id": "421668",
+        "nome": "THIAGO ZIMERMANN FERRARI",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "tiago francisco moreira de oliveira": {
+        "id": "390955",
+        "nome": "TIAGO FRANCISCO MOREIRA DE OLIVEIRA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "victor carvalho barbosa fontoura": {
+        "id": "385527",
+        "nome": "VICTOR CARVALHO BARBOSA FONTOURA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "victor hugo mota alcantara": {
+        "id": "419035",
+        "nome": "VICTOR HUGO MOTA ALCANTARA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "vinicius baldo da silva": {
+        "id": "390510",
+        "nome": "VINICIUS BALDO DA SILVA",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "vinicius pereira burg": {
+        "id": "397903",
+        "nome": "VINÍCIUS PEREIRA BURG",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "vitor emanoel espindola alves": {
+        "id": "403921",
+        "nome": "VITOR EMANOEL ESPÍNDOLA ALVES",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      },
+      "wesley marques da silva botelho": {
+        "id": "327223",
+        "nome": "WESLEY MARQUES DA SILVA BOTELHO",
+        "curso_id": "160754",
+        "periodo": "2º Período"
+      }
+    }
+  }
+}

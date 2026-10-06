@@ -249,6 +249,16 @@ journalctl -u afya-canvas -f         # acompanhar os logs em tempo real
 
 ---
 
+## ⚡ Metadados Locais & Otimização Extrema de Tokens
+
+Para acelerar consultas rotineiras e economizar chamadas de rede e tokens de IA, o repositório mantém um catálogo local estruturado das disciplinas e estudantes do semestre letivo:
+
+- **Catálogo JSON:** [`data/metadata/semestre_2026_2.json`](data/metadata/semestre_2026_2.json) com as turmas ativas (2º e 4º períodos), módulos, atividades e os 134 estudantes indexados (com ID, matrícula e chave de busca normalizada sem acentos).
+- **Consulta Instantânea:** [`scripts/metadata_lookup.py`](scripts/metadata_lookup.py) para resolução rápida em Python de IDs de turmas e alunos com custo zero de API.
+- **Sincronizador:** [`scripts/sync_metadata.py`](scripts/sync_metadata.py) para atualizar os dados diretamente da API do Canvas quando houver alterações de matrícula.
+
+---
+
 ## 📄 Instruções para Novos Agentes
 
 Para garantir que qualquer novo agente de IA entenda exatamente o fluxo pedagógico e as regras do professor sem perder o contexto, consulte o arquivo [`AGENTS.md`](AGENTS.md).
