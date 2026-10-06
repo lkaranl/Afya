@@ -256,6 +256,7 @@ Para acelerar consultas rotineiras e economizar chamadas de rede e tokens de IA,
 - **Catálogo JSON:** [`data/metadata/semestre_2026_2.json`](data/metadata/semestre_2026_2.json) com as turmas ativas (2º e 4º períodos), módulos, atividades e os 134 estudantes indexados (com ID, matrícula e chave de busca normalizada sem acentos).
 - **Consulta Instantânea:** [`scripts/metadata_lookup.py`](scripts/metadata_lookup.py) para resolução rápida em Python de IDs de turmas e alunos com custo zero de API.
 - **Sincronizador:** [`scripts/sync_metadata.py`](scripts/sync_metadata.py) para atualizar os dados diretamente da API do Canvas quando houver alterações de matrícula.
+- **Guia Completo de Estratégias:** [`doc/ESTRATEGIAS_ECONOMIA_DE_TOKENS.md`](doc/ESTRATEGIAS_ECONOMIA_DE_TOKENS.md) detalhando as 7 abordagens para redução de até 90% no consumo de tokens.
 
 ---
 

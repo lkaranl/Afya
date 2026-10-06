@@ -118,13 +118,17 @@ var mcpTools = []MCPTool{
 	},
 	{
 		Name:        "canvas_list_students",
-		Description: "Lista todos os alunos matriculados em uma disciplina com IDs do Canvas, nomes completos e nomes ordenáveis.",
+		Description: "Lista os alunos matriculados em uma disciplina com IDs do Canvas, nomes completos e matrículas. Suporta busca indexada ultrarrápida via parâmetro 'query' para economizar tokens.",
 		InputSchema: map[string]any{
 			"type": "object",
 			"properties": map[string]any{
 				"course_id": map[string]any{
 					"type":        "string",
 					"description": "ID numérico da disciplina no Canvas",
+				},
+				"query": map[string]any{
+					"type":        "string",
+					"description": "Filtro opcional para buscar alunos específicos por nome ou termo (ex: 'wesley', 'thiago') economizando tokens",
 				},
 			},
 			"required": []string{"course_id"},
@@ -1342,9 +1346,13 @@ func executeMCPTool(client *CanvasClient, name string, rawArgs json.RawMessage) 
 	case "canvas_list_students":
 		var args struct {
 			CourseID string `json:"course_id"`
+			Query    string `json:"query"`
 		}
 		if err := json.Unmarshal(rawArgs, &args); err != nil {
 			return nil, err
+		}
+		if args.Query != "" {
+			return client.SearchStudents(args.CourseID, args.Query)
 		}
 		return client.ListStudents(args.CourseID)
 

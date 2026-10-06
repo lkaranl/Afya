@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"html"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -88,6 +89,7 @@ type CanvasClient struct {
 	Token      string
 	HTTPClient *http.Client
 	Cache      *MemoryCache
+	DBCache    *SQLiteCache
 }
 
 func NewCanvasClient(baseURL, token string) *CanvasClient {
@@ -121,6 +123,11 @@ func NewCanvasClient(baseURL, token string) *CanvasClient {
 		}
 	}
 
+	dbCache, err := NewSQLiteCache("")
+	if err != nil {
+		log.Printf("⚠️ [SQLITE] Aviso: Não foi possível inicializar cache SQLite local: %v", err)
+	}
+
 	return &CanvasClient{
 		BaseURL:    strings.TrimRight(baseURL, "/"),
 		Token:      token,
@@ -128,7 +135,8 @@ func NewCanvasClient(baseURL, token string) *CanvasClient {
 			Transport: transport,
 			Timeout:   45 * time.Second,
 		},
-		Cache: NewMemoryCache(ttl),
+		Cache:   NewMemoryCache(ttl),
+		DBCache: dbCache,
 	}
 }
 
@@ -298,6 +306,7 @@ func EnrichCourses(courses []map[string]any) []map[string]any {
 }
 
 func (c *CanvasClient) ListCourses() ([]map[string]any, error) {
+	// 1. Tenta memória RAM
 	if c.Cache != nil {
 		if cached, found := c.Cache.Get("courses"); found {
 			if courses, ok := cached.([]map[string]any); ok {
@@ -305,6 +314,19 @@ func (c *CanvasClient) ListCourses() ([]map[string]any, error) {
 			}
 		}
 	}
+	// 2. Tenta SQLite em disco
+	if c.DBCache != nil {
+		if val, found := c.DBCache.Get("courses"); found && val != "" {
+			var courses []map[string]any
+			if err := json.Unmarshal([]byte(val), &courses); err == nil && len(courses) > 0 {
+				if c.Cache != nil {
+					c.Cache.Set("courses", courses, 0)
+				}
+				return courses, nil
+			}
+		}
+	}
+	// 3. Busca na API do Canvas
 	data, _, err := c.Request("GET", "/api/v1/courses?per_page=50&include[]=total_students&include[]=term", nil)
 	if err != nil {
 		return nil, err
@@ -314,8 +336,15 @@ func (c *CanvasClient) ListCourses() ([]map[string]any, error) {
 		return nil, err
 	}
 	enriched := EnrichCourses(courses)
+	// Salva na memória
 	if c.Cache != nil {
 		c.Cache.Set("courses", enriched, 0)
+	}
+	// Salva no SQLite com 2 horas de TTL
+	if c.DBCache != nil {
+		if b, err := json.Marshal(enriched); err == nil {
+			go c.DBCache.Set("courses", string(b), 2*time.Hour)
+		}
 	}
 	return enriched, nil
 }
@@ -568,34 +597,81 @@ func (c *CanvasClient) ListStudents(courseID string) (any, error) {
 		courseID = resolved
 	}
 	cacheKey := fmt.Sprintf("students:%s", courseID)
+	// 1. Tenta memória RAM
 	if c.Cache != nil {
 		if cached, found := c.Cache.Get(cacheKey); found {
 			return cached, nil
 		}
 	}
+	// 2. Tenta SQLite em disco
+	if c.DBCache != nil {
+		if cachedStudents, found := c.DBCache.GetStudents(courseID); found && len(cachedStudents) > 0 {
+			if c.Cache != nil {
+				c.Cache.Set(cacheKey, cachedStudents, 0)
+			}
+			return cachedStudents, nil
+		}
+	}
+	// 3. Busca na API do Canvas
 	endpoint := fmt.Sprintf("/api/v1/courses/%s/users?enrollment_type[]=student&per_page=100", url.PathEscape(courseID))
 	data, _, err := c.Request("GET", endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
-	var result any
+	var result []any
 	err = json.Unmarshal(data, &result)
-	if err == nil && c.Cache != nil {
-		c.Cache.Set(cacheKey, result, 0)
+	if err == nil {
+		if c.Cache != nil {
+			c.Cache.Set(cacheKey, result, 0)
+		}
+		if c.DBCache != nil {
+			_ = c.DBCache.SaveStudents(courseID, result)
+		}
 	}
 	return result, err
 }
 
-// ClearCache limpa todos os itens mantidos em memória
+// SearchStudents busca estudantes pelo nome indexado no SQLite
+func (c *CanvasClient) SearchStudents(courseID string, query string) ([]map[string]any, error) {
+	if resolved, err := c.ResolveCourseID(courseID); err == nil && resolved != "" {
+		courseID = resolved
+	}
+	if c.DBCache != nil {
+		results, err := c.DBCache.SearchStudents(courseID, query)
+		if err == nil && len(results) > 0 {
+			return results, nil
+		}
+	}
+	// Se não encontrou no SQLite, garante que a turma esteja carregada
+	if _, err := c.ListStudents(courseID); err == nil && c.DBCache != nil {
+		results, err := c.DBCache.SearchStudents(courseID, query)
+		if err == nil {
+			return results, nil
+		}
+	}
+	return []map[string]any{}, nil
+}
+
+// ClearCache limpa todos os itens mantidos em memória e no SQLite
 func (c *CanvasClient) ClearCache() int {
+	if c.DBCache != nil {
+		_ = c.DBCache.Clear()
+	}
 	if c.Cache == nil {
 		return 0
 	}
 	return c.Cache.Clear()
 }
 
-// ClearCourseCache limpa o cache específico de uma disciplina
+// ClearCourseCache limpa o cache específico de uma disciplina na memória e no SQLite
 func (c *CanvasClient) ClearCourseCache(courseID string) int {
+	if c.DBCache != nil {
+		_, _ = c.DBCache.DeletePrefix("students:" + courseID)
+		_, _ = c.DBCache.DeletePrefix("assignments:" + courseID)
+		_, _ = c.DBCache.DeletePrefix("assignment:" + courseID)
+		_ = c.DBCache.Delete("modules:" + courseID)
+		_ = c.DBCache.Delete("groups:" + courseID)
+	}
 	if c.Cache == nil {
 		return 0
 	}
