@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 320" width="100%" height="auto" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision;">
+  <defs>
+    <linearGradient id="barRed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#be123c"/>
+    </linearGradient>
+    <linearGradient id="barAmber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="barGreen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="barAfya" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e11d48"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <filter id="glowGreenBar" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#10b981" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Fundo Dark Translúcido -->
+  <rect width="100%" height="100%" fill="#090e17" rx="14" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Linhas de Grade Horizontais -->
+  <line x1="70" y1="230" x2="700" y2="230" stroke="#334155" stroke-width="1.2"/>
+  <line x1="70" y1="185" x2="700" y2="185" stroke="#1e293b" stroke-dasharray="4"/>
+  <line x1="70" y1="140" x2="700" y2="140" stroke="#1e293b" stroke-dasharray="4"/>
+  <line x1="70" y1="95" x2="700" y2="95" stroke="#1e293b" stroke-dasharray="4"/>
+  <line x1="70" y1="50" x2="700" y2="50" stroke="#1e293b" stroke-dasharray="4"/>
+
+  <!-- Eixo Y (Escala em Minutos) -->
+  <text x="60" y="234" font-family="'Inter', sans-serif" font-size="10" fill="#64748b" text-anchor="end">0 min</text>
+  <text x="60" y="189" font-family="'Inter', sans-serif" font-size="10" fill="#64748b" text-anchor="end">100 min</text>
+  <text x="60" y="144" font-family="'Inter', sans-serif" font-size="10" fill="#64748b" text-anchor="end">200 min</text>
+  <text x="60" y="99" font-family="'Inter', sans-serif" font-size="10" fill="#64748b" text-anchor="end">300 min</text>
+  <text x="60" y="54" font-family="'Inter', sans-serif" font-size="10" fill="#64748b" text-anchor="end">400 min</text>
+
+  <!-- LEGENDA SUPERIOR -->
+  <g transform="translate(140, 18)">
+    <rect x="0" y="0" width="14" height="10" fill="url(#barRed)" rx="2"/>
+    <text x="20" y="9" font-family="'Inter', sans-serif" font-size="10.5" fill="#fca5a5">Fluxo Manual</text>
+
+    <rect x="130" y="0" width="14" height="10" fill="url(#barAmber)" rx="2"/>
+    <text x="150" y="9" font-family="'Inter', sans-serif" font-size="10.5" fill="#fde68a">Agente Isolado</text>
+
+    <rect x="270" y="0" width="14" height="10" fill="url(#barGreen)" rx="2" filter="url(#glowGreenBar)"/>
+    <text x="290" y="9" font-family="'Inter', sans-serif" font-size="10.5" font-weight="700" fill="#6ee7b7">Mediação MCP (Afya)</text>
+  </g>
+
+  <!-- ETAPA 1: COLETA / CLONE -->
+  <g transform="translate(90, 0)">
+    <!-- Manual: 32 min (y=216, h=14) -->
+    <rect x="0" y="215" width="22" height="15" fill="url(#barRed)" rx="2"/>
+    <text x="11" y="210" font-family="'Inter', sans-serif" font-size="8.5" fill="#fca5a5" text-anchor="middle">32m</text>
+    <!-- Agente: 28 min -->
+    <rect x="25" y="217" width="22" height="13" fill="url(#barAmber)" rx="2"/>
+    <text x="36" y="210" font-family="'Inter', sans-serif" font-size="8.5" fill="#fde68a" text-anchor="middle">28m</text>
+    <!-- MCP: 23,3s (0.39m) -->
+    <rect x="50" y="228" width="22" height="2" fill="url(#barGreen)" rx="1"/>
+    <text x="61" y="222" font-family="'Inter', sans-serif" font-size="8" font-weight="800" fill="#34d399" text-anchor="middle">23s</text>
+
+    <text x="36" y="248" font-family="'Inter', sans-serif" font-size="10" font-weight="600" fill="#e2e8f0" text-anchor="middle">Coleta /</text>
+    <text x="36" y="260" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Clone Git</text>
+  </g>
+
+  <!-- ETAPA 2: AUDITORIA DE BUILD GCC -->
+  <g transform="translate(215, 0)">
+    <!-- Manual: 78 min (h=35) -->
+    <rect x="0" y="195" width="22" height="35" fill="url(#barRed)" rx="2"/>
+    <text x="11" y="190" font-family="'Inter', sans-serif" font-size="8.5" fill="#fca5a5" text-anchor="middle">78m</text>
+    <!-- Agente: 0 min (não tem terminal!) -->
+    <rect x="25" y="229" width="22" height="1" fill="#475569"/>
+    <text x="36" y="222" font-family="'Inter', sans-serif" font-size="8" fill="#94a3b8" text-anchor="middle">0 (Sem)</text>
+    <!-- MCP: 1,8s -->
+    <rect x="50" y="228" width="22" height="2" fill="url(#barGreen)" rx="1"/>
+    <text x="61" y="222" font-family="'Inter', sans-serif" font-size="8" font-weight="800" fill="#34d399" text-anchor="middle">1,8s</text>
+
+    <text x="36" y="248" font-family="'Inter', sans-serif" font-size="10" font-weight="600" fill="#e2e8f0" text-anchor="middle">Compilação</text>
+    <text x="36" y="260" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">GCC Real</text>
+  </g>
+
+  <!-- ETAPA 3: PARECERES & CONFERÊNCIA -->
+  <g transform="translate(340, 0)">
+    <!-- Manual: 168 min (h=76) -->
+    <rect x="0" y="154" width="22" height="76" fill="url(#barRed)" rx="2"/>
+    <text x="11" y="148" font-family="'Inter', sans-serif" font-size="8.5" fill="#fca5a5" text-anchor="middle">168m</text>
+    <!-- Agente: 52 min (h=23) -->
+    <rect x="25" y="207" width="22" height="23" fill="url(#barAmber)" rx="2"/>
+    <text x="36" y="201" font-family="'Inter', sans-serif" font-size="8.5" fill="#fde68a" text-anchor="middle">52m</text>
+    <!-- MCP: 1,9 min (h=2) -->
+    <rect x="50" y="227" width="22" height="3" fill="url(#barGreen)" rx="1"/>
+    <text x="61" y="220" font-family="'Inter', sans-serif" font-size="8" font-weight="800" fill="#34d399" text-anchor="middle">1,9m</text>
+
+    <text x="36" y="248" font-family="'Inter', sans-serif" font-size="10" font-weight="600" fill="#e2e8f0" text-anchor="middle">Pareceres &</text>
+    <text x="36" y="260" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">Conferência</text>
+  </g>
+
+  <!-- ETAPA 4: LANÇAMENTO NO BOLETIM -->
+  <g transform="translate(465, 0)">
+    <!-- Manual: 30 min (h=14) -->
+    <rect x="0" y="216" width="22" height="14" fill="url(#barRed)" rx="2"/>
+    <text x="11" y="210" font-family="'Inter', sans-serif" font-size="8.5" fill="#fca5a5" text-anchor="middle">30m</text>
+    <!-- Agente: 25 min (h=11) -->
+    <rect x="25" y="219" width="22" height="11" fill="url(#barAmber)" rx="2"/>
+    <text x="36" y="213" font-family="'Inter', sans-serif" font-size="8.5" fill="#fde68a" text-anchor="middle">25m</text>
+    <!-- MCP: 0,55s -->
+    <rect x="50" y="228" width="22" height="2" fill="url(#barGreen)" rx="1"/>
+    <text x="61" y="222" font-family="'Inter', sans-serif" font-size="8" font-weight="800" fill="#34d399" text-anchor="middle">0,55s</text>
+
+    <text x="36" y="248" font-family="'Inter', sans-serif" font-size="10" font-weight="600" fill="#e2e8f0" text-anchor="middle">Lançamento</text>
+    <text x="36" y="260" font-family="'Inter', sans-serif" font-size="9" fill="#94a3b8" text-anchor="middle">no Canvas</text>
+  </g>
+
+  <!-- ETAPA 5: TEMPO TOTAL DA TURMA -->
+  <g transform="translate(590, 0)">
+    <!-- Manual: 353 min (h=159, y=71) -->
+    <rect x="0" y="71" width="26" height="159" fill="url(#barRed)" rx="3"/>
+    <text x="13" y="64" font-family="'Inter', sans-serif" font-size="9" font-weight="800" fill="#fb7185" text-anchor="middle">353m</text>
+    <text x="13" y="52" font-family="'Inter', sans-serif" font-size="7.5" fill="#fca5a5" text-anchor="middle">(5h53)</text>
+
+    <!-- Agente: 105 min (h=47, y=183) -->
+    <rect x="30" y="183" width="26" height="47" fill="url(#barAmber)" rx="3"/>
+    <text x="43" y="176" font-family="'Inter', sans-serif" font-size="9" font-weight="800" fill="#fbbf24" text-anchor="middle">105m</text>
+    <text x="43" y="164" font-family="'Inter', sans-serif" font-size="7.5" fill="#fde68a" text-anchor="middle">(1h45)</text>
+
+    <!-- MCP: 2,4 min (h=4, y=226) -->
+    <rect x="60" y="226" width="28" height="4" fill="url(#barGreen)" rx="2" filter="url(#glowGreenBar)"/>
+    <text x="74" y="214" font-family="'Inter', sans-serif" font-size="10" font-weight="900" fill="#34d399" text-anchor="middle">2,4 min</text>
+    <text x="74" y="200" font-family="'Inter', sans-serif" font-size="8.5" font-weight="900" fill="#10b981" text-anchor="middle">-99,3%</text>
+
+    <text x="45" y="248" font-family="'Inter', sans-serif" font-size="10.5" font-weight="800" fill="#38bdf8" text-anchor="middle">TEMPO TOTAL</text>
+    <text x="45" y="260" font-family="'Inter', sans-serif" font-size="9" font-weight="600" fill="#94a3b8" text-anchor="middle">60 Discentes</text>
+  </g>
+</svg>

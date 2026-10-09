@@ -15,7 +15,7 @@
     <rect width="340" height="68" rx="5" fill="#f8fafc" stroke="#334155" stroke-width="1.2"/>
     <path d="M 0 5 Q 0 0 5 0 L 335 0 Q 340 0 340 5 L 340 22 L 0 22 Z" fill="#1e293b"/>
     <text x="170" y="15" fill="#ffffff" font-family="'Times New Roman', serif" font-size="11" font-weight="bold" text-anchor="middle">1. CAMADA DOCENTE (Telegram Bot)</text>
-    <text x="10" y="38" fill="#0f172a" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold">Interação em Linguagem Natural Pura (Voz ou Texto)</text>
+    <text x="10" y="38" fill="#0f172a" font-family="'Times New Roman', serif" font-size="10.5" font-weight="bold">Interação Textual em Linguagem Natural</text>
     <text x="10" y="51" fill="#334155" font-family="'Times New Roman', serif" font-size="9.5">• Envio de demandas pedagógicas e consultas de turmas</text>
     <text x="10" y="63" fill="#334155" font-family="'Times New Roman', serif" font-size="9.5">• Aprovação soberana de notas via botões interativos</text>
   </g>

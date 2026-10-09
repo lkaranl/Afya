@@ -41,5 +41,15 @@
 
 ---
 
-### 6. Equipes com Nota 100 (`Truxera`, `victrmldy`, `RodrigoCarm`, `ZeDaAreia`)
+### 6. Equipe `sofia-baldissera-pereira` — Nota: 65 / 100
+**Alunos:** Sofia Baldissera Pereira, Eduardo Dourado Gomes Mouro de Angelo
+> O fluxo de versionamento colaborativo no GitHub foi estruturado com branches e Pull Requests individuais por tarefa. 
+> Contudo, o código final na branch main não compila via GCC/Clang devido a duas falhas de integração no arquivo `main.c`:
+> • Chamada à função não declarada e não implementada `aplicar_juros` na linha 80 (`call to undeclared function aplicar_juros`).
+> • Duplicação da cláusula `case 3:` no `switch` da linha 82 (`duplicate case value 3`).
+> Essas falhas impedem a geração do executável do programa (-35 pts).
+
+---
+
+### 7. Equipes com Nota 100 (`Truxera`, `victrmldy`, `RodrigoCarm`, `ZeDaAreia`)
 > Excelente trabalho! O repositório seguiu perfeitamente o fluxo de Git colaborativo com branches e Pull Requests, e o código em C compilou sem erros, atendendo a todos os requisitos do enunciado. Parabéns à equipe!

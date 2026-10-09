@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" width="100%" height="auto" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision;">
+  <defs>
+    <linearGradient id="cardDarkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="afyaGradCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e11d48"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+    <linearGradient id="greenGradCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <linearGradient id="blueGradCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+    <filter id="glowGreen" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#10b981" flood-opacity="0.25"/>
+    </filter>
+    <filter id="glowAfya" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#e11d48" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- CONTAINER 1: CAMADA DOCENTE (TELEGRAM) -->
+  <g transform="translate(20, 20)">
+    <rect width="210" height="340" rx="16" fill="url(#cardDarkGrad)" stroke="#38bdf8" stroke-width="1.5" stroke-opacity="0.6"/>
+    <rect x="0" y="0" width="210" height="42" rx="16" fill="url(#blueGradCard)"/>
+    <text x="105" y="26" fill="#ffffff" font-family="'Inter', -apple-system, sans-serif" font-size="12.5" font-weight="800" text-anchor="middle" letter-spacing="0.5">1. CAMADA DOCENTE</text>
+    
+    <g transform="translate(15, 60)">
+      <circle cx="20" cy="20" r="18" fill="rgba(56,189,248,0.15)"/>
+      <text x="20" y="26" font-size="18" text-anchor="middle">📱</text>
+      <text x="50" y="18" fill="#38bdf8" font-family="'Inter', sans-serif" font-size="13" font-weight="700">Telegram Bot</text>
+      <text x="50" y="32" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="10.5">Interface Mobile</text>
+    </g>
+
+    <rect x="15" y="115" width="180" height="95" rx="10" fill="#090e17" stroke="#1e293b" stroke-width="1"/>
+    <text x="25" y="135" fill="#e2e8f0" font-family="'Inter', sans-serif" font-size="10.5" font-weight="600">💬 Comando Textual:</text>
+    <text x="25" y="152" fill="#38bdf8" font-family="'Inter', sans-serif" font-size="9.5" font-style="italic">"Auditar atividade Git"</text>
+    <line x1="25" y1="162" x2="185" y2="162" stroke="#1e293b"/>
+    <text x="25" y="178" fill="#fbbf24" font-family="'Inter', sans-serif" font-size="10" font-weight="700">🛡️ Decisão Soberana</text>
+    <text x="25" y="195" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="9">Aprovação via botão inline</text>
+
+    <g transform="translate(15, 225)">
+      <rect width="180" height="40" rx="8" fill="rgba(16,185,129,0.15)" stroke="#10b981" stroke-width="1"/>
+      <text x="90" y="25" fill="#34d399" font-family="'Inter', sans-serif" font-size="11" font-weight="800" text-anchor="middle">✅ Homologar (0,55s)</text>
+    </g>
+
+    <text x="105" y="310" fill="#64748b" font-family="'Inter', sans-serif" font-size="10" text-anchor="middle">Supervisão Humana (HitL)</text>
+  </g>
+
+  <!-- CONEXÃO SETAS 1 -> 2 -->
+  <g transform="translate(235, 140)">
+    <path d="M 0 15 L 40 15" stroke="#38bdf8" stroke-width="2.5" stroke-dasharray="4 2"/>
+    <polygon points="40,15 32,10 32,20" fill="#38bdf8"/>
+    <text x="20" y="7" fill="#38bdf8" font-family="'Inter', sans-serif" font-size="9" font-weight="700" text-anchor="middle">Comando</text>
+
+    <path d="M 40 45 L 0 45" stroke="#a855f7" stroke-width="2.5" stroke-dasharray="4 2"/>
+    <polygon points="0,45 8,40 8,50" fill="#a855f7"/>
+    <text x="20" y="60" fill="#c084fc" font-family="'Inter', sans-serif" font-size="9" font-weight="700" text-anchor="middle">Ficha/Minuta</text>
+  </g>
+
+  <!-- CONTAINER 2: MEDIAÇÃO INTELIGENTE (MCP EM GO + IA) -->
+  <g transform="translate(280, 20)" filter="url(#glowGreen)">
+    <rect width="235" height="340" rx="16" fill="url(#cardDarkGrad)" stroke="#10b981" stroke-width="2"/>
+    <rect x="0" y="0" width="235" height="42" rx="16" fill="url(#greenGradCard)"/>
+    <text x="117.5" y="26" fill="#ffffff" font-family="'Inter', sans-serif" font-size="12.5" font-weight="800" text-anchor="middle" letter-spacing="0.5">2. MEDIAÇÃO INTELIGENTE</text>
+
+    <g transform="translate(15, 55)">
+      <rect width="205" height="42" rx="8" fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.3)"/>
+      <text x="15" y="20" fill="#34d399" font-family="'Inter', sans-serif" font-size="11" font-weight="800">SERVIDOR MCP EM GO</text>
+      <text x="15" y="34" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="9.5">Execução Local via stdio</text>
+    </g>
+
+    <g transform="translate(15, 108)">
+      <!-- Box Recursos -->
+      <rect width="64" height="60" rx="8" fill="#090e17" stroke="#1e293b"/>
+      <text x="32" y="24" font-size="15" text-anchor="middle">📂</text>
+      <text x="32" y="40" fill="#38bdf8" font-family="'Inter', sans-serif" font-size="9" font-weight="700" text-anchor="middle">Recursos</text>
+      <text x="32" y="52" fill="#64748b" font-family="'Inter', sans-serif" font-size="7.5" text-anchor="middle">Rubricas</text>
+
+      <!-- Box Prompts -->
+      <rect x="70" width="64" height="60" rx="8" fill="#090e17" stroke="#1e293b"/>
+      <text x="102" y="24" font-size="15" text-anchor="middle">📜</text>
+      <text x="102" y="40" fill="#c084fc" font-family="'Inter', sans-serif" font-size="9" font-weight="700" text-anchor="middle">Prompts</text>
+      <text x="102" y="52" fill="#64748b" font-family="'Inter', sans-serif" font-size="7.5" text-anchor="middle">Regras Afya</text>
+
+      <!-- Box Ferramentas -->
+      <rect x="140" width="65" height="60" rx="8" fill="#090e17" stroke="#1e293b"/>
+      <text x="172" y="24" font-size="15" text-anchor="middle">⚡</text>
+      <text x="172" y="40" fill="#34d399" font-family="'Inter', sans-serif" font-size="9" font-weight="700" text-anchor="middle">Tools</text>
+      <text x="172" y="52" fill="#64748b" font-family="'Inter', sans-serif" font-size="7.5" text-anchor="middle">Build GCC</text>
+    </g>
+
+    <!-- MOTOR COGNITIVO COM QUARENTENA -->
+    <g transform="translate(15, 180)">
+      <rect width="205" height="75" rx="10" fill="rgba(124,58,237,0.12)" stroke="rgba(168,85,247,0.4)"/>
+      <text x="15" y="20" fill="#e2e8f0" font-family="'Inter', sans-serif" font-size="10.5" font-weight="700">🧠 LLM (Gemini 3.8 Flash)</text>
+      <text x="15" y="36" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="9">• Janela de 1M de tokens</text>
+      <text x="15" y="50" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="9">• Quarentena &lt;untrusted_input&gt;</text>
+      <text x="15" y="64" fill="#fb7185" font-family="'Inter', sans-serif" font-size="8.5" font-weight="600">🛡️ Blindagem Anti-Injeção</text>
+    </g>
+
+    <g transform="translate(15, 270)">
+      <rect width="205" height="48" rx="8" fill="#090e17" stroke="#1e293b"/>
+      <text x="15" y="20" fill="#34d399" font-family="'Inter', sans-serif" font-size="9.5" font-weight="700">⚙️ Compilador GCC Nativo</text>
+      <text x="15" y="36" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="8.5">Clone concorrente em 23s • Build 1,8s</text>
+    </g>
+  </g>
+
+  <!-- CONEXÃO SETAS 2 -> 3 -->
+  <g transform="translate(520, 140)">
+    <path d="M 0 15 L 35 15" stroke="#10b981" stroke-width="2.5" stroke-dasharray="4 2"/>
+    <polygon points="35,15 27,10 27,20" fill="#10b981"/>
+    <text x="18" y="7" fill="#10b981" font-family="'Inter', sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">REST Lote</text>
+
+    <path d="M 35 45 L 0 45" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="4 2"/>
+    <polygon points="0,45 8,40 8,50" fill="#e11d48"/>
+    <text x="18" y="60" fill="#fb7185" font-family="'Inter', sans-serif" font-size="8.5" font-weight="700" text-anchor="middle">Dados Submissão</text>
+  </g>
+
+  <!-- CONTAINER 3: CAMADA INSTITUCIONAL (CANVAS LMS AFYA) -->
+  <g transform="translate(560, 20)" filter="url(#glowAfya)">
+    <rect width="180" height="340" rx="16" fill="url(#cardDarkGrad)" stroke="#e11d48" stroke-width="1.5" stroke-opacity="0.8"/>
+    <rect x="0" y="0" width="180" height="42" rx="16" fill="url(#afyaGradCard)"/>
+    <text x="90" y="26" fill="#ffffff" font-family="'Inter', sans-serif" font-size="12" font-weight="800" text-anchor="middle" letter-spacing="0.5">3. CANVAS LMS AFYA</text>
+
+    <g transform="translate(15, 60)">
+      <circle cx="20" cy="20" r="18" fill="rgba(225,29,72,0.15)"/>
+      <text x="20" y="26" font-size="18" text-anchor="middle">🏛️</text>
+      <text x="48" y="18" fill="#fb7185" font-family="'Inter', sans-serif" font-size="12" font-weight="700">API Oficial</text>
+      <text x="48" y="32" fill="#94a3b8" font-family="'Inter', sans-serif" font-size="10">afya.instructure</text>
+    </g>
+
+    <rect x="15" y="115" width="150" height="75" rx="10" fill="#090e17" stroke="#1e293b"/>
+    <text x="25" y="135" fill="#f8fafc" font-family="'Inter', sans-serif" font-size="10" font-weight="700">📊 Diário Digital:</text>
+    <text x="25" y="152" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="9">• 60 notas sincronizadas</text>
+    <text x="25" y="167" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="9">• Pareceres cirúrgicos</text>
+    <text x="25" y="181" fill="#34d399" font-family="'Inter', sans-serif" font-size="8.5" font-weight="600">⚡ Tempo: 0,55s</text>
+
+    <g transform="translate(15, 205)">
+      <rect width="150" height="60" rx="8" fill="rgba(225,29,72,0.1)" stroke="rgba(225,29,72,0.3)"/>
+      <text x="12" y="22" fill="#fb7185" font-family="'Inter', sans-serif" font-size="10" font-weight="700">🔒 Segurança:</text>
+      <text x="12" y="38" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="8.5">• Token local protegido</text>
+      <text x="12" y="50" fill="#cbd5e1" font-family="'Inter', sans-serif" font-size="8.5">• Zero-Data Retention</text>
+    </g>
+
+    <text x="90" y="310" fill="#e11d48" font-family="'Inter', sans-serif" font-size="10" font-weight="700" text-anchor="middle">UniSL Ji-Paraná</text>
+  </g>
+</svg>
